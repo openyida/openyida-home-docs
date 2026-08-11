@@ -1,0 +1,74 @@
+---
+title: "คู่มือการผสาน DingTalk CLI"
+description: "เอกสารนี้อธิบาย คู่มือการผสาน DingTalk CLI ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง"
+icon: book-open
+---
+
+# คู่มือการผสาน DingTalk CLI
+
+หน้านี้อธิบาย คู่มือการผสาน DingTalk CLI ของ OpenYida โดยสรุปเป้าหมาย ขั้นตอนการใช้งาน และข้อควรระวังที่เกี่ยวข้องสำหรับการสร้างแอป Yida ด้วย AI
+
+## ภาพรวม
+
+เอกสารนี้อธิบาย คู่มือการผสาน DingTalk CLI ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง
+
+## ประเด็นสำคัญ
+
+- ใช้หน้านี้เพื่อทำความเข้าใจบริบทหลักก่อนเริ่มลงมือในโครงการจริง
+- ชื่อคำสั่ง พารามิเตอร์ โค้ด และชื่อผลิตภัณฑ์บางส่วนคงไว้เป็นภาษาอังกฤษเพื่อให้ค้นหาและคัดลอกได้ถูกต้อง
+- เมื่อใช้งานกับ宜搭จริง ให้ตรวจสอบสิทธิ์ องค์กร และสภาพแวดล้อมก่อนเผยแพร่
+
+## การใช้งาน
+
+ปฏิบัติตามขั้นตอนในเอกสารนี้ร่วมกับคำสั่ง OpenYida CLI และการตั้งค่าขององค์กร หากมีตัวอย่างโค้ดด้านล่าง สามารถคัดลอกไปปรับใช้ได้โดยตรง
+
+## คำสั่งและตัวอย่าง
+
+ตัวอย่างต่อไปนี้คงคำสั่งและโค้ดต้นฉบับไว้เพื่อความถูกต้องทางเทคนิค
+
+```bash
+openyida dws install
+```
+
+```bash
+    curl -fsSL https://raw.githubusercontent.com/DingTalk-Real-AI/dingtalk-workspace-cli/main/scripts/install.sh | sh
+    ```
+
+```bash
+    irm https://raw.githubusercontent.com/DingTalk-Real-AI/dingtalk-workspace-cli/main/scripts/install.ps1 | iex
+    ```
+
+```bash
+    export DWS_CLIENT_ID="<your-app-key>"
+    export DWS_CLIENT_SECRET="<your-app-secret>"
+    ```
+
+```bash
+    openyida dws auth login --client-id <your-app-key> --client-secret <your-app-secret>
+    ```
+
+```bash
+    openyida dws auth login
+    ```
+
+```bash
+# Search contacts
+openyida dws contact user search --keyword "张三"
+
+# List departments
+openyida dws contact department list
+
+# Get user details
+openyida dws contact user get --userid <userId>
+```
+
+```bash
+# List calendar events
+openyida dws calendar event list
+
+# Create an event
+openyida dws calendar event create --title "团队会议" --start-time "2026-03-29T10:00:00Z"
+
+# Query free/busy status
+openyida dws calendar free-busy query --userids <userId1>,<userId2>
+```

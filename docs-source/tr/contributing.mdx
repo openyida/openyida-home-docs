@@ -1,0 +1,55 @@
+---
+title: "Katkı rehberi"
+description: "Bu belge OpenYida içinde Katkı rehberi konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar."
+icon: handshake
+---
+
+# Katkı rehberi
+
+Bu sayfa OpenYida içinde Katkı rehberi konusunu açıklar; amaç, kullanım akışı ve AI ile Yida uygulaması geliştirirken dikkat edilmesi gereken noktaları kapsar.
+
+## Genel bakış
+
+Bu belge OpenYida içinde Katkı rehberi konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar.
+
+## Önemli noktalar
+
+- Gerçek bir projeye uygulamadan önce ana bağlamı anlamak için bu sayfayı kullanın.
+- Komut adları, parametreler, kod ve bazı ürün adları doğru arama ve kopyalama için İngilizce bırakılmıştır.
+- 宜搭 ile çalışırken yayımlamadan önce izinleri, organizasyonu ve ortamı kontrol edin.
+
+## Kullanım
+
+Bu dokümandaki adımları OpenYida CLI ve organizasyon ayarlarıyla birlikte izleyin. Aşağıdaki kod örnekleri doğrudan kopyalanıp ihtiyaca göre uyarlanabilir.
+
+## Komutlar ve örnekler
+
+Aşağıdaki örnekler teknik doğruluğu korumak için özgün komut ve kodu saklar.
+
+```bash
+# 1. Fork and clone the repo
+git clone git@github.com:your-username/openyida.git
+cd openyida
+
+# 2. Install dependencies
+npm install
+
+# 3. Link globally for local debugging
+npm link
+
+# 4. Run tests
+npm test
+```
+
+```bash
+  node --check bin/yida.js && for f in lib/*.js lib/locales/*.js; do node --check "$f"; done
+  ```
+
+```
+feat: add export-app command
+fix: fix get-page-config path error
+docs: update CLI command reference
+refactor: refactor login module
+test: add utils unit tests
+chore: upgrade dependencies
+```

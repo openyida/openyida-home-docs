@@ -1,0 +1,106 @@
+---
+title: "FAQ"
+description: "Frequently asked questions about OpenYida, covering account setup, supported AI tools, login troubleshooting, and common usage tips."
+icon: "circle-question"
+---
+
+<AccordionGroup>
+
+  <Accordion title="Do I need a Yida account to use OpenYida?">
+    Yes. OpenYida creates and manages apps on the [Yida](https://www.aliwork.com) low-code platform, requiring an Alibaba/DingTalk account with Yida enabled. Run `openyida login` to authenticate.
+  </Accordion>
+
+  <Accordion title="Which AI tools are supported?">
+    OpenYida is compatible with any AI coding tool that supports MCP (Model Context Protocol) or can read markdown skill documents. Confirmed support: **Claude Code, Aone Copilot, OpenCode, Cursor, Visual Studio Code, Qoder, QwenWork**. In practice, any tool that can execute shell commands works.
+  </Accordion>
+
+  <Accordion title="What Node.js version is required?">
+    Node.js **≥ 18** is required. Check your version with `node --version`. Download the latest LTS from [nodejs.org](https://nodejs.org).
+  </Accordion>
+
+  <Accordion title="What if the login QR code doesn't display?">
+    Try `openyida login --browser` in a terminal that supports browser launching. In a headless environment, use `openyida login --qr` to show a terminal QR code, or `openyida login --agent-qr` to hand the QR code back to the AI conversation.
+  </Accordion>
+
+  <Accordion title="How to refresh an expired session?">
+    Run `openyida auth refresh` to renew the session without going through the full login flow. If it fails, run `openyida login` to re-authenticate.
+  </Accordion>
+
+  <Accordion title="How to switch between multiple Yida organizations?">
+    ```bash
+    openyida org list       # List all organizations and corpIds
+    openyida org switch --corp-id <corpId>   # Switch to target organization
+    openyida env            # Confirm the switch
+    ```
+  </Accordion>
+
+  <Accordion title="How to add missing fields to AI-generated forms?">
+    Tell the AI directly:
+    ```
+    Add a [field name] field to [page name], field type: [TextField/NumberField/DateField/SelectField/...], make it required
+    ```
+    OpenYida will call `openyida create-form` with the updated Schema, merging new fields without overwriting existing ones. Only [supported field types](/en/features/skills#supported-field-types) are accepted — unsupported types will be rejected with an error.
+  </Accordion>
+
+  <Accordion title="Can I edit generated apps in Yida visual editor?">
+    Absolutely. The output is a standard Yida app — you can open it in the Yida platform visual editor anytime and make manual modifications. OpenYida generates apps, not locked configurations.
+  </Accordion>
+
+  <Accordion title="How to make an app publicly accessible?">
+    ```
+    Make [page name] page publicly accessible
+    ```
+    Or run directly:
+    ```bash
+    openyida verify-short-url <appType> <formUuid> /o/my-public-page
+    openyida save-share-config <appType> <formUuid> /o/my-public-page y n
+    ```
+    Configure page sharing settings so anyone can access it via link without login.
+  </Accordion>
+
+  <Accordion title="How do I create an internal short link?">
+    Use an `/s/` path for organization-only access:
+    ```bash
+    openyida verify-short-url <appType> <formUuid> /s/my-dashboard
+    openyida save-share-config <appType> <formUuid> /s/my-dashboard y
+    openyida get-page-config <appType> <formUuid>
+    ```
+    The final link looks like `https://www.aliwork.com/s/my-dashboard`.
+  </Accordion>
+
+  <Accordion title="How do I hide page navigation?">
+    ```bash
+    openyida update-form-config <appType> <formUuid> false "Page Title"
+    ```
+    To show navigation again:
+    ```bash
+    openyida update-form-config <appType> <formUuid> true "Page Title"
+    ```
+  </Accordion>
+
+  <Accordion title="Can I migrate existing Yida apps with OpenYida?">
+    Yes. Use `openyida export` to generate a migration package from an existing app, and `openyida import` to rebuild it in another organization or environment.
+  </Accordion>
+
+  <Accordion title="What's the difference between `create-form` and `create-page`?">
+    - **`create-form`**: Creates a Yida **form page** — a data entry form using Yida's built-in data storage underneath. Used for structured data collection (registrations, applications, records).
+    - **`create-page`**: Creates a **custom display page** — a JSX-based page for dashboards, landing pages, interactive UI. Compiled and published via `openyida publish`.
+  </Accordion>
+
+  <Accordion title="Does OpenYida support process/approval workflows?">
+    Yes. Use `openyida create-process` to create process forms with approval steps, and `openyida configure-process` to define workflow rules (approvers, conditions, notifications). You can also use `openyida process preview` to generate a visual flowchart of any process instance, showing node statuses and approval details. If process configuration fails after the form is created, the command provides a retry hint with the `--formUuid` flag so you can fix the process definition and retry without recreating the form.
+  </Accordion>
+
+  <Accordion title="Something went wrong, how to debug?">
+    1. Run `openyida doctor --fix` — automatically detects and fixes common issues
+    2. Run `openyida env` — verify login status and environment
+    3. Run `openyida auth status` — check session validity
+    4. Check [GitHub Issues](https://github.com/openyida/openyida/issues) for known problems
+    5. If it's a new bug, submit an issue with: Node.js version, command run, full error output
+  </Accordion>
+
+  <Accordion title="How to contribute to OpenYida?">
+    Read the [Contributing Guide](/en/contributing) for the complete process. In short: fork the repo, make changes on a feature branch, run `npm test`, submit a PR. AI-assisted contributions are welcome!
+  </Accordion>
+
+</AccordionGroup>

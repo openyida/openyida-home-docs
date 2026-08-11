@@ -1,0 +1,60 @@
+---
+title: "Sık sorulan sorular"
+description: "Bu belge OpenYida içinde Sık sorulan sorular konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar."
+icon: circle-question
+---
+
+# Sık sorulan sorular
+
+Bu sayfa OpenYida içinde Sık sorulan sorular konusunu açıklar; amaç, kullanım akışı ve AI ile Yida uygulaması geliştirirken dikkat edilmesi gereken noktaları kapsar.
+
+## Genel bakış
+
+Bu belge OpenYida içinde Sık sorulan sorular konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar.
+
+## Önemli noktalar
+
+- Gerçek bir projeye uygulamadan önce ana bağlamı anlamak için bu sayfayı kullanın.
+- Komut adları, parametreler, kod ve bazı ürün adları doğru arama ve kopyalama için İngilizce bırakılmıştır.
+- 宜搭 ile çalışırken yayımlamadan önce izinleri, organizasyonu ve ortamı kontrol edin.
+
+## Kullanım
+
+Bu dokümandaki adımları OpenYida CLI ve organizasyon ayarlarıyla birlikte izleyin. Aşağıdaki kod örnekleri doğrudan kopyalanıp ihtiyaca göre uyarlanabilir.
+
+## Komutlar ve örnekler
+
+Aşağıdaki örnekler teknik doğruluğu korumak için özgün komut ve kodu saklar.
+
+```bash
+    openyida org list       # List all organizations and corpIds
+    openyida org switch --corp-id <corpId>   # Switch to target organization
+    openyida env            # Confirm the switch
+    ```
+
+```
+    Add a [field name] field to [page name], field type: [TextField/NumberField/DateField/SelectField/...], make it required
+    ```
+
+```
+    Make [page name] page publicly accessible
+    ```
+
+```bash
+    openyida verify-short-url <appType> <formUuid> /o/my-public-page
+    openyida save-share-config <appType> <formUuid> /o/my-public-page y n
+    ```
+
+```bash
+    openyida verify-short-url <appType> <formUuid> /s/my-dashboard
+    openyida save-share-config <appType> <formUuid> /s/my-dashboard y
+    openyida get-page-config <appType> <formUuid>
+    ```
+
+```bash
+    openyida update-form-config <appType> <formUuid> false "Page Title"
+    ```
+
+```bash
+    openyida update-form-config <appType> <formUuid> true "Page Title"
+    ```

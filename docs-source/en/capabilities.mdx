@@ -1,0 +1,86 @@
+---
+title: "Complete Feature List"
+description: "A scenario-based list of OpenYida capabilities and the matching CLI commands."
+icon: "list-ul"
+---
+
+This list summarizes the current OpenYida capabilities for Yida users and AI agents, with the CLI commands usually used for each scenario.
+
+<Note>
+Use `openyida agent-capabilities --summary-json` as the default lightweight preflight. Use `openyida agent-capabilities --json` only for full diagnostics, command manifests, permission metadata, or raw login failure details.
+</Note>
+
+## Basics
+
+| Capability | Command |
+|---|---|
+| Lightweight agent preflight | `openyida agent-capabilities --summary-json` |
+| Full agent diagnostics | `openyida agent-capabilities --json` |
+| Environment and login check | `openyida env` / `openyida env --json` |
+| Environment profile management | `openyida env <setup\|list\|show\|switch\|add\|remove>` |
+| OAuth token login | `openyida login` |
+| Login for a target entry URL | `openyida login <target-url>` |
+| Token status and refresh | `openyida auth <status\|login\|refresh\|logout>` |
+| Organization switch | `openyida org <list\|switch> [--corp-id <corpId>]` |
+| Command manifest | `openyida commands --json` |
+
+## App and Forms
+
+| Capability | Command |
+|---|---|
+| List apps | `openyida app-list [--size N]` |
+| Create or update apps | `openyida create-app ...` / `openyida update-app ...` |
+| Import or export migration packages | `openyida export ...` / `openyida import ...` |
+| Create, update, patch, validate, or bind forms | `openyida create-form <create\|update\|patch\|rule\|validation\|bind-datasource> ...` |
+| Query forms and schemas | `openyida list-forms ...` / `openyida get-schema ...` |
+| Manage app navigation groups | `openyida nav-group <list\|create\|rename\|delete\|move\|order\|hide\|show> ...` |
+| Manage app and form permissions | `openyida app-permission ...` / `openyida get-permission ...` / `openyida save-permission ...` |
+
+## Pages, Data, and Process
+
+| Capability | Command |
+|---|---|
+| Create display pages | `openyida create-page <appType> "<name>"` |
+| Generate, check, compile, and publish page code | `openyida generate-page ...` / `openyida check-page ...` / `openyida compile ...` / `openyida publish ...` |
+| Publish Code Canvas pages | `openyida publish <src.canvas.jsx> <appType> <formUuid>` |
+| Query or mutate form/process/task/subform data | `openyida data <action> <resource> ...` |
+| Create and configure process forms | `openyida create-process ...` / `openyida configure-process ...` |
+| Query global tasks and delegation | `openyida task-center ...` / `openyida agent-center ...` |
+
+## Integration, Reports, and Utilities
+
+| Capability | Command |
+|---|---|
+| Reports and dashboards | `openyida create-report ...` / `openyida append-chart ...` |
+| HTTP connectors | `openyida connector <list\|create\|detail\|add-action\|test\|smart-create> ...` |
+| Integration automation | `openyida integration <create\|list\|enable\|disable\|check\|diagnose> ...` |
+| DingTalk documents and DWS CLI | `openyida read-dingtalk-doc ...` / `openyida dws <command>` |
+| AI, assets, formulas, and PRD conversion | `openyida ai ...` / `openyida asset ...` / `openyida formula evaluate ...` / `openyida flash-to-prd ...` |
+| Local setup, diagnostics, and batch operations | `openyida copy` / `openyida doctor` / `openyida batch` |
+| MCP, A2A, and local bridge | `openyida mcp` / `openyida a2a ...` / `openyida bridge start ...` |
+| Quiet output and update checks | `openyida --quiet ...` / `YIDA_QUIET=1` / `OPENYIDA_SKIP_UPDATE_CHECK=1` |
+
+## Custom Pages, Release Chain, and i18n
+
+| Capability | Command |
+|---|---|
+| Generate a business Code Canvas page from a page spec | `openyida generate-page <template> --spec <page-spec.json> --output project/pages/src/<name>.canvas.jsx --compile` |
+| Apply a page theme profile and theme scope during generation | `openyida generate-page ... --theme-profile <profile> --theme-scope <page\|global>` |
+| Create Code Canvas sample pages | `openyida sample yida-canvas-custom-page <sample> --output project/pages/src/<name>.canvas.jsx` |
+| Create classic custom page samples | `openyida sample yida-custom-page <sample> --output project/pages/src/<name>.oyd.jsx` |
+| Check and normalize page code before publishing | `openyida check-page <src>` / `openyida build-page <src> --write` |
+| Read live page config before overwriting designer changes | `openyida get-form-config <appType> <formUuid> --json` / `openyida get-schema <appType> <formUuid>` |
+| Publish classic custom pages | `openyida publish project/pages/src/<name>.oyd.jsx <appType> <formUuid>` |
+| Publish Code Canvas pages | `openyida publish project/pages/src/<name>.canvas.jsx <appType> <formUuid> --canvas` |
+| Run a health check right after publish | `openyida publish <src> <appType> <formUuid> --health-check` |
+| Update page or form configuration after publish | `openyida update-form-config <appType> <formUuid> ...` |
+| Configure public access, hidden navigation, and share entries | `openyida verify-short-url ...` / `openyida save-share-config ...` / `openyida get-page-config ...` |
+| Upload page assets to CDN | `openyida cdn-upload <asset-path>` |
+| Read CDN config and refresh CDN resources | `openyida cdn-config` / `openyida cdn-refresh ...` |
+| Check and upgrade the OpenYida CLI package | `openyida update` / `npm install -g openyida@latest` |
+| Manage application language packs | `openyida i18n <overview\|config\|languages\|list\|upsert\|batch-upsert\|bind\|delete\|translate\|translate-all\|upgrade> ...` |
+| Run the CLI with a selected language pack | `OPENYIDA_LANG=<locale> openyida ...` / `OPENYIDA_LOCALE_DIR=<dir> openyida ...` |
+
+<Warning>
+Removed legacy login flags such as `--qr`, `--browser`, `--codex`, `--qoder` are no longer supported. Use OAuth token login; runtime-injected token mode only checks tokens injected by the host environment.
+</Warning>

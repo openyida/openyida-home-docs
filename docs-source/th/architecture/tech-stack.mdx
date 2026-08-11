@@ -1,0 +1,132 @@
+---
+title: "สแต็กเทคโนโลยี"
+description: "เอกสารนี้อธิบาย สแต็กเทคโนโลยี ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง"
+icon: layer-group
+---
+
+# สแต็กเทคโนโลยี
+
+หน้านี้อธิบาย สแต็กเทคโนโลยี ของ OpenYida โดยสรุปเป้าหมาย ขั้นตอนการใช้งาน และข้อควรระวังที่เกี่ยวข้องสำหรับการสร้างแอป Yida ด้วย AI
+
+## ภาพรวม
+
+เอกสารนี้อธิบาย สแต็กเทคโนโลยี ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง
+
+## ประเด็นสำคัญ
+
+- ใช้หน้านี้เพื่อทำความเข้าใจบริบทหลักก่อนเริ่มลงมือในโครงการจริง
+- ชื่อคำสั่ง พารามิเตอร์ โค้ด และชื่อผลิตภัณฑ์บางส่วนคงไว้เป็นภาษาอังกฤษเพื่อให้ค้นหาและคัดลอกได้ถูกต้อง
+- เมื่อใช้งานกับ宜搭จริง ให้ตรวจสอบสิทธิ์ องค์กร และสภาพแวดล้อมก่อนเผยแพร่
+
+## การใช้งาน
+
+ปฏิบัติตามขั้นตอนในเอกสารนี้ร่วมกับคำสั่ง OpenYida CLI และการตั้งค่าขององค์กร หากมีตัวอย่างโค้ดด้านล่าง สามารถคัดลอกไปปรับใช้ได้โดยตรง
+
+## คำสั่งและตัวอย่าง
+
+ตัวอย่างต่อไปนี้คงคำสั่งและโค้ดต้นฉบับไว้เพื่อความถูกต้องทางเทคนิค
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CLI Entry Layer (bin/)                   │
+│                    yida.js - Command Routing                │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Core Modules (lib/core/)                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │   i18n   │ │   env    │ │  utils   │ │  doctor  │       │
+│  │  i18n    │ │env check │ │ utilities│ │diagnostic│       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │  check   │ │   copy   │ │  babel   │ │  locales │       │
+│  │update chk│ │dir copy  │ │ compiler │ │ locales  │       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Functional Modules (lib/)                │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │   auth   │ │   app    │ │   data   │ │  report  │       │
+│  │   auth   │ │  app mgmt│ │data mgmt │ │ reports  │       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │ connector│ │  process │ │permission│ │   cdn    │       │
+│  │connector │ │ process  │ │permission│ │  cdn     │       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 Yida Platform API (aliwork.com)             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+```javascript
+#!/usr/bin/env node
+import { program } from 'commander';
+import { createApp } from '../lib/app.js';
+
+program
+  .name('openyida')
+  .description('AI-powered Yida CLI')
+  .version('1.0.0');
+
+program
+  .command('create-app <name>')
+  .description('Create a new Yida app')
+  .action(createApp);
+
+program.parse();
+```
+
+```
+User Input
+    ↓
+CLI Parser (commander)
+    ↓
+Parameter Validation
+    ↓
+Auth Check
+    ↓
+Business Logic
+    ↓
+Yida API Call
+    ↓
+Result Processing
+    ↓
+Output Display
+```
+
+```
+Error Occurs
+    ↓
+Catch at Boundary
+    ↓
+Error Classification
+    ↓
+User-Friendly Message
+    ↓
+Suggested Solution
+    ↓
+Exit with Code
+```
+
+```typescript
+class AppService {
+  constructor(
+    private api: YidaAPI,
+    private config: ConfigService
+  ) {}
+}
+```
+
+```typescript
+async function createApp(name: string): Promise<void> {
+  const config = await loadConfig();
+  await validateName(name);
+  await api.createApp({ name, config });
+}
+```

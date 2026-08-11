@@ -1,0 +1,51 @@
+---
+title: "Paylaşım ve gezinme"
+description: "Bu belge OpenYida içinde Paylaşım ve gezinme konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar."
+icon: share-nodes
+---
+
+# Paylaşım ve gezinme
+
+Bu sayfa OpenYida içinde Paylaşım ve gezinme konusunu açıklar; amaç, kullanım akışı ve AI ile Yida uygulaması geliştirirken dikkat edilmesi gereken noktaları kapsar.
+
+## Genel bakış
+
+Bu belge OpenYida içinde Paylaşım ve gezinme konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar.
+
+## Önemli noktalar
+
+- Gerçek bir projeye uygulamadan önce ana bağlamı anlamak için bu sayfayı kullanın.
+- Komut adları, parametreler, kod ve bazı ürün adları doğru arama ve kopyalama için İngilizce bırakılmıştır.
+- 宜搭 ile çalışırken yayımlamadan önce izinleri, organizasyonu ve ortamı kontrol edin.
+
+## Kullanım
+
+Bu dokümandaki adımları OpenYida CLI ve organizasyon ayarlarıyla birlikte izleyin. Aşağıdaki kod örnekleri doğrudan kopyalanıp ihtiyaca göre uyarlanabilir.
+
+## Komutlar ve örnekler
+
+Aşağıdaki örnekler teknik doğruluğu korumak için özgün komut ve kodu saklar.
+
+```bash
+openyida verify-short-url <appType> <formUuid> /s/my-dashboard
+openyida save-share-config <appType> <formUuid> /s/my-dashboard y
+openyida get-page-config <appType> <formUuid>
+```
+
+```text
+https://www.aliwork.com/s/my-dashboard
+```
+
+```bash
+openyida verify-short-url <appType> <formUuid> /o/my-public-page
+openyida save-share-config <appType> <formUuid> /o/my-public-page y n
+```
+
+```bash
+openyida save-share-config <appType> <formUuid> "" n
+```
+
+```bash
+openyida update-form-config <appType> <formUuid> false "Page Title"
+openyida update-form-config <appType> <formUuid> true "Page Title"
+```

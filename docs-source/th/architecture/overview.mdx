@@ -1,0 +1,66 @@
+---
+title: "ภาพรวมสถาปัตยกรรม"
+description: "เอกสารนี้อธิบาย ภาพรวมสถาปัตยกรรม ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง"
+icon: sitemap
+---
+
+# ภาพรวมสถาปัตยกรรม
+
+หน้านี้อธิบาย ภาพรวมสถาปัตยกรรม ของ OpenYida โดยสรุปเป้าหมาย ขั้นตอนการใช้งาน และข้อควรระวังที่เกี่ยวข้องสำหรับการสร้างแอป Yida ด้วย AI
+
+## ภาพรวม
+
+เอกสารนี้อธิบาย ภาพรวมสถาปัตยกรรม ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง
+
+## ประเด็นสำคัญ
+
+- ใช้หน้านี้เพื่อทำความเข้าใจบริบทหลักก่อนเริ่มลงมือในโครงการจริง
+- ชื่อคำสั่ง พารามิเตอร์ โค้ด และชื่อผลิตภัณฑ์บางส่วนคงไว้เป็นภาษาอังกฤษเพื่อให้ค้นหาและคัดลอกได้ถูกต้อง
+- เมื่อใช้งานกับ宜搭จริง ให้ตรวจสอบสิทธิ์ องค์กร และสภาพแวดล้อมก่อนเผยแพร่
+
+## การใช้งาน
+
+ปฏิบัติตามขั้นตอนในเอกสารนี้ร่วมกับคำสั่ง OpenYida CLI และการตั้งค่าขององค์กร หากมีตัวอย่างโค้ดด้านล่าง สามารถคัดลอกไปปรับใช้ได้โดยตรง
+
+## คำสั่งและตัวอย่าง
+
+ตัวอย่างต่อไปนี้คงคำสั่งและโค้ดต้นฉบับไว้เพื่อความถูกต้องทางเทคนิค
+
+```
+AI coding agent
+  -> openyida CLI
+  -> local project workspace
+  -> Yida web APIs with cached login cookies
+  -> Yida low-code app, form, page, report, or data result
+```
+
+```text
+project/
+  config.json
+  pages/
+    src/
+    build/
+    dist/
+  .cache/
+```
+
+```bash
+openyida create-page <appType> "Dashboard"
+openyida check-page project/pages/src/dashboard.oyd.jsx
+openyida compile project/pages/src/dashboard.oyd.jsx
+openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+```
+
+```bash
+openyida env --json
+openyida login --check-only --json
+openyida env <setup|list|show|switch|add|remove>
+```
+
+```bash
+openyida get-schema <appType> <formUuid>
+```
+
+```bash
+openyida commands --json
+```

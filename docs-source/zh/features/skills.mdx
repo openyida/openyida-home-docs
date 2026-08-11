@@ -1,0 +1,1069 @@
+---
+title: "CLI 参考"
+description: "OpenYida 所有 CLI 命令的完整参考，包括应用创建、表单管理、数据操作、连接器、报表和环境诊断等功能。"
+icon: "file-lines"
+---
+
+OpenYida 提供丰富的 CLI 命令，支持应用全生命周期管理。
+
+---
+
+## 环境与认证
+
+```bash
+# 环境检测
+openyida env
+openyida env --json
+
+# 多环境管理
+openyida env setup                 # 配置公有云、海外、内网或私有化部署预设
+openyida env list                  # 列出所有环境，高亮当前激活环境
+openyida env add <name>            # 交互式添加私有化部署环境
+openyida env switch <name>         # 切换激活环境
+openyida env remove <name>         # 删除环境（public 不可删）
+openyida env show [name]           # 显示环境详细配置
+
+# 登录
+openyida login [--qr|--agent-qr|--codex|--browser] [--env <name>|--intl|--overseas|--global|--yidaapps] [--corp-id <corpId>]
+openyida login --check-only --json # 仅检查当前登录态
+
+# 退出登录
+openyida logout
+
+# 登录态管理
+openyida auth status               # 查看登录状态
+openyida auth login                # 执行登录
+openyida auth refresh              # 刷新登录态
+openyida auth logout               # 退出登录
+
+# 组织管理
+openyida org list                  # 列出可访问的组织
+openyida org switch --corp-id <id> # 切换组织
+
+# 初始化工作目录
+openyida copy [--force]            # 复制 project 目录（空目录时直接铺入内容）
+openyida copy -skills              # 复制 yida-skills 到 AI 工具 skills 目录
+
+# 诊断工具
+openyida doctor [--fix]            # 环境诊断
+openyida doctor --monitor          # 健康监控
+openyida doctor --report <format>  # 生成报告 (json|markdown|html)
+
+# 自更新
+openyida update                    # 检查并更新到最新版本
+
+# 机器可读命令清单
+openyida commands --json           # 输出当前 CLI manifest
+```
+
+---
+
+## 应用管理
+
+```bash
+# 查询应用列表
+openyida app-list [--size N]
+
+# 创建应用
+openyida create-app "<名称>" [desc] [icon] [color] [themeColor] [--locale zh_CN|en_US|ja_JP] [--open|--no-open]
+openyida create-app --name "<名称>" [--desc "<描述>"] [--theme deepBlue] [--locale zh_CN|en_US|ja_JP] [--open|--no-open]
+
+# 导出应用
+openyida export <appType> [output] # 生成迁移包
+
+# 导入应用
+openyida import <file> [name]      # 从迁移包重建应用
+
+# 更新应用信息
+openyida update-app <appType> --name "<名称>" [--desc "<描述>"] [--icon "<图标>"] [--icon-color "<颜色>"]
+
+# 管理应用级权限
+openyida app-permission <get|set|add|remove|search-user> ...
+
+# 应用导航分组与多语言
+openyida nav-group <list|create|rename|delete|move|hide|show> <appType> ...
+openyida i18n <overview|config|languages|list|upsert|batch-upsert|bind|delete|translate|translate-all|upgrade> <appType> ...
+```
+
+| 选项 | 缩写 | 说明 |
+|------|------|------|
+| `--name` | `-n` | 应用名称（至少需要一个更新字段） |
+| `--desc` | `-d` | 应用描述 |
+| `--icon` | | 图标名称（如 `xian-yingyong`） |
+| `--icon-color` | | 图标颜色（默认：`#0089FF`） |
+
+### 应用级权限
+
+管理宜搭 **应用设置 → 权限管理** 中的成员。
+
+```bash
+openyida app-permission search-user <keyword> [--dept <text>] [--size N]
+openyida app-permission get <appType>
+openyida app-permission set <appType> <main|data|dev> --users <userId1,userId2>
+openyida app-permission set <appType> <data|dev> --clear
+openyida app-permission add <appType> <main|data|dev> --users <userId1,userId2>
+openyida app-permission remove <appType> <main|data|dev> --users <userId1,userId2>
+```
+
+| 角色 | 含义 | 说明 |
+|------|------|------|
+| `main` | 应用主管理员 | 不能为空 |
+| `data` | 数据管理员 | 可清空 |
+| `dev` | 开发成员 | 可清空 |
+
+### 应用导航分组
+
+管理宜搭应用左侧导航树。
+
+```bash
+openyida nav-group list <appType> [--flat] [--include-system] [--raw]
+openyida nav-group create <appType> "<分组名>" [--parent <groupNavUuid|groupName>] [--en "<英文名>"]
+openyida nav-group rename <appType> <groupNavUuid|groupName> "<新分组名>" [--en "<英文名>"]
+openyida nav-group delete <appType> <groupNavUuid|groupName> [--force]
+openyida nav-group move <appType> <navUuid|formUuid|name> --to <groupNavUuid|groupName|root> [--before <node>] [--after <node>]
+openyida nav-group hide <appType> <navUuid|formUuid|name>
+openyida nav-group show <appType> <navUuid|formUuid|name>
+```
+
+移动或删除导航项前先执行 `list --flat`，确认准确的 `navUuid`、`formUuid` 和目标分组。根分组可用 `root` 表示。
+
+### 应用多语言
+
+管理应用语言配置、多语言词条、页面绑定、翻译和旧应用多语言升级。
+
+```bash
+openyida i18n overview <appType>
+openyida i18n config get <appType>
+openyida i18n config set <appType> --default zh_CN --languages zh_CN,en_US,ja_JP
+openyida i18n languages <appType> [--extend]
+openyida i18n list <appType> [--keyword <text>] [--page N] [--size N] [--form-uuid <formUuid>] [--target-type page|flow|views|other|ALL]
+openyida i18n upsert <appType> <i18nKey> --zh-CN <text> --en-US <text> [--ja-JP <text>] [--bind <formUuid>] [--target-type page]
+openyida i18n batch-upsert <appType> --file <items.json>
+openyida i18n bind <appType> <formUuid> --keys <i18nKey1,i18nKey2> [--target-type page]
+openyida i18n delete <appType> <i18nKey> --confirm
+openyida i18n translate <appType> --text <text> --source <locale> --targets <locale1,locale2>
+openyida i18n translate-all <appType> --targets <locale1,locale2> --confirm
+openyida i18n upgrade <appType> --confirm
+```
+
+先运行 `openyida i18n overview <appType>` 检查组织是否已开通国际化能力，以及应用是否已升级到多语言配置。
+
+### 平台管理
+
+```bash
+# 企业效能看板与通知动作
+openyida corp-efficiency [overview|details|detail|groups|notify] [选项] [--open|--no-open]
+openyida corp-efficiency detail --title <指标名>|--key <key>|--index <序号> [--open|--no-open]
+openyida corp-efficiency notify --cid <群ID> --type <noticeStudy|noticeCertify|completeStudy> --yes
+
+# 组织基础信息、容量、额度、域名和国际化能力
+openyida basic-info [overview] [--include-secrets]
+openyida basic-info commodity [--include-secrets]
+openyida basic-info grant
+openyida basic-info capacity [--type file|data|flow|all]
+openyida basic-info quota [--resource-key <key>|--resource-keys <a,b>]
+openyida basic-info abs-path [--page N] [--size N]
+openyida basic-info dataflow
+openyida basic-info i18n
+openyida basic-info domain
+openyida basic-info domain set --target <domain> [--origin <domain>] --confirm
+
+# 平台管理员、子管理员、应用管理员与通讯录可见性
+openyida corp-manager search-user <keyword> [--dept <text>] [--size N]
+openyida corp-manager list <app|platform|sub> [--user <userId>] [--page N] [--size N]
+openyida corp-manager add <app|platform|sub> --user <userId> [--dept-ids <id1,id2>] [--scenes appManage,bulletinBoard]
+openyida corp-manager remove <app|platform|sub> --user <userId>
+openyida corp-manager address-book get
+openyida corp-manager address-book set [--all-visible y|n] [--admin-visible y|n]
+```
+
+---
+
+## 表单管理
+
+```bash
+# 创建表单
+openyida create-form create <appType> "<表单名>" <字段JSON> \
+  [--layout <布局>] \
+  [--theme <主题>] \
+  [--label-align <对齐>] \
+  [--locale zh_CN|en_US|ja_JP]
+
+# 更新表单
+openyida create-form update <appType> <formUuid> <修改Json或文件> [--force] [--locale zh_CN|en_US|ja_JP] [--open|--no-open]
+
+# 高级 Schema 补丁、字段规则、远程选项数据源
+openyida create-form patch <appType> <formUuid> <patchJsonOrFile> [--open|--no-open]
+openyida create-form rule <appType> <formUuid> <rulesJsonOrFile> [--open|--no-open]
+openyida create-form bind-datasource <appType> <formUuid> <fieldLabelOrId> <dataSourceJsonOrFile> [--open|--no-open]
+
+# 给 SelectField、RadioField、CheckboxField、MultiSelectField 增加选项
+openyida create-form add-option <appType> <formUuid> <fieldLabel> <option1> [option2] ...
+
+# 获取表单 Schema
+openyida get-schema <appType> <formUuid>  # 任何涉及字段 ID 的操作前必须执行
+openyida get-schema <appType> --all [--output-dir <dir>]
+openyida get-schema <appType> <formUuid> --field <labelOrFieldId> [--json]
+
+# 更新表单配置
+openyida update-form-config <appType> <formUuid> <isRenderNav> <title>
+
+# 列出应用内的表单页面
+openyida list-forms <appType> [--keyword <关键词>]
+```
+
+
+<Warning>
+  宜搭字段 ID 由平台随机生成（如 `textField_eftt1aa5m`、`selectField_fix024y92`），无法从字段名称推断。在执行任何涉及字段 ID 的操作前（包括创建/更新数据、配置查询条件、编写自定义页面），**必须**先运行 `openyida get-schema` 获取真实字段 ID。
+</Warning>
+
+### 表单补丁、规则与远程数据源
+
+当高阶表单 DSL 还没有覆盖某个设计器能力时，可使用这些更新模式。
+
+| 模式 | 适用场景 |
+|------|----------|
+| `patch` | 对 V5 Schema 做受控补丁，包括字段 props、表单 props、JSON Pointer Patch、动作模块、字段动作绑定和底层数据源绑定 |
+| `rule` | 生成字段联动规则，例如动态显隐/只读，以及 `onChange` 自动赋值 |
+| `bind-datasource` | 为 `SelectField`、`MultiSelectField`、`RadioField`、`CheckboxField` 绑定远程搜索数据源 |
+
+使用 `patch` 前先执行 `openyida get-schema <appType> <formUuid> --json`，补丁文件建议放在 `.cache/openyida/<项目名>/` 下。
+
+<Info>
+  更新已有数据的表单时，CLI 会在修改前进行安全检查。如果检测到已有记录且未设置 `--force`，命令会输出包含 `requiresConfirmation: true` 的 JSON 响应并退出，不会进行任何修改。传入 `--force` 可跳过确认并继续更新。
+
+  确认响应包含以下字段：
+
+  | 字段 | 类型 | 说明 |
+  |------|------|------|
+  | `success` | `boolean` | 需要确认时始终为 `false` |
+  | `requiresConfirmation` | `boolean` | 始终为 `true` |
+  | `formUuid` | `string` | 正在更新的表单 UUID |
+  | `appType` | `string` | 应用 ID |
+  | `existingDataCount` | `number` | 表单中已有的记录数 |
+  | `message` | `string` | 可读的确认消息 |
+  | `hint` | `string` | 显示 `--force` 用法的提示 |
+</Info>
+
+### 列出表单页面
+
+查询指定应用内的所有表单页面，支持按关键词过滤。命令将 JSON 数组输出到 stdout。
+
+```bash
+openyida list-forms <appType> [--keyword <关键词>]
+```
+
+| 参数 | 说明 |
+|------|------|
+| `<appType>` | 应用 ID（例如 `APP_XXXXX`） |
+
+| 选项 | 说明 | 默认值 |
+|------|------|--------|
+| `--keyword <关键词>` | 按表单名称、UUID、类型或路径名过滤（不区分大小写） | — |
+
+#### 输出
+
+命令在 stdout 输出 JSON 数组。每个条目包含以下字段：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `formUuid` | `string` | 表单唯一标识 |
+| `formName` | `string` | 本地化的表单名称 |
+| `formType` | `string` | 表单类型（如 `display`、`process`） |
+| `pathName` | `string` | 表单的 URL 路径名 |
+
+**输出示例：**
+
+```json
+[
+  {
+    "formUuid": "FORM-AAA",
+    "formName": "客户信息",
+    "formType": "display",
+    "pathName": "customer-info"
+  },
+  {
+    "formUuid": "FORM-BBB",
+    "formName": "费用报销",
+    "formType": "process",
+    "pathName": "expense"
+  }
+]
+```
+
+**使用示例：**
+
+```bash
+# 列出应用内所有表单
+openyida list-forms APP_XXXXX
+
+# 按关键词过滤
+openyida list-forms APP_XXXXX --keyword "客户"
+```
+
+<Info>
+  系统导航项（如内置的任务视图）会自动排除，输出仅包含用户创建的表单页面。
+</Info>
+
+<Info>
+  运行此命令前需要先登录。如果尚未认证，请先运行 `openyida login`。
+</Info>
+
+### 支持的字段类型
+
+`create-form` 命令仅接受以下字段类型。使用不支持的类型会返回错误。
+
+#### 基础字段
+
+内置字段，无需安装任何插件。
+
+| 类型 | 说明 |
+|------|------|
+| `TextField` | 单行文本 |
+| `TextareaField` | 多行文本 |
+| `NumberField` | 数字 |
+| `RateField` | 评分 |
+| `DateField` | 日期 |
+| `RadioField` | 单选按钮 |
+| `SelectField` | 下拉单选 |
+| `CheckboxField` | 复选框 |
+| `MultiSelectField` | 下拉多选 |
+| `CascadeSelectField` | 级联选择 |
+| `CascadeDateField` | 级联日期 |
+| `EmployeeField` | 成员选择 |
+| `DepartmentSelectField` | 部门选择 |
+| `AssociationFormField` | 关联表单 |
+| `AssociationQuery` | 关联查询 |
+| `AttachmentField` | 附件 |
+| `ImageField` | 图片 |
+| `AddressField` | 地址 |
+| `CountrySelectField` | 国家/地区选择 |
+| `TableField` | 子表单/明细 |
+| `SerialNumberField` | 流水号 |
+
+#### 高级字段
+
+内置字段，部分功能可能需要开通。
+
+| 类型 | 说明 |
+|------|------|
+| `EditorField` | 富文本编辑器 |
+| `DigitalSignatureField` | 数字签名 |
+| `LocationField` | GPS 定位 |
+
+#### 插件字段
+
+使用前需要从插件中心安装对应插件。
+
+| 类型 | 所需插件 |
+|------|----------|
+| `TimeZoneDateField` | 国际化时区组件 |
+| `CC_AIButtonField` | AI 组件 |
+| `CC_PG_ESignField` | 智能财务组件 |
+| `CC_TeambitionProjectLinksField` | Teambition 插件 |
+| `CC_TeambitionTaskLinksField` | Teambition 插件 |
+| `CC_MoneyField` | 智能财务组件 |
+| `CC_PhoneNumberField` | 扩展组件 |
+| `CC_ChineseIdField` | 扩展组件 |
+| `YidaDingtalkAgentField` | 钉钉相关插件 |
+
+<Warning>
+插件字段在未安装对应插件的情况下会创建失败。请先从插件中心安装所需插件后再使用这些字段类型。
+</Warning>
+
+<Warning>
+`MobileField`、`EmailField` 等字段类型不受支持，使用时会被拒绝。请仅使用上表中列出的类型。
+</Warning>
+
+---
+
+## 页面管理
+
+```bash
+# 创建自定义页面
+openyida create-page <appType> "<页面名>" [--mode dashboard] [--locale zh_CN|en_US|ja_JP] [--open|--no-open]
+
+# 生成、构建、检查和编译自定义页面
+openyida generate-page <template> [--spec <file>] [--output <file>] [--compile] [--var KEY=VALUE]
+openyida build-page <sourceFile> [--output <file>|--write] [--json]
+openyida check-page <sourceFile> [--compat] [--json]
+openyida compile <sourceFile> [--compat]
+
+# 发布页面
+openyida publish <源文件路径> <appType> <formUuid> [--compat] [--health-check] [--skip-lint] [--force] [--open|--no-open]
+
+# 页面分享配置
+openyida save-share-config <appType> <formUuid> <url> <isOpen> [openAuth]
+openyida get-page-config <appType> <formUuid>
+openyida verify-short-url <appType> <formUuid> <url>
+```
+
+`generate-page` 当前支持 `product-homepage` 和 `todo-mvc` 模板。根据 spec 生成页面时，命令会同时写入相邻的 `.openyida-page.json` 页面描述文件。
+
+---
+
+## 数据管理
+
+<Warning>
+  创建或更新数据前，**必须**先运行 `openyida get-schema` 获取真实字段 ID。写入数据后，使用 `openyida data query form <appType> <formUuid> --size 1` 抽查一条记录，确认 `formData` 中字段有实际值。若所有字段值为空，说明字段 ID 有误，需通过 `get-schema` 重新获取。
+</Warning>
+
+```bash
+# 统一数据管理
+openyida data <action> <resource> [args]
+
+# 表单数据
+openyida data query form <appType> <formUuid> [--page N] [--size N] [--search-json JSON|--search-file .cache/openyida/search.json] [--inst-id ID]
+openyida data get form <appType> --inst-id <id>
+openyida data create form <appType> <formUuid> (--data-json <JSON>|--data-file .cache/openyida/data.json)  # JSON 键可以是字段 ID 或字段标签
+openyida data update form <appType> --inst-id <id> (--data-json <JSON>|--data-file .cache/openyida/data.json)
+
+# 流程数据
+openyida data query process <appType> <formUuid> [--page N] [--size N] [--search-json JSON|--search-file .cache/openyida/search.json] [--task-id ID] [--instance-status STATUS] [--approved-result RESULT]
+openyida data get process <appType> --process-inst-id <id>
+openyida data create process <appType> <formUuid> --process-code <code> (--data-json <JSON>|--data-file .cache/openyida/data.json)
+openyida data update process <appType> --process-inst-id <id> (--data-json <JSON>|--data-file .cache/openyida/data.json)
+openyida data query operation-records <appType> --process-inst-id <id>
+
+# 任务管理
+openyida data query tasks <appType> --type <todo|done|submitted|cc> [--page N] [--size N] [--keyword TEXT] [--process-codes JSON] [--instance-status STATUS]
+openyida data execute task <appType> --task-id <id> --process-inst-id <id> --out-result <AGREE|DISAGREE> --remark <text> [--data-json JSON|--data-file .cache/openyida/data.json] [--no-execute-expressions y]
+
+# 子表单
+openyida data query subform <appType> <formUuid> --inst-id <id> --table-field-id <fieldId>
+```
+
+---
+
+## 全局任务中心
+
+查询当前用户的全局任务中心数据，无需指定 `appType`。
+
+```bash
+# 待办任务
+openyida task-center todo [--page N] [--size N] [--keyword TEXT]
+
+# 我创建的
+openyida task-center created [--page N] [--size N] [--keyword TEXT] [--no-detail]
+
+# 我已处理
+openyida task-center done [--page N] [--size N] [--keyword TEXT]
+
+# 抄送我的
+openyida task-center cc [--page N] [--size N] [--keyword TEXT]
+
+# 我代提交的
+openyida task-center proxy [--page N] [--size N] [--keyword TEXT]
+```
+
+### 任务类型
+
+| 类型 | 说明 | API 接口 |
+|------|------|----------|
+| `todo` | 待办任务（需要我处理的） | `getTodoTasksInCorp` |
+| `created` | 我创建的（我发起的流程） | `getMyCreateInCorp` |
+| `done` | 我已处理（我已经处理过的） | `getDoneTasksInCorp` |
+| `cc` | 抄送我的 | `getNotifyMeInCorp` |
+| `proxy` | 我代提交的（代理提交的流程） | `getSubmitAgentInCorp` |
+
+### 可选参数
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `--page N` | 页码 | `1` |
+| `--size N` | 每页条数（最大 100） | `20` |
+| `--keyword TEXT` | 搜索关键词 | — |
+| `--no-detail` | 不返回详情（仅 `created` 类型支持） | — |
+
+<Info>
+  与 `openyida data query tasks` 不同，`task-center` 命令查询的是全局任务中心数据，不需要传入 `appType` 参数。
+</Info>
+
+---
+
+## 代理中心
+
+管理在职流程代理和离职代理。
+
+```bash
+openyida agent-center list [--status ALL|DIS|EFF|OUT|CANCEL] [--keyword TEXT] [--page N] [--size N]
+openyida agent-center search-user <keyword> [--dept <text>] [--size N]
+openyida agent-center create --source-user <userId> --target-user <userId> [--type normal|departure] [options]
+openyida agent-center update <agentUuid> --target-user <userId> [--type normal|departure] [options]
+openyida agent-center cancel <agentUuid> --type normal|departure
+openyida agent-center range <agentUuid>
+openyida agent-center is-leader
+openyida agent-center last-departure
+```
+
+在职代理支持 `--start`、`--end`、`--category execute|start`、`--notify-source y|n`、`--range all|part`、`--range-form <appType:formUuid,...>`、`--range-json <json>`、`--range-file <file>`。姓名可能重名时，先用 `search-user` 确认 userId。
+
+---
+
+## 流程管理
+
+```bash
+# 创建流程表单（一体化）- 新建表单并配置流程
+openyida create-process <appType> <formTitle> <fieldsJsonFile> <processDefinitionFile>
+
+# 复用已有表单创建流程
+openyida create-process <appType> --formUuid <formUuid> <processDefinitionFile>
+
+# 配置并发布流程
+openyida configure-process <appType> <formUuid> <processDefinitionFile> [processCode]
+
+# 预览流程实例（可视化流程图）
+openyida process preview <appType> <processInstanceId> [--output <path>]
+```
+
+### 流程实例预览
+
+为运行中或已完成的流程实例生成交互式 HTML 流程图。流程图会高亮显示节点状态——已完成（绿色）、当前节点（蓝色脉冲）、未到达（灰色）、被跳过（虚线）——并在悬停时显示审批人详情和时间戳。
+
+```bash
+openyida process preview <appType> <processInstanceId> [--output <path>]
+```
+
+| 参数 | 说明 |
+|------|------|
+| `<appType>` | 应用 ID（例如 `APP_XXXXX`） |
+| `<processInstanceId>` | 要可视化的流程实例 ID |
+
+| 选项 | 别名 | 说明 | 默认值 |
+|------|------|------|--------|
+| `--output` | `-o` | 生成的 HTML 文件输出路径 | 在当前目录自动生成 |
+
+该命令会获取流程实例详情和审批操作记录，然后生成基于 SVG 的 HTML 文件并在默认浏览器中打开。
+
+**示例：**
+
+```bash
+openyida process preview APP_XXXXX proc-inst-id-xxx
+openyida process preview APP_XXXXX proc-inst-id-xxx --output flowchart.html
+```
+
+<Info>
+  运行此命令前需要先登录。如果尚未认证，请先运行 `openyida login`。
+</Info>
+
+### 流程定义详情页 URL 属性
+
+流程定义 JSON 文件支持以下可选属性，用于自定义用户查看流程实例时的详情页 URL。
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `processDetailUrl` | `string` | 自定义 Web/PC 端流程详情页 URL。优先级最高，覆盖其他 Web 端详情 URL 设置。 |
+| `processMobileDetailUrl` | `string` | 自定义移动端流程详情页 URL。优先级最高，覆盖其他移动端详情 URL 设置。 |
+| `customDetailPageUrl` | `string` | 统一的自定义详情页 URL，同时适用于 Web 和移动端。移动端会自动追加 `?procInsId=`。 |
+| `detailUrls` | `object` | 按平台区分的详情页 URL 对象。支持 `web`（或 `pc`）和 `mobile` 键。 |
+
+**Web 端详情 URL** 的解析顺序：
+
+1. `processDetailUrl`
+2. `detailUrls.web` 或 `detailUrls.pc`
+3. `customDetailPageUrl`
+4. 平台默认值
+
+**移动端详情 URL** 的解析顺序：
+
+1. `processMobileDetailUrl`
+2. `detailUrls.mobile`
+3. `customDetailPageUrl`（自动追加 `?procInsId=`）
+4. 平台默认值
+
+**示例** — 使用 `detailUrls`：
+
+```json
+{
+  "detailUrls": {
+    "web": "https://example.com/process/detail",
+    "mobile": "https://m.example.com/process/detail"
+  }
+}
+```
+
+**示例** — 使用 `customDetailPageUrl`（Web 和移动端共用同一 URL）：
+
+```json
+{
+  "customDetailPageUrl": "https://example.com/custom-detail"
+}
+```
+
+### 错误处理与重试
+
+如果流程配置失败但表单已经创建成功，命令会输出重试提示，并附带 `--formUuid` 参数，方便你复用已创建的表单而无需重新创建：
+
+```bash
+openyida create-process <appType> --formUuid <formUuid> <processDefinitionFile>
+```
+
+适用场景：
+- 流程定义文件存在错误，需要修复后重试。
+- 网络或 API 临时故障导致配置步骤中断。
+
+命令会将 JSON 结果输出到 `stdout`。成功时：
+
+```json
+{
+  "success": true,
+  "formUuid": "FORM-XXXXX",
+  "formTitle": "Order Form",
+  "appType": "APP_XXXXX",
+  "fieldCount": 5,
+  "processCode": "TPROC-XXXXX",
+  "url": "https://www.aliwork.com/APP_XXXXX/workbench/FORM-XXXXX"
+}
+```
+
+失败时（例如流程配置失败）：
+
+```json
+{
+  "success": false,
+  "formUuid": "FORM-XXXXX",
+  "formTitle": "Order Form",
+  "appType": "APP_XXXXX",
+  "fieldCount": 5,
+  "error": "Failed to configure process: <error details>"
+}
+```
+
+<Tip>
+  当输出中包含 `formUuid` 的失败信息时，使用 `--formUuid` 参数重试即可避免重复创建表单。
+</Tip>
+
+---
+
+## 集成与自动化
+
+创建和管理逻辑流（集成&自动化），支持表单事件触发、消息通知、数据操作等场景。
+
+```bash
+# 创建逻辑流
+openyida integration create <appType> <formUuid> <flowName> [选项]
+```
+
+### 参数
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| `appType` | 是 | 应用 ID，如 `APP_XXXX` |
+| `formUuid` | 是 | 触发表单 UUID，如 `FORM-XXXX` |
+| `flowName` | 是 | 逻辑流名称 |
+
+### 选项
+
+| 选项 | 默认值 | 说明 |
+|------|--------|------|
+| `--process-code <code>` | 自动生成 | 已有逻辑流的 processCode（`LPROC-xxx` 格式） |
+| `--receivers <userId,...>` | 空 | 接收钉钉工作通知的用户 ID，多个用逗号分隔 |
+| `--title <title>` | 同 flowName | 通知标题，支持 `#{fieldId-ComponentType}#` 引用表单字段 |
+| `--content <content>` | `"表单有新记录提交，请及时查看。"` | 通知内容，支持字段变量引用 |
+| `--events <insert,update>` | `insert` | 触发事件：`insert`/`update`/`delete`/`comment`，审批完成 `processFinish`，或审批节点 `activityTask`；也支持别名 `approval`、`approvalNode` |
+| `--approval-actions <agree,...>` | — | 审批事件必填。可选值：`agree`、`disagree`、`terminated` |
+| `--approval-node-ids <nodeId,...>` | — | `activityTask` 必填，用于过滤审批节点 ID |
+| `--trigger-recursively` | `false` | 允许自动触发递归执行 |
+| `--trigger-condition <fieldId:fieldName:opCode:value[:componentType[:valueType]]>` | — | 触发过滤条件，可多次传入 |
+| `--data-form-uuid <formUuid>` | — | 获取单条数据节点的目标表单 UUID |
+| `--data-condition <bFieldId:bFieldName:aFieldId[:componentType]>` | — | 获取单条数据的过滤条件，可多次传入 |
+| `--add-data-form-uuid <formUuid>` | — | 新增数据节点的目标表单 UUID |
+| `--add-data-assignment <targetFieldId:valueType:value>` | — | 新增数据的字段赋值，可多次传入。`valueType` 可选 `processVar`/`literal`/`column` |
+| `--connector-id <id>` + `--action-id <id>` | — | 添加 HTTP 连接器调用节点；两个参数必须同时提供 |
+| `--connector-inputs <file>` | — | 描述连接器输入的 JSON 文件，用于画布展示 |
+| `--connector-assignment <column:valueType:value>` | — | 连接器输入赋值，可多次传入 |
+| `--publish` | 不发布 | 保存后立即发布（开启状态），否则仅保存为草稿 |
+
+### 示例
+
+```bash
+# 表单新增时通知指定用户
+openyida integration create APP_XXX FORM-XXX "新增记录通知" \
+  --receivers user123 \
+  --title "有新记录提交" \
+  --content "表单有新记录提交，请及时处理。"
+
+# 引用表单字段变量，保存并发布
+openyida integration create APP_XXX FORM-XXX "记录变更通知" \
+  --receivers user123,user456 \
+  --events insert,update,delete,comment \
+  --publish
+
+# 带新增数据节点：将 A 表单数据同步到 B 表单
+openyida integration create APP_XXX FORM-A-XXX "同步到表单B" \
+  --add-data-form-uuid FORM-B-XXX \
+  --add-data-assignment "textField_b1:processVar:textField_a1" \
+  --add-data-assignment "numberField_b2:literal:0" \
+  --publish
+
+# 审批完成事件
+openyida integration create APP_XXX FORM-XXX "审批结果通知" \
+  --events processFinish \
+  --approval-actions agree,disagree,terminated \
+  --receivers user123 \
+  --publish
+
+# 审批节点事件
+openyida integration create APP_XXX FORM-XXX "节点提醒" \
+  --events activityTask \
+  --approval-actions agree \
+  --approval-node-ids node_123,node_456 \
+  --receivers user123
+```
+
+### 字段变量引用
+
+在通知标题和内容中使用 `#{fieldId-ComponentType}#` 格式引用触发表单的字段值：
+
+```
+#{textField_mmq4ldti-TextField}#
+#{numberField_abc123-NumberField}#
+```
+
+### 输出
+
+```json
+{
+  "success": true,
+  "published": false,
+  "processCode": "LPROC-XXXX",
+  "flowName": "新增记录通知",
+  "appType": "APP_XXX",
+  "formUuid": "FORM-XXX",
+  "formEventTypes": ["insert"]
+}
+```
+
+<Info>
+  运行此命令前需要先登录。使用 `--publish` 时 `published` 为 `true`；若发布失败，`published` 为 `false` 并附带 `warning` 字段。
+</Info>
+
+### 管理已有自动化
+
+```bash
+openyida integration list <appType> [--form-uuid <uuid>] [--status y|n] [--key <关键词>] [--page N] [--size N] [--json]
+openyida integration enable <appType> <formUuid> <processCode>
+openyida integration disable <appType> <formUuid> <processCode>
+openyida integration check <appType...> [--json] [--output result.xlsx] [--no-progress] [--flow-types 1,2,3,5,6] [--log-page-size 10] [--max-log-pages 1]
+```
+
+---
+
+## 权限管理
+
+```bash
+# 查询表单权限
+openyida get-permission <appType> <formUuid>
+
+# 保存表单权限
+openyida save-permission <appType> <formUuid> \
+  [--data-permission <json>] \
+  [--action-permission <json>]
+```
+
+---
+
+## 连接器管理
+
+```bash
+# 列出连接器
+openyida connector list [--page N] [--size N]
+
+# 创建连接器
+openyida connector create "<名称>" "<域名>" --operations <file> [选项]
+
+# 查看连接器详情
+openyida connector detail <connector-id>
+
+# 删除连接器
+openyida connector delete <connector-id> [--force]
+
+# 动作管理
+openyida connector add-action --connector-id <id> --operations <file> [--confirm]
+openyida connector list-actions <connector-id>
+openyida connector delete-action <connector-id> <operation-id> [--force]
+openyida connector test --connector-id <id> --action <actionId> [选项]
+
+# 鉴权账号管理
+openyida connector list-connections <connector-id>
+openyida connector create-connection <connector-id> "<名称>" [选项]
+
+# 智能创建
+openyida connector smart-create --curl "<curl命令>" [--name <name>] [--desc <desc>]
+
+# 辅助工具
+openyida connector parse-api --curl "<curl命令>" --output <file>
+openyida connector gen-template [输出路径]
+```
+
+---
+
+## 报表管理
+
+```bash
+# 创建报表
+openyida create-report <appType> "<报表名称>" <图表定义JSON或文件路径>
+
+# 追加图表
+openyida append-chart <appType> <reportId> <图表定义JSON或文件路径>
+```
+
+---
+
+## CDN 管理
+
+```bash
+# 配置 CDN
+openyida cdn-config [--init|--show]
+openyida cdn-config --set-key <key> --set-secret <secret> --set-domain <domain> --set-bucket <bucket> --set-region <region> --set-path <path>
+
+# 上传图片
+openyida cdn-upload <文件路径> [--domain <domain>] [--path <path>] [--compress|--no-compress]
+
+# 刷新缓存
+openyida cdn-refresh [--urls <url-list>|--paths <path-list>|--file <file>]
+```
+
+---
+
+## 闪记转 PRD
+
+使用 AI 将钉钉闪记（会议录音转文字）转化为结构化的 PRD 文档。
+
+```bash
+# 从文件读取
+openyida flash-to-prd --file <文件路径> [--name <项目名>] [--max-tokens <数量>]
+
+# 从标准输入读取
+cat meeting.txt | openyida flash-to-prd --name <项目名> [--max-tokens <数量>]
+```
+
+### 参数
+
+| 参数 | 缩写 | 说明 | 默认值 |
+|------|------|------|--------|
+| `--file` | `-f` | 闪记文件路径 | — |
+| `--name` | `-n` | 项目名称（未指定时自动从内容中推断） | — |
+| `--max-tokens` | — | AI 响应的最大 token 数 | `8000` |
+
+该命令从指定文件或标准输入读取闪记内容，对文本进行预处理（包括会议元数据提取和发言人识别），然后调用宜搭 AI 服务生成结构化的 PRD。输出的 PRD 文件保存到项目的 `prd/` 目录。
+
+### 输出
+
+命令在 stdout 输出 JSON 格式的结果：
+
+```json
+{
+  "success": true,
+  "projectName": "我的项目",
+  "prdFile": "/path/to/prd/我的项目.md",
+  "contentLength": 4096,
+  "meetingRecognition": {
+    "metaFields": 3,
+    "a1Sections": 2,
+    "speakers": 5
+  }
+}
+```
+
+<Info>
+  运行此命令前需要先登录。如果尚未认证，请先运行 `openyida login`。
+</Info>
+
+---
+
+## 钉钉 AppLink
+
+生成可在钉钉内打开宜搭页面的 AppLink。仅在需要兼容旧版 `dingtalk://` 链接时使用 `--legacy-scheme`。
+
+```bash
+openyida dingtalk-link <url> [--target fullScreen] [--legacy-scheme] [--json]
+openyida dingtalk-link --url https://www.aliwork.com/APP_XXX/... --target fullScreen
+```
+
+---
+
+## 钉钉 CLI (dws)
+
+代理执行钉钉 CLI 命令，支持通讯录、日历、待办、审批、考勤等功能。
+
+```bash
+openyida dws <command> [args]
+```
+
+<Info>
+  `dws` 命令需要单独安装钉钉 CLI。如果未安装，OpenYida 会在首次使用时提示安装。
+</Info>
+
+### 常用命令
+
+| 命令 | 说明 |
+|------|------|
+| `contact user search --keyword "<姓名>"` | 搜索联系人 |
+| `calendar event list` | 列出日历事件 |
+| `todo task create --title "<标题>" --executors "<用户ID>"` | 创建待办任务 |
+| `approval instance list` | 列出审批实例 |
+| `attendance record list` | 查询考勤记录 |
+| `chat robot send --content "<消息>"` | 发送机器人消息 |
+
+### 特殊命令
+
+```bash
+# 安装钉钉 CLI
+openyida dws install
+
+# 显示帮助
+openyida dws help
+```
+
+### 输出格式
+
+默认使用表格输出（适合人类阅读）。添加 `-f json` 参数使用 JSON 输出（适合 AI Agent）。
+
+```bash
+openyida dws contact user search --keyword "张三" -f json
+```
+
+---
+
+## 导出对话记录
+
+将当前 AI 工具的对话记录导出为 Markdown 文档。
+
+```bash
+openyida export-conversation [选项]
+```
+
+### 选项
+
+| 选项 | 缩写 | 说明 | 默认值 |
+|------|------|------|--------|
+| `--output` | `-o` | 输出文件路径 | 自动生成路径 |
+| `--input` | `-i` | 输入对话文件（JSON/JSONL） | — |
+| `--latest` | — | 只导出最新对话 | 默认启用 |
+| `--list` | — | 列出可用的对话记录 | — |
+
+### 示例
+
+```bash
+# 导出当前对话记录
+openyida export-conversation
+
+# 导出到指定路径
+openyida export-conversation -o output.md
+
+# 列出可用对话
+openyida export-conversation --list
+
+# 从指定输入文件导出
+openyida export-conversation -i conversation.json -o result.md
+```
+
+---
+
+## AI、公式、A2A、模板与批处理
+
+```bash
+# 宜搭 AI
+openyida ai text --prompt "<提示词>" [--max-tokens 3000] [--json]
+openyida ai text --file prompt.txt [--json]
+openyida ai image --file ./image.png --app-type APP_XXX [--form-uuid FORM_XXX] [--json]
+openyida ai image --image-url https://... [--json]
+
+# 公式语法检查
+openyida formula evaluate '<公式>' [--schema schema.json] [--json]
+openyida formula evaluate formula.txt [--schema schema.json] [--json]
+
+# 本地只读 A2A Adapter
+openyida a2a agent-card [--host 127.0.0.1] [--port 8787] [--base-url <url>]
+openyida a2a serve [--host 127.0.0.1] [--port 8787] [--base-url <url>] [--json]
+
+# 示例模板
+openyida sample --list
+openyida sample <skill> <name> [--output <path>] [--var KEY=VALUE]
+
+# 批处理
+openyida batch <commands-file> [--stop-on-error] [--json] [--quiet]
+openyida batch --commands "cmd1 ; cmd2" [--stop-on-error] [--json] [--quiet]
+```
+
+<Info>
+  `a2a` adapter 是只读本地服务。它暴露 Agent Card 和本地消息接口，但不会读取或返回宜搭 Cookie，也不会创建或修改真实宜搭资源。
+</Info>
+
+---
+
+## 自更新
+
+检查 npm 上是否有更新版本的 OpenYida，并全局安装。
+
+```bash
+openyida update
+```
+
+该命令会查询 npm registry 获取最新发布版本。如果有更新的版本，会执行 `npm install -g openyida@latest` 进行升级。如果已是最新版本，会打印确认信息并退出。
+
+<Info>
+  OpenYida 在每次运行命令时也会在后台自动检查更新。`update` 命令可以让你手动触发检查并立即安装。
+</Info>
+
+---
+
+## 全局选项
+
+| 选项 | 说明 |
+|------|------|
+| `--help`, `-h` | 显示帮助信息 |
+| `--version`, `-v` | 显示版本号 |
+| `--json` | 在支持的命令中输出机器可读结果 |
+| `--quiet` | 减少进度输出，适合 Agent 或批处理场景 |
+| `--qr` | 使用终端二维码登录 |
+| `--agent-qr` | 在 AI 对话框中交接二维码登录 |
+| `--browser` | 强制浏览器登录 |
+| `--intl` / `--overseas` / `--global` / `--yidaapps` | 为当前命令选择 Global YiDA / yidaapps 环境 |
+| `--force` | 强制操作，跳过确认 |
+| `--compat` / `--modern` | 将 `.oyd.jsx` 编写语法构建为宜搭兼容页面代码 |
+| `--skip-lint` | 跳过发布前代码预检查 |
+| `--health-check` | 发布自定义页面后执行健康检查 |
+| `--open` / `--no-open` | 控制命令完成后是否打开页面 |
+
+---
+
+## 环境变量
+
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `OPENYIDA_LANG` | 设置语言 | `zh`, `en`, `ja` |
+| `LANG` / `LC_ALL` | 系统语言 | `zh_CN.UTF-8` |
+| `OPENYIDA_ENDPOINT` | 强制指定宜搭服务地址（优先级最高） | `https://yida.example.com` |
+| `OPENYIDA_LOGIN_URL` | 强制指定登录页地址 | `https://yida.example.com/login` |
+| `OPENYIDA_ENV` | 快速切换环境（不修改配置文件，适合 CI/CD） | `my-private-env` |
+| `OPENYIDA_DWS_ENDPOINT` | 私有化钉钉 OpenAPI 网关地址 | `https://oapi.example.com` |
+
+### 端点解析优先级
+
+当确定宜搭服务地址时，按以下顺序解析：
+
+1. `OPENYIDA_ENDPOINT` 环境变量
+2. 当前激活环境的配置（通过 `openyida env switch` 设置）
+3. Cookie 中缓存的 `base_url`
+4. 默认公有云地址（`https://www.aliwork.com`）
+
+登录页地址解析顺序：
+
+1. `OPENYIDA_LOGIN_URL` 环境变量
+2. 当前激活环境的配置
+3. 默认登录页地址（`https://www.aliwork.com/workPlatform`）
+
+---
+
+## 退出码
+
+| 码 | 含义 |
+|----|------|
+| 0 | 成功 |
+| 1 | 一般错误 |
+| 2 | 参数错误 |
+| 3 | 登录失败/未登录 |
+| 4 | 网络错误 |
+| 5 | API 错误 |

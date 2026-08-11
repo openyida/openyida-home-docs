@@ -1,0 +1,81 @@
+---
+title: "เครื่องมือตรวจวินิจฉัย"
+description: "เอกสารนี้อธิบาย เครื่องมือตรวจวินิจฉัย ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง"
+icon: stethoscope
+---
+
+# เครื่องมือตรวจวินิจฉัย
+
+หน้านี้อธิบาย เครื่องมือตรวจวินิจฉัย ของ OpenYida โดยสรุปเป้าหมาย ขั้นตอนการใช้งาน และข้อควรระวังที่เกี่ยวข้องสำหรับการสร้างแอป Yida ด้วย AI
+
+## ภาพรวม
+
+เอกสารนี้อธิบาย เครื่องมือตรวจวินิจฉัย ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง
+
+## ประเด็นสำคัญ
+
+- ใช้หน้านี้เพื่อทำความเข้าใจบริบทหลักก่อนเริ่มลงมือในโครงการจริง
+- ชื่อคำสั่ง พารามิเตอร์ โค้ด และชื่อผลิตภัณฑ์บางส่วนคงไว้เป็นภาษาอังกฤษเพื่อให้ค้นหาและคัดลอกได้ถูกต้อง
+- เมื่อใช้งานกับ宜搭จริง ให้ตรวจสอบสิทธิ์ องค์กร และสภาพแวดล้อมก่อนเผยแพร่
+
+## การใช้งาน
+
+ปฏิบัติตามขั้นตอนในเอกสารนี้ร่วมกับคำสั่ง OpenYida CLI และการตั้งค่าขององค์กร หากมีตัวอย่างโค้ดด้านล่าง สามารถคัดลอกไปปรับใช้ได้โดยตรง
+
+## คำสั่งและตัวอย่าง
+
+ตัวอย่างต่อไปนี้คงคำสั่งและโค้ดต้นฉบับไว้เพื่อความถูกต้องทางเทคนิค
+
+```bash
+openyida doctor
+```
+
+```bash
+openyida doctor --fix
+```
+
+```bash
+openyida doctor --report markdown
+openyida doctor --report json
+openyida doctor --report html
+```
+
+```bash
+openyida doctor --monitor
+```
+
+```bash
+openyida doctor env
+```
+
+```bash
+# Node.js version
+openyida doctor env --check node
+
+# Playwright browsers
+openyida doctor env --check playwright
+
+# Login status
+openyida doctor env --check auth
+
+# Network connectivity
+openyida doctor env --check network
+```
+
+```bash
+openyida doctor app --app <appId>
+```
+
+```bash
+# Check PRD files
+openyida doctor app --check prd
+
+# Check page source
+openyida doctor app --check pages
+
+# Check schema cache
+openyida doctor app --check schema
+
+# Check React Hooks
+openyida doctor app --check hooks
+```

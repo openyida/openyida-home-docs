@@ -1,0 +1,148 @@
+---
+title: "Quick Start"
+description: "Install OpenYida and build your first Yida app in 2 minutes."
+icon: "bolt"
+---
+
+## Prerequisites
+
+Before you begin, ensure you have the following dependencies installed:
+
+| Dependency | Version | Check Command |
+|------|------|----------|
+| [Node.js](https://nodejs.org) | ≥ 18 | `node --version` |
+
+<Tip>
+  That's all you need. OpenYida is a pure Node.js implementation — no Python, no Playwright, no build steps.
+</Tip>
+
+---
+
+## Step 1 — Installation
+
+```bash
+npm install -g openyida
+```
+
+Verify the installation:
+
+```bash
+openyida --version
+openyida commands --json
+```
+
+`commands --json` prints the machine-readable command manifest. Agents and documentation checks can use it to confirm the current CLI surface.
+
+---
+
+## Step 2 — Login to Yida
+
+```bash
+openyida login
+```
+
+OpenYida will open a browser window (or display a QR code) for you to authenticate with your Yida/Alibaba account. Credentials are cached locally — you only need to do this once.
+
+<Info>
+  In Codex, Claude Code, Cursor, Qoder, QwenWork, and similar AI tools, OpenYida detects the active environment automatically. Use `--browser`, `--qr`, or `--agent-qr` when you need to force a login method.
+</Info>
+
+---
+
+## Step 3 — Check Environment
+
+```bash
+openyida env --json
+openyida login --check-only --json
+```
+
+This detects the active AI coding tool, workspace root, environment configuration, and login status. Run these commands whenever you switch tools or organizations.
+
+---
+
+## Step 4 — Initialize Project Workspace
+
+```bash
+openyida copy
+```
+
+This copies the `project/` workspace template to your current AI tool's working directory, allowing the AI to access your app configuration and page templates.
+
+---
+
+## Step 5 — Start Building
+
+Now simply talk to your AI coding assistant. Here are some starter prompts:
+
+```
+Build me an IPD system on Yida to manage the complete chip production workflow
+```
+
+```
+Help me build a CRM system with leads, contacts, and deals
+```
+
+```
+Create a personal salary calculator app
+```
+
+```
+Generate a birthday greeting mini-game on Yida
+```
+
+The AI will use OpenYida's skill pack to call the correct CLI commands in sequence: `create-app` → `create-form` / `create-page` → `publish` → `save-share-config`.
+
+---
+
+## Step 6 — Publish the App
+
+After the AI generates the app, use the following command to publish:
+
+```bash
+openyida check-page project/pages/src/dashboard.oyd.jsx
+openyida compile project/pages/src/dashboard.oyd.jsx
+openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+```
+
+Or ask the AI:
+```
+Publish the [page name] page
+Make the page publicly accessible
+```
+
+---
+
+## Run Diagnostics
+
+If anything feels off, run the built-in diagnostic tool:
+
+```bash
+openyida doctor
+```
+
+It checks your Node.js version, login status, and environment configuration, and can automatically fix common issues with `--fix`.
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Common Prompts" icon="comments" href="/en/features/common-prompts">
+    Browse the complete list of natural language prompts supported by OpenYida.
+  </Card>
+  <Card title="CLI Reference" icon="terminal" href="/en/features/skills">
+    Explore all CLI commands and skill modules.
+  </Card>
+  <Card title="Demo Cases" icon="images" href="/en/introduction/demo">
+    View real applications built with OpenYida.
+  </Card>
+  <Card title="Best Practices" icon="star" href="/en/guides/best-practices">
+    Tips for getting the most out of AI-driven app generation.
+  </Card>
+  <Card title="Custom Pages" icon="window-maximize" href="/en/guides/custom-pages">
+    Learn the check, compile, and publish workflow for custom pages.
+  </Card>
+  <Card title="Sharing and Navigation" icon="share-nodes" href="/en/guides/sharing-and-navigation">
+    Configure internal short links, public access, and page navigation.
+  </Card>
+</CardGroup>

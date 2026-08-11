@@ -1,0 +1,229 @@
+---
+title: "Ferramenta de Diagnóstico"
+description: "Verificação de ambiente, diagnóstico de aplicativo, reparo inteligente, monitoramento de saúde."
+icon: "stethoscope"
+---
+
+O OpenYida inclui uma poderosa ferramenta de diagnóstico `doctor` que ajuda os desenvolvedores a verificar o ambiente, diagnosticar problemas, reparar automaticamente e monitorar continuamente a saúde do aplicativo.
+
+---
+
+## Visão Geral
+
+<CardGroup cols={2}>
+  <Card title="Verificação de Ambiente" icon="laptop-code">
+    Verifica dependências do ambiente como Node.js, Playwright, estado de login, etc.
+  </Card>
+  <Card title="Diagnóstico de Aplicativo" icon="magnifying-glass">
+    Verifica PRD, código fonte de páginas, cache de Schema, normas de React Hooks.
+  </Card>
+  <Card title="Reparo Inteligente" icon="wand-magic">
+    Repara automaticamente problemas reparáveis, fornece guia de reparo manual.
+  </Card>
+  <Card title="Monitoramento de Saúde" icon="heart-pulse">
+    Monitora continuamente a saúde do aplicativo, gera relatórios de tendências.
+  </Card>
+</CardGroup>
+
+---
+
+## Uso Básico
+
+### Executar Diagnóstico
+
+```bash
+openyida doctor
+```
+
+### Reparo Automático
+
+```bash
+openyida doctor --fix
+```
+
+### Gerar Relatório
+
+```bash
+# Formato Markdown
+openyida doctor --report markdown
+
+# Formato JSON
+openyida doctor --report json
+
+# Formato HTML
+openyida doctor --report html
+```
+
+---
+
+## Itens de Verificação de Ambiente
+
+| Item | Descrição | Reparo Automático |
+|--------|------|----------|
+| Versão CLI | Verifica se a versão do openyida corresponde ao SKILL.md | ✅ |
+| Inicialização project/ | Verifica se o diretório de trabalho project/ existe | ✅ |
+| Versão do Node.js | Verifica se ≥ 18 | ❌ |
+| Playwright | Verifica se está instalado | ✅ |
+| config.json | Verifica arquivo de configuração | ✅ |
+| Login Yida | Verifica estado de login | ✅ |
+| Conectividade de rede | Verifica conectividade de aliwork.com | ❌ |
+
+---
+
+## Itens de Diagnóstico de Aplicativo
+
+| Item | Descrição |
+|--------|------|
+| Arquivo PRD | Verifica se existe documento de requisitos |
+| Código fonte de páginas | Verifica arquivos de código fonte, console.log, arquivos vazios |
+| Cache de Schema | Verifica formato de arquivo de cache |
+| React Hooks | Verifica normas de uso de Hooks |
+
+---
+
+## Modo de Monitoramento de Saúde
+
+Inicia monitoramento contínuo, verifica a cada minuto:
+
+```bash
+openyida doctor --monitor
+```
+
+<Warning>
+A função de monitoramento de saúde está atualmente em versão beta. A API e os formatos de saída podem mudar em versões futuras.
+</Warning>
+
+Exemplo de saída:
+
+```
+[14:32:01] Saúde: 95/100  Aprovados: 18/19 | Erros: 0 | Avisos: 1
+
+[14:33:01] Saúde: 100/100➡
+  Aprovados: 19/19 | Erros: 0 | Avisos: 0
+```
+
+Pressione `Ctrl+C` para parar o monitoramento.
+
+---
+
+## Diagnóstico Online
+
+Diagnóstico online para aplicativos já publicados:
+
+```bash
+openyida doctor --production --app <appId>
+```
+
+Conteúdo de verificação:
+- Validade do ID do aplicativo
+- Registros de erros online
+- Métricas de desempenho
+
+---
+
+## Tickets e VOC
+
+### Criar Ticket (Bug)
+
+```bash
+openyida doctor --create-ticket
+```
+
+Entrada interativa de título e descrição, envio automático para GitHub Issues.
+
+### Criar VOC (Requisito)
+
+```bash
+openyida doctor --create-voc
+```
+
+### Envio Inteligente
+
+O sistema julga automaticamente se é Bug ou requisito:
+
+```bash
+openyida doctor --auto-submit
+```
+
+---
+
+## Exemplo de Relatório de Diagnóstico
+
+### Saída do Console
+
+```
+🔍 Verificando dependências do ambiente do OpenYida...
+
+✅ Versão openyida: 2026.04.02 (SKILL esperado: 2026.04.02)
+✅ Diretório de trabalho project/ inicializado
+✅ Node.js v18.19.0 (requer ≥ 18)
+✅ Playwright instalado
+✅ config.json existe e formato correto
+✅ Estado de login do Yida: Logado
+✅ Conectividade de rede (aliwork.com)
+✅ Arquivos PRD (2 arquivos)
+✅ Código fonte de páginas (3 arquivos)
+✅ Cache de Schema (5 arquivos)
+✅ Normas de React Hooks
+
+11 verificações aprovadas, nenhum problema encontrado
+```
+
+<Note>
+A geração de relatórios com formatos de saída personalizados é uma função experimental. Os esquemas de saída HTML e JSON podem ser aprimorados em atualizações futuras.
+</Note>
+
+### Relatório Markdown
+
+```bash
+openyida doctor --report markdown
+```
+
+Relatório salvo em `.cache/reports/doctor-2024-01-15T10-30-00-000Z.md`
+
+---
+
+## Pré-verificação
+
+Executa verificação automaticamente antes de operações chave:
+
+### Verificação Antes de Publicar
+
+```bash
+# Executa automaticamente
+openyida publish executa automaticamente pré-verificação
+```
+
+### Verificação Antes de Criar
+
+```bash
+# Executa automaticamente
+openyida create-app executa automaticamente pré-verificação
+```
+
+---
+
+## Tipos de Reparo
+
+| Tipo | Descrição | Exemplo |
+|------|------|------|
+| `AUTO` | Reparo automático | Criar config.json, excluir cache corrompida |
+| `COMMAND` | Reparo por comando | Executar `pip install playwright` |
+| `MANUAL` | Reparo manual | Instalar gh CLI, escrever PRD |
+
+---
+
+## Cálculo de Saúde
+
+Fórmula de cálculo de pontuação de saúde (0-100):
+
+```
+Saúde = Taxa de aprovação × 100 - Erros × 10 - Avisos × 3
+```
+
+| Pontuação | Estado |
+|------|------|
+| 90-100 | Excelente
+| 70-89 | Bom
+| 50-69 | Regular
+| < 50 | Precisa melhorar🔴

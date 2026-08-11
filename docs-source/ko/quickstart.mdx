@@ -1,0 +1,148 @@
+---
+title: "빠른 시작"
+description: "단계별 가이드를 따라 OpenYida를 설치하고, Yida 플랫폼에 로그인한 후 AI 자연어 프롬프트로 첫 번째 앱을 구축하세요."
+icon: "bolt"
+---
+
+## 필수 조건
+
+시작하기 전에 다음 종속성이 설치되어 있는지 확인하세요:
+
+| 종속성 | 버전 | 확인 명령 |
+|------|------|----------|
+| [Node.js](https://nodejs.org) | ≥ 18 | `node --version` |
+
+<Tip>
+  이것이 전부입니다. OpenYida 는 순수 Node.js 구현입니다 — Python, Playwright, 빌드 단계가 필요 없습니다.
+</Tip>
+
+---
+
+## 1 단계 — 설치
+
+```bash
+npm install -g openyida
+```
+
+설치 확인:
+
+```bash
+openyida --version
+```
+
+---
+
+## 2 단계 — Yida 에 로그인
+
+```bash
+openyida login
+```
+
+OpenYida 는 브라우저 창을 열거나 (또는 QR 코드를 표시) Yida/Alibaba 계정으로 인증합니다. 자격 증명은 로컬에 캐시됩니다 — 한 번만 수행하면 됩니다.
+
+<Info>
+  OpenYida detects QwenWork automatically. If QR login is needed, use `openyida login --qr` or `openyida login --agent-qr`.
+</Info>
+
+---
+
+## 3 단계 — 환경 확인
+
+```bash
+openyida env
+```
+
+이것은 현재 활성화된 AI 코딩 도구 (Claude Code, Cursor, QwenWork 등) 를 감지하고 현재 로그인 상태를 표시합니다. 환경을 전환할 때마다 이 명령을.
+
+---
+
+## 4 단계 — 프로젝트 작업 공간 초기화
+
+```bash
+openyida copy
+```
+
+이것은 `project/` 작업 공간 템플릿을 현재 AI 도구의 작업 디렉토리에 복사하여 AI 가 앱 구성 및 페이지 템플릿에 액세스할 수 있도록 합니다.
+
+---
+
+## 5 단계 — 구축 시작
+
+이제 AI 코딩 어시스턴트와 대화하기만 하면 됩니다. 다음은 시작 프롬프트입니다:
+
+```
+Yida 에서 IPD 시스템을 구축하여 완전한칩 워크플로우를 관리해 주세요
+```
+
+```
+리드, 연락처, 거래가 포함된 CRM 시스템을 구축해 주세요
+```
+
+```
+개인 급여 계산기 앱을 만들어 주세요
+```
+
+```
+Yida 에서 생일 축하 미니 게임을 생성해 주세요
+```
+
+AI 는 OpenYida 의을 사용하여 올바른 CLI 명령을 순서대로 호출합니다: `create-app` → `create-form` / `create-page` → `publish` → `save-share-config`.
+
+---
+
+## 6 단계 — 앱 게시
+
+AI 가 앱을 생성한 후 다음 명령을 사용하여 게시합니다:
+
+```bash
+openyida check-page project/pages/src/dashboard.oyd.jsx
+openyida compile project/pages/src/dashboard.oyd.jsx
+openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+```
+
+또는 AI 에게 물어보세요:
+```
+[페이지 이름] 페이지를 게시해 주세요
+페이지를 공개적으로 액세스할 수 있게 해주세요
+```
+
+---
+
+## 진단문제가 있다고 느껴지면 내장 진단 도구를:
+
+```bash
+openyida doctor
+```
+
+Node.js 버전, 로그인 상태 및 환경 구성을 확인하고 `--fix` 로 일반적인 문제를 자동으로 수정할 수 있습니다.
+
+---
+
+## OpenClaw 통합
+
+OpenClaw 를 사용하는 경우 OpenYida을 직접 설치하세요:
+
+```bash
+npx clawhub@latest install nicky1108/yida-app
+```
+
+그런 다음 [ClawhHub 의 yida-app](https://clawhub.ai/nicky1108/yida-app) 을 통해 사용하세요.
+
+---
+
+## 다음 단계
+
+<CardGroup cols={2}>
+  <Card title="일반 프롬프트" icon="comments" href="/ko/features/common-prompts">
+    OpenYida 가 지원하는 자연어 프롬프트의 전체 목록을 참조하세요.
+  </Card>
+  <Card title="CLI 참조" icon="terminal" href="/ko/features/skills">
+    모든 CLI 명령 및을 탐색하세요.
+  </Card>
+  <Card title="데모 사례" icon="images" href="/ko/introduction/demo">
+    OpenYida 로 구축된 실제을 참조하세요.
+  </Card>
+  <Card title="모범 사례" icon="star" href="/ko/guides/best-practices">
+    AI 기반 앱 생성을 최대한 활용하기 위한 팁.
+  </Card>
+</CardGroup>

@@ -1,0 +1,303 @@
+---
+title: "Báo cáo và biểu đồ"
+description: "Tạo báo cáo Yida và thêm biểu đồ trực quan hóa dữ liệu."
+icon: "chart-column"
+---
+
+OpenYida hỗ trợ tạo báo cáo Yida và thêm biểu đồ để trực quan hóa dữ liệu bằng lệnh `create-report` và `append-chart`.
+
+---
+
+## Tổng quan tính năng
+
+<CardGroup cols={2}>
+  <Card title="Tạo báo cáo" icon="file-plus">
+    Tạo báo cáo Yida với cấu hình biểu đồ tùy chỉnh.
+  </Card>
+  <Card title="Thêm biểu đồ" icon="chart-pie">
+    Thêm nhiều loại biểu đồ khác nhau vào báo cáo hiện có.
+  </Card>
+  <Card title="Liên kết dữ liệu" icon="link">
+    Tự động liên kết nguồn dữ liệu biểu mẫu, hiển thị dữ liệu thời gian thực.
+  </Card>
+  <Card title="Loại biểu đồ" icon="shapes">
+    Hỗ trợ biểu đồ cột, đường, tròn, bảng và nhiều loại khác.
+  </Card>
+</CardGroup>
+
+---
+
+## Tạo báo cáo
+
+### Cách sử dụng cơ bản
+
+```bash
+openyida create-report <appType> "Tên báo cáo" '<JSON-định-nghĩa-hoặc-tệp>'
+```
+
+Đối số thứ ba có thể là chuỗi JSON nội tuyến hoặc đường dẫn đến tệp JSON.
+
+### Ví dụ: tạo báo cáo bán hàng
+
+```bash
+openyida create-report APP_XXXXXX "Sales Dashboard" '{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "month",
+      "yField": "amount"
+    }
+  ]
+}'
+```
+
+### Tải định nghĩa biểu đồ từ tệp
+
+```bash
+openyida create-report APP_XXXXXX "Annual Report" ./charts-config.json
+```
+
+---
+
+## Thêm biểu đồ vào báo cáo
+
+```bash
+openyida append-chart <appType> <reportId> '<JSON-định-nghĩa-hoặc-tệp>'
+```
+
+### Ví dụ
+
+```bash
+openyida append-chart APP_XXXXXX REPORT_XXXXX '{
+  "type": "line",
+  "title": "Growth Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "month",
+  "yField": "growth_rate"
+}'
+```
+
+---
+
+## Cấu hình bộ lọc
+
+Báo cáo hỗ trợ cấu hình bộ lọc liên kết với biểu đồ, cho phép người dùng lọc dữ liệu trực tiếp trên giao diện báo cáo.
+
+```json
+{
+  "filters": [
+    {
+      "label": "Khu vực",
+      "field": "region",
+      "type": "select",
+      "cubeCode": "FORM_XXXXXX"
+    },
+    {
+      "label": "Ngày bắt đầu",
+      "field": "start_date",
+      "type": "date",
+      "cubeCode": "FORM_XXXXXX"
+    }
+  ]
+}
+```
+
+| Thuộc tính | Mô tả |
+|------------|--------|
+| **label** | Nhãn hiển thị của bộ lọc |
+| **field** | Tên trường dữ liệu để lọc |
+| **type** | Loại bộ lọc (`select`, `date`, `text`, `number`) |
+| **cubeCode** | Mã cube của biểu mẫu liên kết |
+
+<Info>Khi loại bộ lọc là `select`, hệ thống sẽ tự động tạo danh sách dropdown từ dữ liệu của biểu mẫu liên kết.</Info>
+
+---
+
+## Loại biểu đồ
+
+| Loại | Mô tả | Phù hợp cho |
+|------|-------------|----------|
+| **bar** | Biểu đồ cột | So sánh danh mục |
+| **line** | Biểu đồ đường | Xu hướng theo thời gian |
+| **pie** | Biểu đồ tròn | Quan hệ phần-toàn thể |
+| **table** | Bảng dữ liệu | Xem dữ liệu chi tiết |
+| **area** | Biểu đồ vùng | Xu hướng tích lũy |
+| **scatter** | Biểu đồ phân tán | Phân tích tương quan |
+| **indicator** | Thẻ chỉ số | Hiển thị các chỉ số chính |
+| **combo** | Biểu đồ kết hợp (cột + đường) | So sánh hai trục |
+| **pivot** | Bảng pivot chéo | Phân tích đa chiều |
+| **gauge** | Biểu đồ đồng hồ đo | Theo dõi tiến độ hoặc mục tiêu |
+| **radar** | Biểu đồ radar | Phân tích so sánh đa chiều |
+| **funnel** | Biểu đồ phễu | Chuyển đổi theo giai đoạn |
+
+---
+
+## Kích thước bố cục biểu đồ
+
+Bạn có thể kiểm soát chiều rộng và chiều cao của mỗi biểu đồ trong lưới báo cáo bằng thuộc tính `w` và `h`. Báo cáo sử dụng hệ thống lưới 6 cột.
+
+- **`w`** — chiều rộng lưới (1-6 cột). Khi biểu đồ vượt quá không gian còn lại trên hàng hiện tại, nó sẽ xuống hàng tiếp theo.
+- **`h`** — chiều cao lưới (tính theo đơn vị lưới).
+
+Đặt `w` hoặc `h` thành `0` là hợp lệ. Nếu bỏ qua, các giá trị mặc định bên dưới sẽ được sử dụng.
+
+| Loại biểu đồ | `w` mặc định | `h` mặc định |
+|---------------|--------------|--------------|
+| **indicator** | 6 | 6 |
+| **pie** | 3 | 22 |
+| **bar** | 3 | 22 |
+| **line** | 3 | 22 |
+| **combo** | 6 | 22 |
+| **table** | 6 | 38 |
+| **pivot** | 6 | 30 |
+| **gauge** | 2 | 18 |
+| Loại khác | 3 | 22 |
+
+---
+
+## Định dạng định nghĩa biểu đồ
+
+### Biểu đồ cột
+
+```json
+{
+  "type": "bar",
+  "title": "Sales by Region",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "region",
+  "yField": "amount",
+  "aggregation": "sum",
+  "w": 6,
+  "h": 22
+}
+```
+
+### Biểu đồ đường
+
+```json
+{
+  "type": "line",
+  "title": "Traffic Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "date",
+  "yField": "visitors",
+  "aggregation": "sum"
+}
+```
+
+### Biểu đồ tròn
+
+```json
+{
+  "type": "pie",
+  "title": "Market Share",
+  "cubeCode": "FORM_XXXXXX",
+  "categoryField": "product",
+  "valueField": "share"
+}
+```
+
+### Bảng dữ liệu
+
+```json
+{
+  "type": "table",
+  "title": "Detail View",
+  "cubeCode": "FORM_XXXXXX",
+  "columns": [
+    { "field": "name", "title": "Name" },
+    { "field": "amount", "title": "Amount" },
+    { "field": "date", "title": "Date" }
+  ]
+}
+```
+
+---
+
+## Định dạng cubeCode
+
+`cubeCode` là mã định danh duy nhất của biểu mẫu (form) được sử dụng làm nguồn dữ liệu cho biểu đồ. Định dạng của `cubeCode` tuân theo quy tắc sau:
+
+- Bắt đầu bằng tiền tố `FORM_`
+- Theo sau là mã định danh viết hoa, ví dụ: `FORM_MONTHLY_SALES`, `FORM_DAILY_SALES`
+- Đối với biểu mẫu chung, sử dụng mã UUID dạng `FORM_XXXXXX`
+
+Bạn có thể tìm `cubeCode` của biểu mẫu trong phần cấu hình biểu mẫu trên giao diện quản trị Yida.
+
+---
+
+## Hàm tổng hợp
+
+| Hàm | Mô tả |
+|----------|-------------|
+| **sum** | Tổng các giá trị |
+| **avg** | Giá trị trung bình |
+| **count** | Số lượng bản ghi |
+| **max** | Giá trị lớn nhất |
+| **min** | Giá trị nhỏ nhất |
+
+---
+
+## Ví dụ cấu hình đầy đủ
+
+### sales-report-charts.json
+
+```json
+{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_MONTHLY_SALES",
+      "xField": "month",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "pie",
+      "title": "Product Categories",
+      "cubeCode": "FORM_SALES",
+      "categoryField": "product_category",
+      "valueField": "sales_amount"
+    },
+    {
+      "type": "line",
+      "title": "Sales Trend",
+      "cubeCode": "FORM_DAILY_SALES",
+      "xField": "date",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "table",
+      "title": "Sales Detail",
+      "cubeCode": "FORM_SALES",
+      "columns": [
+        { "field": "order_no", "title": "Order No.", "width": 150 },
+        { "field": "customer_name", "title": "Customer", "width": 200 },
+        { "field": "product_name", "title": "Product", "width": 200 },
+        { "field": "amount", "title": "Amount", "width": 120 },
+        { "field": "sales_date", "title": "Date", "width": 150 }
+      ],
+      "pageSize": 10
+    }
+  ]
+}
+```
+
+Tạo báo cáo:
+
+```bash
+openyida create-report APP_XXXXXX "Sales Analysis Report" ./sales-report-charts.json
+```
+
+---
+
+## Thực hành tốt nhất
+
+1. **Chọn loại biểu đồ phù hợp** - Biểu đồ đường cho xu hướng, biểu đồ cột cho so sánh, biểu đồ tròn cho tỷ lệ
+2. **Giới hạn số lượng biểu đồ** - Giữ mỗi báo cáo không quá 6 biểu đồ
+3. **Bao gồm bảng dữ liệu** - Kết hợp biểu đồ với bảng để kiểm tra dữ liệu chi tiết
+4. **Đặt kích thước trang hợp lý** - Với bảng dữ liệu, sử dụng 10-20 hàng mỗi trang

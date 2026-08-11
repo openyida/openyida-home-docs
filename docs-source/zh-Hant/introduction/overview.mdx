@@ -1,0 +1,85 @@
+---
+title: "什麼是 OpenYida？"
+description: "OpenYida 是一款 AI 驅動的宜搭低代碼平臺 CLI 工具，零配置即裝即用，支持自然語言創建應用、管理表單和發佈部署。"
+icon: "rocket"
+---
+<p align="center">
+  <a href="https://www.npmjs.com/package/openyida"><img src="https://img.shields.io/npm/v/openyida?color=brightgreen&label=npm" alt="npm version"/></a> <a href="https://www.npmjs.com/package/openyida"><img src="https://img.shields.io/npm/dm/openyida?color=blue" alt="npm downloads"/></a> <a href="https://github.com/openyida/openyida/actions/workflows/ci.yml"><img src="https://github.com/openyida/openyida/actions/workflows/ci.yml/badge.svg" alt="CI"/></a> <a href="https://github.com/openyida/openyida/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a> <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" alt="Node.js ≥18"/></a>
+</p>
+
+## 概述
+
+**OpenYida** 是一個零配置 CLI 工具，連接 AI 編程助手與[宜搭 (Yida)](https://www.aliwork.com) 低代碼平臺。安裝一次，然後用自然語言描述需求 — OpenYida 會自動處理：創建應用、管理表單、發佈頁面、配置連接器、生成報表，秒級部署到宜搭。
+
+🌐 **官方網站**: [https://openyida.ai](https://openyida.ai)
+
+<CardGroup cols={2}>
+  <Card title="一句話生成應用" icon="wand-magic-sparkles">
+    用一句話描述需求，AI 自動生成完整的多表單業務系統。
+  </Card>
+  <Card title="需求文檔轉應用" icon="file-lines">
+    粘貼需求文檔，獲得功能完整的宜搭應用，包含所有指定字段和邏輯。
+  </Card>
+  <Card title="表單與頁面操作" icon="table-columns">
+    通過自然語言命令創建、修改、配置表單和自定義展示頁面。
+  </Card>
+  <Card title="發佈與分享" icon="share-nodes">
+    一條指令完成頁面編譯、發佈和公開訪問配置。
+  </Card>
+</CardGroup>
+
+---
+
+## 核心功能
+
+| 功能模塊 | 說明 |
+|---------|------|
+| **應用管理** | 創建應用、導入導出、遷移部署 |
+| **表單管理** | 創建/更新表單、獲取 Schema、配置權限 |
+| **頁面發佈** | 自定義頁面開發、Babel 編譯、一鍵發佈 |
+| **流程配置** | 流程表單創建、審批規則配置 |
+| **整合與自動化** | 邏輯流建立與管理，表單事件觸發、訊息通知、跨表資料操作 |
+| **數據管理** | 表單數據查詢、流程實例、任務管理 |
+| **連接器** | HTTP 連接器創建、API 集成、curl 智能導入 |
+| **報表圖表** | 宜搭報表創建、圖表追加、數據可視化 |
+| **CDN 管理** | 圖片上傳、緩存刷新、OSS 配置 |
+| **MCP App 伺服器** | 透過 MCP 協議在 AI 對話中管理宜搭應用，支援互動式儀表盤和圖表 |
+
+---
+
+## 與其他 AI 搭建平臺的區別
+
+| 維度 | OpenYida | 其他 AI 搭建平臺 |
+|------|----------|------------------|
+| **目標用戶** | 開發者（懂代碼的人） | 業務人員（非開發者） |
+| **交互方式** | 自然語言 + AI 對話 | 可視化拖拽 + 配置面板 |
+| **產出物** | 宜搭應用（可二次編輯，支持完備低代碼能力） | 配置（黑盒運行） |
+| **部署方式** | 宜搭平臺 | SaaS 平臺綁定 |
+| **AI 模型** | 按需選擇，選擇最適合的模型 | 平臺指定，無法更換 |
+| **安全合規** | 宜搭具備完善的安全和合規能力 | 依賴平臺能力 |
+
+---
+
+## 支持的 AI 編程工具
+
+OpenYida 作爲 MCP 兼容的技能包，原生集成所有主流 AI 編程環境：
+
+| 工具 | 狀態 |
+|------|------|
+| [Claude Code](https://claude.ai/code) | ✅ 完整支持 |
+| [Aone Copilot](https://copilot.code.alibaba-inc.com) | ✅ 完整支持 |
+| [OpenCode](https://opencode.ai) | ✅ 完整支持 |
+| [Cursor](https://cursor.com/) | ✅ 完整支持 |
+| [Visual Studio Code](https://code.visualstudio.com/) | ✅ 完整支持 |
+| [Qoder](https://qoder.com) | ✅ 完整支持 |
+| [千問辦公](https://qwenwork.cn) | ✅ 完整支持 |
+
+---
+
+## 環境要求
+
+| 依賴 | 版本 | 用途 |
+|------|------|------|
+| Node.js | ≥ 18 | CLI 運行、頁面發佈 |
+
+無需 Python、Playwright、構建步驟 — 純 Node.js 實現。

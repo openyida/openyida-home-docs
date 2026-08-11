@@ -1,0 +1,51 @@
+---
+title: "Berbagi dan navigasi"
+description: "Dokumen ini menjelaskan Berbagi dan navigasi di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan."
+icon: share-nodes
+---
+
+# Berbagi dan navigasi
+
+Halaman ini menjelaskan Berbagi dan navigasi di OpenYida, termasuk tujuan, alur penggunaan, dan hal penting saat membangun aplikasi Yida dengan AI.
+
+## Ikhtisar
+
+Dokumen ini menjelaskan Berbagi dan navigasi di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan.
+
+## Poin penting
+
+- Gunakan halaman ini untuk memahami konteks utama sebelum menerapkannya di proyek nyata.
+- Nama perintah, parameter, kode, dan beberapa nama produk tetap menggunakan bahasa Inggris agar mudah dicari dan disalin dengan benar.
+- Saat bekerja dengan宜搭, periksa izin, organisasi, dan lingkungan sebelum publikasi.
+
+## Penggunaan
+
+Ikuti langkah dalam dokumen ini bersama OpenYida CLI dan konfigurasi organisasi. Jika ada contoh kode di bawah, contoh tersebut dapat disalin lalu disesuaikan dengan kebutuhan.
+
+## Perintah dan contoh
+
+Contoh berikut mempertahankan perintah dan kode asli untuk menjaga akurasi teknis.
+
+```bash
+openyida verify-short-url <appType> <formUuid> /s/my-dashboard
+openyida save-share-config <appType> <formUuid> /s/my-dashboard y
+openyida get-page-config <appType> <formUuid>
+```
+
+```text
+https://www.aliwork.com/s/my-dashboard
+```
+
+```bash
+openyida verify-short-url <appType> <formUuid> /o/my-public-page
+openyida save-share-config <appType> <formUuid> /o/my-public-page y n
+```
+
+```bash
+openyida save-share-config <appType> <formUuid> "" n
+```
+
+```bash
+openyida update-form-config <appType> <formUuid> false "Page Title"
+openyida update-form-config <appType> <formUuid> true "Page Title"
+```

@@ -1,0 +1,265 @@
+---
+title: "Prompts Comunes"
+description: "Colección de prompts en lenguaje natural soportados por OpenYida."
+icon: "comments"
+---
+
+OpenYida está diseñado para la interacción en lenguaje natural. Los siguientes prompts han sido verificados y funcionan en todas las herramientas de IA soportadas.
+
+---
+
+## Creación de Aplicaciones
+
+```
+Ayúdame a crear una aplicación xxx
+```
+```
+Ayúdame a crear un CRM
+```
+```
+Ayúdame a crear una aplicación de calculadora de salario personal
+```
+```
+Ayúdame a crear un sistema IPD con Yida para gestionar todo el proceso de producción de chips
+```
+```
+Generar una aplicación basada en el documento de requisitos: [pegar PRD]
+```
+```
+Crear un minijuego de felicitación de cumpleaños en Yida
+```
+```
+Crear un juego de adivinanzas de linternas para el Festival de las Linternas
+```
+
+---
+
+## Operaciones de Formularios y Páginas
+
+### Crear Página de Formulario
+
+```
+Ayúdame a crear una página de formulario xxx
+```
+```
+Crear un formulario de solicitud de vacaciones que incluya: nombre del empleado, departamento, fecha de inicio, fecha de fin, motivo
+```
+
+### Agregar Campos de Formulario
+
+```
+Agregar un campo [nombre del campo] a [nombre de la página], tipo de campo: [TextField/NumberField/DateField/SelectField/...]
+```
+```
+Agregar un campo desplegable "Departamento" al formulario de información del empleado, opciones: Ingeniería, Marketing, Ventas, RRHH
+```
+
+<Note>
+Solo se aceptan [tipos de campos soportados](/es/features/skills#tipos-de-campos-soportados). Los tipos no soportados (por ejemplo, `MobileField`, `EmailField`) serán rechazados.
+</Note>
+
+### Modificar Propiedades de Campo
+
+```
+Hacer que el campo [nombre del campo] en [nombre de la página] sea obligatorio
+```
+```
+Hacer que el campo [nombre del campo] en [nombre de la página] sea de solo lectura
+```
+```
+Cambiar la etiqueta del campo [nombre del campo] en [nombre de la página] a [nueva etiqueta]
+```
+
+### Páginas de Visualización Personalizadas
+
+```
+Crear una página de visualización personalizada para [nombre de la página]
+```
+```
+Generar una landing page para un producto de colaboración empresarial
+```
+
+---
+
+## Publicar y Compartir
+
+```
+Publicar la página [nombre de la página]
+```
+```
+Hacer que la página [nombre de la página] sea de acceso público
+```
+```
+Configurar permisos de acceso público para la página [nombre de la página] — cualquiera puede acceder mediante el enlace
+```
+
+---
+
+## Flash Note a PRD
+
+```
+Convertir notas flash de DingTalk a documentos PRD
+```
+
+```
+Generar un PRD de esta transcripción de reunión: [pegar notas]
+```
+
+```
+Crear un documento de requisitos de proyecto de la nota flash adjunta
+```
+
+```
+Convertir notas de reunión en un documento de requisitos de producto estructurado
+```
+
+<Note>
+Requiere inicio de sesión. El comando lee transcripciones de reuniones y utiliza IA para generar documentos PRD estructurados. La salida se guarda en el directorio `prd/`.
+</Note>
+
+---
+
+## Gestión de Datos
+
+```
+Consultar todos los registros de [nombre del formulario]
+```
+```
+Exportar datos de [nombre del formulario] a Excel
+```
+```
+Eliminar todos los datos de prueba de [nombre del formulario]
+```
+
+---
+
+## Integración y Automatización
+
+### Crear Flujo de Integración
+
+```
+Crear un flujo de integración que envíe notificaciones cuando se envíen nuevos registros
+```
+
+```
+Configurar una automatización en [nombre del formulario] para notificar a [equipo/usuario] sobre nuevos envíos
+```
+
+```
+Crear un flujo de trabajo de [nombre del formulario] que active notificaciones por correo electrónico a [destinatarios]
+```
+
+### Agregar Acciones Automatizadas
+
+```
+Agregar una acción de búsqueda de datos a la integración [nombre del flujo]
+```
+
+```
+Agregar una acción de creación de registros para crear automáticamente entradas en [formulario destino]
+```
+
+<Note>
+Los flujos de integración se activan en eventos de formulario (inserción, actualización, eliminación) y pueden ejecutar notificaciones, búsquedas de datos y creación de registros. Use la CLI para crear y configurar flujos.
+</Note>
+
+---
+
+## Conectores (Integración HTTP)
+
+```
+Crear un conector HTTP para [nombre de la API], URL base: [url]
+```
+```
+Agregar una acción POST a [nombre del conector] para crear registros
+```
+```
+Crear inteligentemente un conector desde este comando curl: [pegar curl]
+```
+
+---
+
+## Informes y Gráficos
+
+```
+Crear un informe Yida para [nombre de la aplicación] con un gráfico de barras que muestre envíos mensuales
+```
+```
+Agregar un gráfico circular a [nombre del informe] que muestre la distribución de estados
+```
+
+---
+
+## Cuenta y Entorno
+
+```
+Volver a iniciar sesión / Cerrar sesión
+```
+```
+Cambiar a la organización [nombre de la organización]
+```
+```
+Verificar el estado de inicio de sesión actual
+```
+```
+Ejecutar diagnóstico del entorno
+```
+
+---
+
+## Integración DingTalk
+
+### Buscar y Consultar
+
+```
+Buscar un contacto llamado [nombre]
+```
+
+```
+Listar todos los eventos del calendario
+```
+
+```
+Consultar mis solicitudes de aprobación
+```
+
+### Crear y Gestionar
+
+```
+Crear una tarea pendiente: [descripción de la tarea]
+```
+
+```
+Enviar un mensaje: [contenido del mensaje]
+```
+
+### Consultar Asistencia
+
+```
+Listar registros de asistencia
+```
+
+```
+Verificar mi estado de asistencia
+```
+
+<Info>
+El comando `dws` requiere que la CLI de DingTalk se instale por separado. Ejecute `openyida dws install` si aún no está instalado. La salida es por defecto en formato de tabla; agregue `-f json` para salida JSON.
+</Info>
+
+---
+
+## CDN y Recursos
+
+```
+Configurar carga de imágenes CDN para [nombre de la aplicación]
+```
+```
+Subir [archivo de imagen] al CDN
+```
+
+---
+
+<Tip>
+**Consejo:** Cuanto más contexto proporciones, mejores serán los resultados. En lugar de decir "crear un formulario", di "Crear un formulario de aprobación de vacaciones con nombre del empleado, departamento, tipo de vacaciones (desplegable: anual/enfermedad/personal), fechas de inicio y fin, motivo — hacer obligatorios el nombre del empleado y las fechas".
+</Tip>

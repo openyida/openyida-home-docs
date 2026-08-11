@@ -1,0 +1,370 @@
+---
+title: "数据管理"
+description: "使用 OpenYida CLI 统一管理宜搭数据，支持表单数据查询与创建、流程审批、任务中心和子表单操作。"
+icon: "database"
+---
+
+OpenYida 提供统一的数据管理 CLI，支持对表单数据、流程实例、任务、子表单等进行完整的操作。
+
+---
+
+## 功能概述
+
+<CardGroup cols={2}>
+  <Card title="表单数据" icon="table">
+    查询、创建、更新表单实例数据。
+  </Card>
+  <Card title="流程数据" icon="diagram-project">
+    管理流程实例、审批记录、流程状态。
+  </Card>
+  <Card title="任务管理" icon="check-circle">
+    查询待办、已办、我提交的、抄送我的任务。
+  </Card>
+  <Card title="子表单" icon="list">
+    独立查询和管理子表单数据。
+  </Card>
+</CardGroup>
+
+---
+
+## 命令格式
+
+```bash
+openyida data <action> <resource> [args]
+```
+
+- **action**: `query` | `get` | `create` | `update` | `execute`
+- **resource**: `form` | `process` | `task` | `subform` | `operation-records`
+
+---
+
+<Warning>
+  宜搭字段 ID 由平台随机生成（如 `textField_eftt1aa5m`），无法猜测或从字段名称推断。创建或更新任何记录前，**必须**先运行 `openyida get-schema <appType> <formUuid>` 获取真实字段 ID，并将字段名→ID 映射记录到 `.cache/<项目名>-schema.json`。写入数据后，查询至少一条记录（`--size 1`）确认 `formData` 中字段有实际值——若值为空则说明字段 ID 有误。
+</Warning>
+
+## 表单数据管理
+
+### 查询表单数据
+
+```bash
+# 基本查询
+openyida data query form <appType> <formUuid>
+
+# 分页查询
+openyida data query form <appType> <formUuid> --page 1 --size 50
+
+# 条件查询
+openyida data query form <appType> <formUuid> \
+  --search-json '[{"key":"field_xxx","value":"value","type":"TEXT","operator":"eq","componentName":"TextField"}]'
+
+# 查询指定实例
+openyida data query form <appType> <formUuid> --inst-id <formInstId>
+
+# 仅返回实例 ID
+openyida data query form <appType> <formUuid> --ids-only
+
+# 按创建人和日期范围过滤
+openyida data query form <appType> <formUuid> \
+  --originator-id <userId> \
+  --create-from "2026-01-01" --create-to "2026-12-31"
+```
+
+#### 可选参数
+
+| 参数 | 说明 |
+|------|------|
+| `--page N` | 页码（默认 `1`） |
+| `--size N` | 每页条数（默认 `20`，最大 `100`）。超过 `100` 会导致 API 返回 HTTP 500 错误，CLI 会自动截断并发出警告 |
+| `--search-json JSON` | 查询条件（必须是合法 JSON，详见[查询条件格式](#查询条件格式)） |
+| `--inst-id ID` | 按实例 ID 查询单条记录 |
+| `--ids-only` | 仅返回实例 ID |
+| `--originator-id ID` | 按创建人过滤 |
+| `--create-from DATE` | 过滤指定日期之后创建的记录 |
+| `--create-to DATE` | 过滤指定日期之前创建的记录 |
+| `--modified-from DATE` | 过滤指定日期之后修改的记录 |
+| `--modified-to DATE` | 过滤指定日期之前修改的记录 |
+| `--dynamic-order FIELD` | 按字段排序 |
+
+<Note>
+  **appType 参数说明：** 在宜搭自定义页面的 JS 代码中调用 `this.utils.yida.searchFormDatas` 时，不需要传 `appType`（SDK 会自动从页面上下文获取）。通过 CLI（`openyida data query form`）或外部 HTTP 请求调用时，`appType` 是必填参数，格式如 `APP_XXXXXXXX`。
+</Note>
+
+<Warning>
+  **searchFormDatas 返回结构不一致：** 宜搭 API 在不同场景下可能返回两种响应结构：
+  - **直接结构**（常见）：`{ data: [...], totalCount, currentPage }`
+  - **嵌套结构**（部分场景）：`{ content: { data: [...], totalCount, currentPage } }`
+
+  如果你通过 JS API 直接调用，请使用兼容写法读取数据：
+  ```javascript
+  var data = (res && res.data) || (res && res.content && res.content.data) || [];
+  var total = (res && res.totalCount) || (res && res.content && res.content.totalCount) || 0;
+  ```
+  使用 `openyida data query form` CLI 命令时无需处理此问题，CLI 已自动归一化为直接结构。
+</Warning>
+
+### 获取单条数据
+
+```bash
+openyida data get form <appType> --inst-id <formInstId>
+```
+
+### 创建数据
+
+```bash
+openyida data create form <appType> <formUuid> \
+  --data-json '{"field_xxx": "value", "field_yyy": 123}' \
+  --dept-id <departmentId>
+```
+
+### 更新数据
+
+```bash
+openyida data update form <appType> \
+  --inst-id <formInstId> \
+  --data-json '{"field_xxx": "new value"}' \
+  --use-latest-version y
+```
+
+---
+
+## 流程数据管理
+
+### 查询流程实例
+
+```bash
+# 查询流程列表
+openyida data query process <appType> <formUuid> \
+  --page 1 --size 20 \
+  --instance-status RUNNING
+
+# 状态可选：RUNNING（进行中）、COMPLETED（已完成）、TERMINATED（已终止）
+
+# 仅返回实例 ID
+openyida data query process <appType> <formUuid> --ids-only
+
+# 按任务和审批结果过滤
+openyida data query process <appType> <formUuid> \
+  --task-id <taskId> \
+  --approved-result AGREE
+```
+
+#### 可选参数
+
+| 参数 | 说明 |
+|------|------|
+| `--page N` | 页码（默认 `1`） |
+| `--size N` | 每页条数（默认 `10`，最大 `100`） |
+| `--search-json JSON` | 查询条件（必须是合法 JSON） |
+| `--instance-status STATUS` | 按状态过滤：`RUNNING`、`COMPLETED`、`TERMINATED` |
+| `--task-id ID` | 按任务 ID 过滤 |
+| `--approved-result RESULT` | 按审批结果过滤：`AGREE`、`DISAGREE` |
+| `--ids-only` | 仅返回实例 ID |
+| `--originator-id ID` | 按创建人过滤 |
+| `--create-from DATE` | 过滤指定日期之后创建的实例 |
+| `--create-to DATE` | 过滤指定日期之前创建的实例 |
+| `--modified-from DATE` | 过滤指定日期之后修改的实例 |
+| `--modified-to DATE` | 过滤指定日期之前修改的实例 |
+
+### 获取流程详情
+
+```bash
+openyida data get process <appType> --process-inst-id <processInstanceId>
+```
+
+### 创建流程实例
+
+```bash
+openyida data create process <appType> <formUuid> \
+  --process-code <processCode> \
+  --data-json '{"field_xxx": "value"}' \
+  --dept-id <departmentId>
+```
+
+### 更新流程实例
+
+```bash
+openyida data update process <appType> \
+  --process-inst-id <processInstanceId> \
+  --data-json '{"field_xxx": "updated value"}'
+```
+
+### 查询审批记录
+
+```bash
+openyida data query operation-records <appType> \
+  --process-inst-id <processInstanceId>
+```
+
+---
+
+## 任务管理
+
+<Tip>
+  如果你需要查询跨应用的全局任务中心数据（无需指定 `appType`），请使用 `openyida task-center` 命令。详见 [CLI 参考](/zh/features/skills#全局任务中心)。
+</Tip>
+
+### 查询任务列表
+
+```bash
+# 待办任务
+openyida data query tasks <appType> --type todo
+
+# 已办任务
+openyida data query tasks <appType> --type done
+
+# 我提交的
+openyida data query tasks <appType> --type submitted
+
+# 抄送我的
+openyida data query tasks <appType> --type cc
+
+# 带分页和关键词过滤
+openyida data query tasks <appType> --type todo --page 1 --size 20 --keyword "紧急"
+```
+
+#### 可选参数
+
+| 参数 | 说明 |
+|------|------|
+| `--type TYPE` | **必填。** 任务类型：`todo`、`done`、`submitted`、`cc` |
+| `--page N` | 页码（默认 `1`） |
+| `--size N` | 每页条数（默认 `10`，最大 `100`） |
+| `--keyword TEXT` | 搜索关键词 |
+| `--process-codes JSON` | 按流程编码过滤（JSON 数组） |
+| `--instance-status STATUS` | 按流程实例状态过滤 |
+
+### 执行任务
+
+```bash
+openyida data execute task <appType> \
+  --task-id <taskId> \
+  --process-inst-id <processInstanceId> \
+  --out-result AGREE \
+  --remark "同意，请继续推进" \
+  --data-json '{"comment": "审批通过"}'
+```
+
+| 参数 | 说明 |
+|------|------|
+| `--task-id ID` | **必填。** 任务 ID |
+| `--process-inst-id ID` | **必填。** 流程实例 ID |
+| `--out-result RESULT` | **必填。** `AGREE`（同意）或 `DISAGREE`（不同意） |
+| `--remark TEXT` | **必填。** 审批意见 |
+| `--data-json JSON` | 审批时同步更新的表单数据 |
+| `--no-execute-expressions y` | 任务完成后跳过表达式执行 |
+
+---
+
+## 子表单管理
+
+### 查询子表单数据
+
+```bash
+openyida data query subform <appType> <formUuid> \
+  --inst-id <formInstId> \
+  --table-field-id <fieldId> \
+  --page 1 --size 20
+```
+
+---
+
+## 高级用法
+
+### 查询条件格式
+
+`--search-json` 参数接受数组格式的查询条件。该值必须是合法 JSON——CLI 会在发送请求前验证输入，格式错误的 JSON 会被拒绝并报错。
+
+每个条件是一个包含以下字段的对象：
+
+| 字段 | 说明 |
+|------|------|
+| `key` | 字段 ID（如 `field_xxx`） |
+| `value` | 匹配值 |
+| `type` | 数据类型：`TEXT`、`NUMBER`、`DATE` 等 |
+| `operator` | 操作符：`eq`、`like`、`gt`、`gte`、`lt`、`lte`、`in`、`range` |
+| `componentName` | 组件类型：`TextField`、`NumberField`、`DateField` 等 |
+
+示例：
+
+```bash
+openyida data query form <appType> <formUuid> \
+  --search-json '[
+    {"key":"field_status","value":"approved","type":"TEXT","operator":"eq","componentName":"TextField"},
+    {"key":"field_amount","value":"1000","type":"NUMBER","operator":"gte","componentName":"NumberField"}
+  ]'
+```
+
+### 批量操作脚本示例
+
+```bash
+#!/bin/bash
+# 批量导出表单数据
+
+APP_TYPE="APP_XXXXXXXX"
+FORM_UUID="FORM-XXXX-XXXX"
+PAGE=1
+
+while true; do
+  RESULT=$(openyida data query form $APP_TYPE $FORM_UUID --page $PAGE --size 100)
+  
+  # 处理当前页数据
+  echo "$RESULT" >> ./export.json
+  
+  # 检查是否还有下一页
+  HAS_MORE=$(echo "$RESULT" | jq '.hasMore')
+  if [ "$HAS_MORE" != "true" ]; then
+    break
+  fi
+  
+  PAGE=$((PAGE + 1))
+done
+```
+
+### AttachmentField 数据格式
+
+在创建或更新表单数据时，`AttachmentField`（附件）和 `ImageField`（图片）字段需要使用特定的对象数组格式。你不能直接传入文件对象或纯文本字符串。
+
+每个附件对象需要包含以下字段：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `name` | String | 文件名 |
+| `size` | Number | 文件大小（字节） |
+| `fileUuid` | String | 文件唯一标识（OSS objectName） |
+| `url` | String | 文件访问 URL |
+| `downloadUrl` | String | 文件下载 URL |
+| `previewUrl` | String | 文件预览 URL |
+
+示例：
+
+```bash
+openyida data create form <appType> <formUuid> \
+  --data-json '{
+    "attachmentField_xxx": [
+      {
+        "name": "report.pdf",
+        "size": 102400,
+        "fileUuid": "APP_XXX/2026/4-1/1713000000000-report.pdf",
+        "url": "/ossFileHandle?appType=APP_XXX&fileName=report.pdf&type=download",
+        "downloadUrl": "/ossFileHandle?appType=APP_XXX&fileName=report.pdf&type=download",
+        "previewUrl": "/inst/preview?appType=APP_XXX&fileName=report.pdf"
+      }
+    ]
+  }'
+```
+
+<Warning>
+  `AttachmentField` 的值必须是对象数组，不能是单个对象、字符串或 `File` 对象。传入错误格式会导致类似 `syntax error, expect [` 的报错。
+</Warning>
+
+---
+
+## 注意事项
+
+<Warning>
+  数据操作具有永久性，更新操作不可撤销。建议在执行批量操作前先进行小规模测试。
+</Warning>
+
+<Info>
+  分页查询默认每页 20 条，最大支持 100 条。设置超过 100 的 `pageSize` 会导致 API 返回 HTTP 500 错误（错误信息为"参数校验失败pageSize"）。CLI 会自动将超出值截断为 100 并发出警告。大量数据导出建议使用循环分页获取。
+</Info>

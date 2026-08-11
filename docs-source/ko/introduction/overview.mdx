@@ -1,0 +1,85 @@
+---
+title: "OpenYida란 무엇인가요?"
+description: "OpenYida는 AI 기반 Yida 로우코드 플랫폼 CLI 도구입니다. 설정 없이 즉시 사용 가능하며 자연어로 앱 생성, 양식 관리, 배포가 가능합니다."
+icon: "rocket"
+---
+<p align="center">
+  <a href="https://www.npmjs.com/package/openyida"><img src="https://img.shields.io/npm/v/openyida?color=brightgreen&label=npm" alt="npm version"/></a> <a href="https://www.npmjs.com/package/openyida"><img src="https://img.shields.io/npm/dm/openyida?color=blue" alt="npm downloads"/></a> <a href="https://github.com/openyida/openyida/actions/workflows/ci.yml"><img src="https://github.com/openyida/openyida/actions/workflows/ci.yml/badge.svg" alt="CI"/></a> <a href="https://github.com/openyida/openyida/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a> <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" alt="Node.js ≥18"/></a>
+</p>
+
+## 개요
+
+**OpenYida**는 설정 없는 CLI 도구로, AI 프로그래밍 어시스턴트와 [Yida](https://www.aliwork.com) 로우코드 플랫폼을 연결합니다. 한 번만 설치하면 자연어로 요구사항을 설명하기만 하면 됩니다. OpenYida가 자동으로 처리합니다: 앱 생성, 양식 관리, 페이지 게시, 커넥터 구성, 보고서 생성, Yida로 초 단위 배포.
+
+🌐 **공식 웹사이트**: [https://openyida.ai](https://openyida.ai)
+
+<CardGroup cols={2}>
+  <Card title="한 문장으로 앱 생성" icon="wand-magic-sparkles">
+    한 문장으로 요구사항을 설명하면 AI가 완전한 다중 양식 비즈니스 시스템을 자동으로 생성합니다.
+  </Card>
+  <Card title="요구사항 문서에서 앱 생성" icon="file-lines">
+    요구사항 문서를 붙여넣으면 지정된 모든 필드와 로직이 포함된 완전한 Yida 앱을 얻을 수 있습니다.
+  </Card>
+  <Card title="양식 및 페이지 작업" icon="table-columns">
+    자연어 명령으로 양식과 사용자 정의 표시 페이지를 생성, 수정, 구성할 수 있습니다.
+  </Card>
+  <Card title="게시 및 공유" icon="share-nodes">
+    하나의 명령으로 페이지 컴파일, 게시, 공개 액세스 구성을 완료합니다.
+  </Card>
+</CardGroup>
+
+---
+
+## 핵심 기능
+
+| 기능 모듈 | 설명 |
+|---------|------|
+| **앱 관리** | 앱 생성, 가져오기/내보내기, 마이그레이션 배포 |
+| **양식 관리** | 양식 생성/업데이트, Schema 가져오기, 권한 구성 |
+| **페이지 게시** | 사용자 정의 페이지 개발, Babel 컴파일, 원클릭 게시 |
+| **프로세스 구성** | 프로세스 양식 생성, 승인 규칙 구성 |
+| **통합 및 자동화** | 로직플로우 생성 및 관리, 양식 이벤트 트리거, 알림, 교차 양식 데이터 작업 |
+| **데이터 관리** | 양식 데이터 쿼리, 프로세스 인스턴스, 작업 관리 |
+| **커넥터** | HTTP 커넥터 생성, API 통합, curl 스마트 가져오기 |
+| **보고서 및 차트** | Yida 보고서 생성, 차트 추가, 데이터 시각화 |
+| **CDN 관리** | 이미지 업로드, 캐시 새로고침, OSS 구성 |
+| **MCP App 서버** | MCP 프로토콜을 통해 AI 대화에서 Yida 앱을 관리하며, 대화형 대시보드와 차트 지원 |
+
+---
+
+## 다른 AI 빌드 플랫폼과의 차이점
+
+| 차원 | OpenYida | 다른 AI 빌드 플랫폼 |
+|------|----------|------------------|
+| **대상 사용자** | 개발자 (코드를 이해하는 사람) | 비즈니스 사용자 (비개발자) |
+| **상호작용 방식** | 자연어 + AI 대화 | 시각적 드래그 앤 드롭 + 구성 패널 |
+| **출력물** | Yida 앱 (재편집 가능, 완전한 로우코드 기능 지원) | 구성 (블랙박스 실행) |
+| **배포 방식** | Yida 플랫폼 | SaaS 플랫폼에 바인딩 |
+| **AI 모델** | 필요에 따라 선택, 가장 적합한 모델 선택 가능 | 플랫폼 지정, 변경 불가능 |
+| **보안 및 규정 준수** | Yida는 완전한 보안 및 규정 준수 기능을 갖춤 | 플랫폼 기능에 의존 |
+
+---
+
+## 지원되는 AI 프로그래밍 도구
+
+OpenYida는 MCP 호환 스킬 패키지로, 모든 주요 AI 프로그래밍 환경에 기본 통합됩니다:
+
+| 도구 | 상태 |
+|------|------|
+| [Claude Code](https://claude.ai/code) | ✅ 완전 지원 |
+| [Aone Copilot](https://copilot.code.alibaba-inc.com) | ✅ 완전 지원 |
+| [OpenCode](https://opencode.ai) | ✅ 완전 지원 |
+| [Cursor](https://cursor.com/) | ✅ 완전 지원 |
+| [Visual Studio Code](https://code.visualstudio.com/) | ✅ 완전 지원 |
+| [Qoder](https://qoder.com) | ✅ 완전 지원 |
+| [QwenWork](https://qwenwork.cn) | ✅ 완전 지원 |
+
+---
+
+## 환경 요구사항
+
+| 종속성 | 버전 | 용도 |
+|------|------|------|
+| Node.js | ≥ 18 | CLI 실행, 페이지 게시 |
+
+Python, Playwright, 빌드 단계 불필요 — 순수 Node.js 구현입니다.

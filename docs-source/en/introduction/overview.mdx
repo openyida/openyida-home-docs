@@ -1,0 +1,130 @@
+---
+title: "Overview"
+description: "OpenYida is a CLI tool that enables AI agents to build Yida applications using natural language."
+icon: "rocket"
+---
+
+## What is OpenYida?
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/openyida"><img src="https://img.shields.io/npm/v/openyida?color=brightgreen&label=npm" alt="npm version"/></a> <a href="https://www.npmjs.com/package/openyida"><img src="https://img.shields.io/npm/dm/openyida?color=blue" alt="npm downloads"/></a> <a href="https://github.com/openyida/openyida/actions/workflows/ci.yml"><img src="https://github.com/openyida/openyida/actions/workflows/ci.yml/badge.svg" alt="CI"/></a> <a href="https://github.com/openyida/openyida/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a> <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" alt="Node.js ≥18"/></a>
+</p>
+
+OpenYida is a command-line interface that bridges AI agents with the [Yida](https://www.aliwork.com) low-code platform. It allows you to create, manage, and deploy enterprise applications using natural language prompts — no manual drag-and-drop required.
+
+Think of it as a way to describe what you want ("a CRM with leads, contacts, and deals") and have AI build it for you on the Yida platform.
+
+🌐 **Official Website**: [https://openyida.ai](https://openyida.ai)
+
+---
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Natural Language App Creation" icon="message">
+    Describe your application in plain English. AI translates your requirements into Yida forms, pages, and workflows.
+  </Card>
+  <Card title="Multi-AI Tool Support" icon="robot">
+    Works with Claude Code, Cursor, VS Code, QwenWork, and any MCP-compatible AI assistant.
+  </Card>
+  <Card title="Full Yida Integration" icon="plug">
+    Creates real Yida applications — not mockups. All standard Yida features: forms, processes, reports, connectors.
+  </Card>
+  <Card title="Custom Page Compilation" icon="code">
+    JSX-based custom pages are compiled with Babel and published to Yida automatically.
+  </Card>
+  <Card title="Data Management" icon="database">
+    Query, export, and manage form data, processes, tasks, and subforms via CLI.
+  </Card>
+  <Card title="HTTP Connector Management" icon="link">
+    Create and manage HTTP connectors for API integrations, including smart creation from curl commands.
+  </Card>
+  <Card title="MCP App Server" icon="puzzle-piece">
+    Use `@openyida/mcp-app` with Claude Desktop, ChatGPT, VS Code, and other MCP clients to manage Yida apps with interactive dashboards and charts.
+  </Card>
+</CardGroup>
+
+---
+
+## How It Works
+
+```
+┌─────────────────┐     ┌──────────────┐     ┌─────────────────┐
+│   You / AI      │────▶│   OpenYida   │────▶│     Yida        │
+│   (Natural      │     │    CLI       │     │   Platform      │
+│    Language)    │     │              │     │                 │
+└─────────────────┘     └──────────────┘     └─────────────────┘
+                              │
+                              ▼
+                       ┌──────────────┐
+                       │  Local Files │
+                       │  (Config,    │
+                       │   Code)      │
+                       └──────────────┘
+```
+
+1. **Describe** what you want in natural language
+2. **OpenYida** translates to Yida API calls
+3. **Yida** creates the application
+4. **Result** is a real, editable Yida app
+
+---
+
+## Quick Example
+
+```bash
+# Login to Yida
+openyida login
+
+# Create an application
+openyida create-app --name "My CRM"
+
+# AI generates forms from your description
+openyida create-form --page "Leads" --schema '{...}'
+```
+
+Or simply tell your AI assistant:
+
+> "Create a CRM with leads, contacts, and deals forms. Each lead should have name, company, phone, and status fields."
+
+The AI will use OpenYida commands to build it.
+
+---
+
+## Use Cases
+
+- **Rapid Prototyping** — Build MVPs in minutes instead of hours
+- **Internal Tools** — Create HR, IT, or operations apps with natural language
+- **Form Builders** — Generate complex forms with validation and workflows
+- **Landing Pages** — Build custom showcase pages with JSX
+- **Process Automation** — Design approval workflows and business processes
+- **Integration & Automation** — Create logicflows with form event triggers, notifications, and cross-form data operations
+
+---
+
+## Architecture
+
+OpenYida is built with a modular architecture:
+
+- **Core Layer** — Authentication, environment, i18n, logging
+- **Yida API Layer** — HTTP client with automatic retries and CSRF handling
+- **Feature Modules** — App management, form/page creation, data operations
+- **CLI Interface** — Command parsing and execution
+
+Read more in [Technical Stack](/en/architecture/tech-stack).
+
+---
+
+## Next Steps
+
+<CardGroup>
+  <Card title="Quick Start" icon="play" href="/en/quickstart">
+    Install and create your first app in 5 minutes
+  </Card>
+  <Card title="Demo Cases" icon="images" href="/en/introduction/demo">
+    See real applications built with OpenYida
+  </Card>
+  <Card title="Skills Reference" icon="book" href="/en/features/skills">
+    Full list of supported commands
+  </Card>
+</CardGroup>

@@ -1,0 +1,55 @@
+---
+title: "Panduan kontribusi"
+description: "Dokumen ini menjelaskan Panduan kontribusi di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan."
+icon: handshake
+---
+
+# Panduan kontribusi
+
+Halaman ini menjelaskan Panduan kontribusi di OpenYida, termasuk tujuan, alur penggunaan, dan hal penting saat membangun aplikasi Yida dengan AI.
+
+## Ikhtisar
+
+Dokumen ini menjelaskan Panduan kontribusi di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan.
+
+## Poin penting
+
+- Gunakan halaman ini untuk memahami konteks utama sebelum menerapkannya di proyek nyata.
+- Nama perintah, parameter, kode, dan beberapa nama produk tetap menggunakan bahasa Inggris agar mudah dicari dan disalin dengan benar.
+- Saat bekerja dengan宜搭, periksa izin, organisasi, dan lingkungan sebelum publikasi.
+
+## Penggunaan
+
+Ikuti langkah dalam dokumen ini bersama OpenYida CLI dan konfigurasi organisasi. Jika ada contoh kode di bawah, contoh tersebut dapat disalin lalu disesuaikan dengan kebutuhan.
+
+## Perintah dan contoh
+
+Contoh berikut mempertahankan perintah dan kode asli untuk menjaga akurasi teknis.
+
+```bash
+# 1. Fork and clone the repo
+git clone git@github.com:your-username/openyida.git
+cd openyida
+
+# 2. Install dependencies
+npm install
+
+# 3. Link globally for local debugging
+npm link
+
+# 4. Run tests
+npm test
+```
+
+```bash
+  node --check bin/yida.js && for f in lib/*.js lib/locales/*.js; do node --check "$f"; done
+  ```
+
+```
+feat: add export-app command
+fix: fix get-page-config path error
+docs: update CLI command reference
+refactor: refactor login module
+test: add utils unit tests
+chore: upgrade dependencies
+```

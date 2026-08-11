@@ -1,0 +1,194 @@
+---
+title: "Referensi CLI"
+description: "Dokumen ini menjelaskan Referensi CLI di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan."
+icon: file-lines
+---
+
+# Referensi CLI
+
+Halaman ini menjelaskan Referensi CLI di OpenYida, termasuk tujuan, alur penggunaan, dan hal penting saat membangun aplikasi Yida dengan AI.
+
+## Ikhtisar
+
+Dokumen ini menjelaskan Referensi CLI di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan.
+
+## Poin penting
+
+- Gunakan halaman ini untuk memahami konteks utama sebelum menerapkannya di proyek nyata.
+- Nama perintah, parameter, kode, dan beberapa nama produk tetap menggunakan bahasa Inggris agar mudah dicari dan disalin dengan benar.
+- Saat bekerja dengan宜搭, periksa izin, organisasi, dan lingkungan sebelum publikasi.
+
+## Penggunaan
+
+Ikuti langkah dalam dokumen ini bersama OpenYida CLI dan konfigurasi organisasi. Jika ada contoh kode di bawah, contoh tersebut dapat disalin lalu disesuaikan dengan kebutuhan.
+
+## Perintah dan contoh
+
+Contoh berikut mempertahankan perintah dan kode asli untuk menjaga akurasi teknis.
+
+```bash
+# Environment check
+openyida env
+openyida env --json
+
+# Multi-environment management
+openyida env setup                 # Configure public, overseas, intranet, or private deployment presets
+openyida env list                  # List all environments, highlight the active one
+openyida env add <name>            # Interactively add a private deployment environment
+openyida env switch <name>         # Switch the active environment
+openyida env remove <name>         # Remove an environment (cannot remove "public")
+openyida env show [name]           # Show detailed environment configuration
+
+# Login
+openyida login [--qr|--agent-qr|--codex|--browser] [--env <name>|--intl|--overseas|--global|--yidaapps] [--corp-id <corpId>]
+openyida login --check-only --json # Check the current login state only
+
+# Logout
+openyida logout
+
+# Auth management
+openyida auth status               # Check login status
+openyida auth login                # Perform login
+openyida auth refresh              # Refresh session
+openyida auth logout               # Logout
+
+# Organization management
+openyida org list                  # List accessible organizations
+openyida org switch --corp-id <id> # Switch organization
+
+# Initialize workspace
+openyida copy [--force]            # Copy project directory (flattens into empty dirs)
+openyida copy -skills              # Copy yida-skills to AI tool skills directory
+
+# Diagnostic tools
+openyida doctor [--fix]            # Environment diagnosis
+openyida doctor --monitor          # Health monitoring
+openyida doctor --report <format>  # Generate report (json|markdown|html)
+
+# Self-update
+openyida update                    # Check for and install the latest version
+
+# Machine-readable command manifest
+openyida commands --json           # Print the current CLI manifest
+```
+
+```bash
+# List applications
+openyida app-list [--size N]
+
+# Create application
+openyida create-app "<name>" [desc] [icon] [color] [themeColor] [--locale zh_CN|en_US|ja_JP] [--open|--no-open]
+openyida create-app --name "<name>" [--desc "<description>"] [--theme deepBlue] [--locale zh_CN|en_US|ja_JP] [--open|--no-open]
+
+# Export application
+openyida export <appType> [output] # Generate migration package
+
+# Import application
+openyida import <file> [name]      # Rebuild app from migration package
+
+# Update application info
+openyida update-app <appType> --name "<name>" [--desc "<description>"] [--icon "<icon>"] [--icon-color "<color>"]
+
+# Manage application-level permissions
+openyida app-permission <get|set|add|remove|search-user> ...
+
+# Navigation groups and app i18n
+openyida nav-group <list|create|rename|delete|move|hide|show> <appType> ...
+openyida i18n <overview|config|languages|list|upsert|batch-upsert|bind|delete|translate|translate-all|upgrade> <appType> ...
+```
+
+```bash
+openyida app-permission search-user <keyword> [--dept <text>] [--size N]
+openyida app-permission get <appType>
+openyida app-permission set <appType> <main|data|dev> --users <userId1,userId2>
+openyida app-permission set <appType> <data|dev> --clear
+openyida app-permission add <appType> <main|data|dev> --users <userId1,userId2>
+openyida app-permission remove <appType> <main|data|dev> --users <userId1,userId2>
+```
+
+```bash
+openyida nav-group list <appType> [--flat] [--include-system] [--raw]
+openyida nav-group create <appType> "<groupName>" [--parent <groupNavUuid|groupName>] [--en "<EnglishName>"]
+openyida nav-group rename <appType> <groupNavUuid|groupName> "<newName>" [--en "<EnglishName>"]
+openyida nav-group delete <appType> <groupNavUuid|groupName> [--force]
+openyida nav-group move <appType> <navUuid|formUuid|name> --to <groupNavUuid|groupName|root> [--before <node>] [--after <node>]
+openyida nav-group hide <appType> <navUuid|formUuid|name>
+openyida nav-group show <appType> <navUuid|formUuid|name>
+```
+
+```bash
+openyida i18n overview <appType>
+openyida i18n config get <appType>
+openyida i18n config set <appType> --default zh_CN --languages zh_CN,en_US,ja_JP
+openyida i18n languages <appType> [--extend]
+openyida i18n list <appType> [--keyword <text>] [--page N] [--size N] [--form-uuid <formUuid>] [--target-type page|flow|views|other|ALL]
+openyida i18n upsert <appType> <i18nKey> --zh-CN <text> --en-US <text> [--ja-JP <text>] [--bind <formUuid>] [--target-type page]
+openyida i18n batch-upsert <appType> --file <items.json>
+openyida i18n bind <appType> <formUuid> --keys <i18nKey1,i18nKey2> [--target-type page]
+openyida i18n delete <appType> <i18nKey> --confirm
+openyida i18n translate <appType> --text <text> --source <locale> --targets <locale1,locale2>
+openyida i18n translate-all <appType> --targets <locale1,locale2> --confirm
+openyida i18n upgrade <appType> --confirm
+```
+
+```bash
+# Enterprise efficiency dashboards and notification actions
+openyida corp-efficiency [overview|details|detail|groups|notify] [options] [--open|--no-open]
+openyida corp-efficiency detail --title <metric>|--key <key>|--index <number> [--open|--no-open]
+openyida corp-efficiency notify --cid <groupId> --type <noticeStudy|noticeCertify|completeStudy> --yes
+
+# Organization basic information, quota, capacity, domain, and i18n capability
+openyida basic-info [overview] [--include-secrets]
+openyida basic-info commodity [--include-secrets]
+openyida basic-info grant
+openyida basic-info capacity [--type file|data|flow|all]
+openyida basic-info quota [--resource-key <key>|--resource-keys <a,b>]
+openyida basic-info abs-path [--page N] [--size N]
+openyida basic-info dataflow
+openyida basic-info i18n
+openyida basic-info domain
+openyida basic-info domain set --target <domain> [--origin <domain>] --confirm
+
+# Platform admins, sub-admins, app admins, and address book visibility
+openyida corp-manager search-user <keyword> [--dept <text>] [--size N]
+openyida corp-manager list <app|platform|sub> [--user <userId>] [--page N] [--size N]
+openyida corp-manager add <app|platform|sub> --user <userId> [--dept-ids <id1,id2>] [--scenes appManage,bulletinBoard]
+openyida corp-manager remove <app|platform|sub> --user <userId>
+openyida corp-manager address-book get
+openyida corp-manager address-book set [--all-visible y|n] [--admin-visible y|n]
+```
+
+```bash
+# Create form
+openyida create-form create <appType> "<form name>" <fieldsJSON> \
+  [--layout <layout>] \
+  [--theme <theme>] \
+  [--label-align <alignment>] \
+  [--locale zh_CN|en_US|ja_JP]
+
+# Update form
+openyida create-form update <appType> <formUuid> <changesJsonOrFile> [--force] [--locale zh_CN|en_US|ja_JP] [--open|--no-open]
+
+# Advanced schema patching, field rules, and remote option data sources
+openyida create-form patch <appType> <formUuid> <patchJsonOrFile> [--open|--no-open]
+openyida create-form rule <appType> <formUuid> <rulesJsonOrFile> [--open|--no-open]
+openyida create-form bind-datasource <appType> <formUuid> <fieldLabelOrId> <dataSourceJsonOrFile> [--open|--no-open]
+
+# Add options to a SelectField, RadioField, CheckboxField, or MultiSelectField
+openyida create-form add-option <appType> <formUuid> <fieldLabel> <option1> [option2] ...
+
+# Get form schema (required before any field ID operation)
+openyida get-schema <appType> <formUuid>
+openyida get-schema <appType> --all [--output-dir <dir>]
+openyida get-schema <appType> <formUuid> --field <labelOrFieldId> [--json]
+
+# Update form config
+openyida update-form-config <appType> <formUuid> <isRenderNav> <title>
+
+# List form pages in an application
+openyida list-forms <appType> [--keyword <text>]
+```
+
+```bash
+openyida list-forms <appType> [--keyword <text>]
+```

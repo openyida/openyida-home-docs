@@ -1,0 +1,86 @@
+---
+title: "Lista completa de funciones"
+description: "Lista por escenarios de las capacidades de OpenYida y los comandos CLI correspondientes."
+icon: "list-ul"
+---
+
+Esta lista resume las capacidades actuales de OpenYida para usuarios de Yida y AI Agents, junto con los comandos `openyida` más habituales.
+
+<Note>
+Use `openyida agent-capabilities --summary-json` como preflight ligero por defecto. Use `openyida agent-capabilities --json` solo para diagnóstico completo, Manifest de comandos, metadatos de permisos o detalles brutos de errores de inicio de sesión.
+</Note>
+
+## Conceptos básicos
+
+| Función | Comando |
+|---|---|
+| Preflight ligero para Agent | `openyida agent-capabilities --summary-json` |
+| Diagnóstico completo de Agent | `openyida agent-capabilities --json` |
+| Comprobar entorno e inicio de sesión | `openyida env` / `openyida env --json` |
+| Gestionar profiles de entorno | `openyida env <setup\|list\|show\|switch\|add\|remove>` |
+| Inicio de sesión OAuth token | `openyida login` |
+| Login con URL de entrada | `openyida login <target-url>` |
+| Estado y actualización del token | `openyida auth <status\|login\|refresh\|logout>` |
+| Cambiar organización | `openyida org <list\|switch> [--corp-id <corpId>]` |
+| Manifest de comandos | `openyida commands --json` |
+
+## Aplicaciones y formularios
+
+| Función | Comando |
+|---|---|
+| Listar aplicaciones | `openyida app-list [--size N]` |
+| Crear o actualizar aplicaciones | `openyida create-app ...` / `openyida update-app ...` |
+| Importar o exportar paquetes de migración | `openyida export ...` / `openyida import ...` |
+| Crear, actualizar, parchear, validar o vincular formularios | `openyida create-form <create\|update\|patch\|rule\|validation\|bind-datasource> ...` |
+| Consultar formularios y Schemas | `openyida list-forms ...` / `openyida get-schema ...` |
+| Gestionar grupos de navegación | `openyida nav-group <list\|create\|rename\|delete\|move\|order\|hide\|show> ...` |
+| Gestionar permisos de aplicaciones y formularios | `openyida app-permission ...` / `openyida get-permission ...` / `openyida save-permission ...` |
+
+## Páginas, datos y procesos
+
+| Función | Comando |
+|---|---|
+| Crear páginas de visualización | `openyida create-page <appType> "<name>"` |
+| Generar, revisar, compilar y publicar código de página | `openyida generate-page ...` / `openyida check-page ...` / `openyida compile ...` / `openyida publish ...` |
+| Publicar páginas Code Canvas | `openyida publish <src.canvas.jsx> <appType> <formUuid>` |
+| Consultar o modificar datos form/process/task/subform | `openyida data <action> <resource> ...` |
+| Crear y configurar procesos | `openyida create-process ...` / `openyida configure-process ...` |
+| Consultar tareas globales y delegaciones | `openyida task-center ...` / `openyida agent-center ...` |
+
+## Integración, informes y utilidades
+
+| Función | Comando |
+|---|---|
+| Informes y dashboards | `openyida create-report ...` / `openyida append-chart ...` |
+| Conectores HTTP | `openyida connector <list\|create\|detail\|add-action\|test\|smart-create> ...` |
+| Automatización de integraciones | `openyida integration <create\|list\|enable\|disable\|check\|diagnose> ...` |
+| Documentos DingTalk y DWS CLI | `openyida read-dingtalk-doc ...` / `openyida dws <command>` |
+| AI, assets, fórmulas y conversión PRD | `openyida ai ...` / `openyida asset ...` / `openyida formula evaluate ...` / `openyida flash-to-prd ...` |
+| Configuración local, diagnóstico y batch | `openyida copy` / `openyida doctor` / `openyida batch` |
+| MCP, A2A y bridge local | `openyida mcp` / `openyida a2a ...` / `openyida bridge start ...` |
+| Salida silenciosa y actualizaciones | `openyida --quiet ...` / `YIDA_QUIET=1` / `OPENYIDA_SKIP_UPDATE_CHECK=1` |
+
+## Páginas personalizadas, cadena de publicación e i18n
+
+| Capacidad | Comando |
+|---|---|
+| Generar una página Code Canvas de negocio desde una especificación | `openyida generate-page <template> --spec <page-spec.json> --output project/pages/src/<name>.canvas.jsx --compile` |
+| Aplicar perfil visual y alcance de tema durante la generación | `openyida generate-page ... --theme-profile <profile> --theme-scope <page\|global>` |
+| Crear páginas de ejemplo Code Canvas | `openyida sample yida-canvas-custom-page <sample> --output project/pages/src/<name>.canvas.jsx` |
+| Crear ejemplos de página personalizada clásica | `openyida sample yida-custom-page <sample> --output project/pages/src/<name>.oyd.jsx` |
+| Revisar y normalizar el código antes de publicar | `openyida check-page <src>` / `openyida build-page <src> --write` |
+| Leer la configuración en línea antes de sobrescribir cambios del diseñador | `openyida get-form-config <appType> <formUuid> --json` / `openyida get-schema <appType> <formUuid>` |
+| Publicar páginas personalizadas clásicas | `openyida publish project/pages/src/<name>.oyd.jsx <appType> <formUuid>` |
+| Publicar páginas Code Canvas | `openyida publish project/pages/src/<name>.canvas.jsx <appType> <formUuid> --canvas` |
+| Ejecutar health check justo después de publicar | `openyida publish <src> <appType> <formUuid> --health-check` |
+| Actualizar configuración de página o formulario después de publicar | `openyida update-form-config <appType> <formUuid> ...` |
+| Configurar acceso público, navegación oculta y entradas de compartir | `openyida verify-short-url ...` / `openyida save-share-config ...` / `openyida get-page-config ...` |
+| Subir assets de página al CDN | `openyida cdn-upload <asset-path>` |
+| Leer configuración CDN y refrescar recursos | `openyida cdn-config` / `openyida cdn-refresh ...` |
+| Comprobar y actualizar el paquete CLI de OpenYida | `openyida update` / `npm install -g openyida@latest` |
+| Gestionar paquetes de idioma de la aplicación | `openyida i18n <overview\|config\|languages\|list\|upsert\|batch-upsert\|bind\|delete\|translate\|translate-all\|upgrade> ...` |
+| Ejecutar la CLI con un paquete de idioma seleccionado | `OPENYIDA_LANG=<locale> openyida ...` / `OPENYIDA_LOCALE_DIR=<dir> openyida ...` |
+
+<Warning>
+Los flags antiguos de login como `--qr`, `--browser`, `--codex`, `--qoder` ya no son compatibles. Use OAuth token login.
+</Warning>

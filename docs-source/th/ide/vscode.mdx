@@ -1,0 +1,60 @@
+---
+title: "การใช้ VS Code"
+description: "เอกสารนี้อธิบาย การใช้ VS Code ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง"
+icon: vscode
+---
+
+# การใช้ VS Code
+
+หน้านี้อธิบาย การใช้ VS Code ของ OpenYida โดยสรุปเป้าหมาย ขั้นตอนการใช้งาน และข้อควรระวังที่เกี่ยวข้องสำหรับการสร้างแอป Yida ด้วย AI
+
+## ภาพรวม
+
+เอกสารนี้อธิบาย การใช้ VS Code ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง
+
+## ประเด็นสำคัญ
+
+- ใช้หน้านี้เพื่อทำความเข้าใจบริบทหลักก่อนเริ่มลงมือในโครงการจริง
+- ชื่อคำสั่ง พารามิเตอร์ โค้ด และชื่อผลิตภัณฑ์บางส่วนคงไว้เป็นภาษาอังกฤษเพื่อให้ค้นหาและคัดลอกได้ถูกต้อง
+- เมื่อใช้งานกับ宜搭จริง ให้ตรวจสอบสิทธิ์ องค์กร และสภาพแวดล้อมก่อนเผยแพร่
+
+## การใช้งาน
+
+ปฏิบัติตามขั้นตอนในเอกสารนี้ร่วมกับคำสั่ง OpenYida CLI และการตั้งค่าขององค์กร หากมีตัวอย่างโค้ดด้านล่าง สามารถคัดลอกไปปรับใช้ได้โดยตรง
+
+## คำสั่งและตัวอย่าง
+
+ตัวอย่างต่อไปนี้คงคำสั่งและโค้ดต้นฉบับไว้เพื่อความถูกต้องทางเทคนิค
+
+```bash
+    npm install -g openyida
+    ```
+
+```json
+    {
+      "servers": {
+        "openyida": {
+          "command": "npx",
+          "args": ["-y", "@openyida/mcp-app", "--stdio"]
+        }
+      }
+    }
+    ```
+
+```
+    Help me log in to Yida
+    ```
+
+```
+Help me create an expense management system on Yida:
+- Expense request form: applicant, expense type, amount, reason, attachments
+- Approval workflow: department manager approval
+```
+
+```
+Create a meeting minutes app that can record meeting topic, attendees, and action items
+```
+
+```
+Show me what apps I have on Yida
+```

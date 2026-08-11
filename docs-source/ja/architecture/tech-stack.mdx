@@ -1,0 +1,277 @@
+---
+title: "技術アーキテクチャ"
+description: "OpenYidaの技術アーキテクチャを詳しく解説します。Node.jsランタイム、国際化システム、診断エンジン、認証モジュール、Yida API統合を含みます。"
+icon: "layer-group"
+---
+
+## 技術スタックアーキテクチャ
+
+![技術スタックアーキテクチャ](/images/architecture-tech-stack.png)
+
+OpenYidaの技術スタックは開発環境とクラウドプラットフォームの2つの部分に分かれています：
+
+### 開発環境 (Development Environment)
+- **Node.js** - ランタイム環境
+- **Git** - バージョン管理
+
+### 自動化テスト (Playwright)
+- ブラウザ自動化
+- エンドツーエンドテスト
+- ページスクリーンショット比較
+
+### Yidaクラウドプラットフォーム (Yida Cloud Platform)
+- **App** - アプリ管理
+- **Form** - フォームページ
+- **Custom Page** - カスタムページ
+
+## アーキテクチャ概要
+
+OpenYidaはモジュールアーキテクチャ設計を採用し、コアはCLIエントリー、コアモジュール、機能モジュールの3層に分かれています。
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CLI Entry Layer (bin/)                   │
+│                    yida.js - Command Routing                │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Core Modules (lib/core/)                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │   i18n   │ │   env    │ │  utils   │ │  doctor  │       │
+│  │  i18n    │ │env check │ │ utilities│ │diagnostic│       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │  check   │ │   copy   │ │  babel   │ │  locales │       │
+│  │update chk│ │dir copy  │ │ compiler │ │ locales  │       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Functional Modules (lib/)                │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │   auth   │ │   app    │ │   data   │ │  report  │       │
+│  │   auth   │ │  app mgmt│ │ data mgmt│ │ reports  │       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │ connector│ │  process │ │permission│ │   cdn    │       │
+│  │connector │ │ process  │ │permission│ │   cdn    │       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 Yida Platform API (yidaapps.com)             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## テクノロジースタック
+
+### ランタイム環境
+
+| コンポーネント | バージョン | 用途 |
+|-----------|---------|---------|
+| Node.js | >= 18.0.0 | ランタイム環境 |
+| npm | >= 9.0 | パッケージ管理 |
+
+### コア依存関係
+
+| パッケージ | バージョン | 用途 |
+|---------|---------|---------|
+| @babel/standalone | ^7.15.1 | コードコンパイル |
+| playwright | ^1.58.2 | ブラウザ自動化/テスト |
+| qrcode | ^1.5.4 | QRコード生成 |
+| uglify-js | ^3.19.3 | コード圧縮 |
+
+### AI統合
+
+| プロバイダー | SDK | モデル |
+|----------|-----|--------|
+| OpenAI | openai | GPT-4, GPT-3.5 |
+| Anthropic | @anthropic-ai/sdk | Claude 3.5 |
+| Alibaba | @alicloud/dingtalk | Tongyi Qianwen |
+| DeepSeek | deepseek-sdk | DeepSeek-V2 |
+
+### 開発ツール
+
+| ツール | バージョン | 用途 |
+|------|---------|---------|
+| eslint | ^8.50.0 | コードリンティング |
+| eslint-plugin-import | ^2.32.0 | インポートリンティングルール |
+| jest | ^29.7.0 | ユニットテスト |
+
+---
+
+## コアモジュール詳細
+
+### 国際化 (i18n.js)
+
+12言語の国際化システムをサポート：
+
+```javascript
+const { t, getLanguage, setLanguage } = require('./i18n');
+
+// 翻訳を使用
+console.log(t('login.success'));
+console.log(t('create_app.usage', 'appName'));
+
+// 言語の取得/設定
+console.log(getLanguage()); // 'zh'
+setLanguage('en');
+```
+
+**言語検出優先順位：**
+1. `OPENYIDA_LANG`環境変数
+2. `LANG` / `LC_ALL`システム環境変数
+3. デフォルト：簡体字中国語
+
+### 環境検出 (env.js)
+
+現在実行中のAIツール環境を自動検出：
+
+| 検出方法 | ツール |
+|----------|------|
+| ディレクトリ存在検出 | Claude Code、Cursor、OpenCode、Aone Copilot、Qoder |
+
+### 診断エンジン (doctor.js)
+
+3層アーキテクチャ設計：
+
+1. **DiagnosticEngine** - 診断スケジューラ
+2. **EnvironmentChecker** - 環境チェッカー
+3. **ApplicationChecker** - アプリケーションチェッカー
+4. **FixEngine** - スマート修復エンジン
+
+---
+
+## 機能モジュール詳細
+
+### 認証モジュール (auth/)
+
+```
+auth/
+├── login.js          # Yidaログイン（Cookieキャッシュ + QRコード）
+├── auth.js           # ログイン状態管理
+├── org.js            # 組織管理
+└── qr-login.js       # ターミナルQRコードログイン
+```
+
+**ログインフロー：**
+1. 現在のAIツール環境を検出
+2. 環境に応じてログイン方法を選択（QRコード / CDP / ファイル読み取り）
+3. Cookieを取得し、ローカルで暗号化してキャッシュ
+4. 後続のコマンドでキャッシュされたログイン状態を自動的に使用
+
+### コネクタモジュール (connector/)
+
+```
+connector/
+├── api.js                    # YidaコネクタAPIカプセル化
+├── curl-parser.js            # curlコマンドパーサー
+├── action-generator.js       # アクションジェネレーター
+├── desc-generator.js         # 説明ジェネレーター
+├── connector-smart-create.js # スマート作成エントリー
+└── ...
+```
+
+**スマート作成フロー：**
+```
+curlコマンド → パーサー → API情報抽出 → 認証検出 → 既存コネクタ照合 → 設定生成 → 作成/更新
+```
+
+### データ管理モジュール (data-management.js)
+
+統一データ操作インターフェース、以下をサポート：
+
+| リソースタイプ | 操作 |
+|----------|------|
+| form | query, get, create, update |
+| process | query, get, create |
+| task | query, execute |
+| subform | query |
+
+---
+
+## プロジェクト作業ディレクトリ
+
+```
+project/
+├── config.json          # アプリ設定
+│   ├── appType          # アプリタイプID
+│   ├── pageId           # ページID
+│   ├── corpId           # 組織ID
+│   └── ...
+├── pages/
+│   ├── src/             # ページソースコード（React + Yida SDK）
+│   └── dist/            # コンパイル成果物
+├── prd/                 # 要件ドキュメント
+└── .cache/
+    ├── cookies.json     # ログイン状態キャッシュ
+    ├── *-schema.json    # フォームSchemaキャッシュ
+    └── reports/         # 診断レポート
+```
+
+---
+
+## Yida API呼び出し
+
+### 基本設定
+
+```javascript
+const BASE_URL = 'https://www.yidaapps.com';
+
+// リクエストヘッダー
+const headers = {
+  'Content-Type': 'application/json',
+  'X-Csrf-Token': csrfToken,
+  'Cookie': cookies,
+};
+```
+
+### コアAPI
+
+| エンドポイント | 用途 |
+|------|------|
+| `/dingtalk/web/APP_xxx/xxx` | アプリ内インターフェース |
+| `/dingtalk/web/APP_xxx/form/getFormDataList` | フォームデータクエリ |
+| `/dingtalk/web/APP_xxx/form/saveFormData` | フォームデータ保存 |
+| `/dingtalk/web/APP_xxx/proc/getProcessInstances` | プロセスインスタンスクエリ |
+
+---
+
+## セキュリティ設計
+
+1. **Cookie暗号化保存** - ローカルキャッシュ暗号化保存
+2. **CSRF Token検証** - 各リクエストでTokenを携帯
+3. **ハードコードされた認証情報なし** - すべての認証情報は動的に取得
+4. **環境分離** - 異なるAIツール環境は独立
+
+---
+
+## パフォーマンス最適化
+
+1. **遅延ロード翻訳ファイル** - 言語パックをオンデマンドでロード
+2. **Schemaローカルキャッシュ** - API呼び出しを削減
+3. **並行リクエスト制御** - 過度なリクエストによる制限を回避
+4. **増分更新** - フォーム更新は上書きではなくマージを採用
+
+---
+
+## 拡張メカニズム
+
+### 新コマンドの追加
+
+1. `lib/`で`new-feature.js`を作成
+2. `bin/yida.js`でコマンドルートを登録
+3. `README.md`とドキュメントを更新
+4. 国際化キーを追加
+
+### 新言語の追加
+
+1. `lib/core/locales/`で`xx.js`を作成
+2. すべてのキーを翻訳（`zh.js`を基準）
+3. `i18n.js`の`SUPPORTED_LANGUAGES`を更新
+4. `npm run validate-i18n`を実行して完全性をチェック

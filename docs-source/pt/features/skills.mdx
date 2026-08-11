@@ -1,0 +1,849 @@
+---
+title: "Referência CLI"
+description: "Referência completa de todos os comandos CLI do OpenYida, incluindo criação de apps, gestão de formulários, operações de dados, conectores e relatórios."
+icon: "file-lines"
+---
+
+O OpenYida fornece comandos CLI completos que suportam a gestão do ciclo de vida completo de aplicativos.
+
+---
+
+## Ambiente e autenticação
+
+```bash
+# Detecção de ambiente
+openyida env
+
+# Gerenciamento multi-ambiente
+openyida env list                  # Listar todos os ambientes, destacar o ativo
+openyida env add <name>            # Adicionar interativamente um ambiente de implantação privada
+openyida env switch <name>         # Alternar o ambiente ativo
+openyida env remove <name>         # Remover um ambiente (não é possível remover "public")
+openyida env show [name]           # Mostrar configuração detalhada do ambiente
+
+# Login
+openyida login [--qr]              # --qr usa QR code no terminal
+openyida login --agent-qr         # Agent QR handoff
+
+# Logout
+openyida logout
+
+# Gestão de sessão
+openyida auth status               # Ver status de login
+openyida auth login                # Executar login
+openyida auth refresh              # Atualizar sessão
+openyida auth logout               # Logout
+
+# Gestão de organizações
+openyida org list                  # Listar organizações acessíveis
+openyida org switch --corp-id <id> # Trocar organização
+
+# Inicializar diretório de trabalho
+openyida copy [--force]            # Copiar diretório project (aplaina em diretórios vazios)
+openyida copy -skills              # Copiar yida-skills para o diretório skills da ferramenta AI
+
+# Ferramenta de diagnóstico
+openyida doctor [--fix]            # Diagnóstico de ambiente
+openyida doctor --monitor          # Monitoramento de saúde
+openyida doctor --report <format>  # Gerar relatório (json|markdown|html)
+
+# Atualização automática
+openyida update                    # Verificar e instalar a versão mais recente
+```
+
+---
+
+## Gestão de aplicativos
+
+```bash
+# Criar aplicativo
+openyida create-app "<nome>" [desc] [icon] [color] [themeColor]
+
+# Exportar aplicativo
+openyida export <appType> [output] # Gerar pacote de migração
+
+# Importar aplicativo
+openyida import <file> [name]      # Reconstruir aplicativo a partir do pacote
+
+# Atualizar informações do aplicativo
+openyida update-app <appType> --name "<nome>" [--desc "<descrição>"] [--icon "<ícone>"] [--icon-color "<cor>"]
+```
+
+| Opção | Alias | Descrição |
+|-------|-------|-----------|
+| `--name` | `-n` | Nome do aplicativo (pelo menos um campo de atualização obrigatório) |
+| `--desc` | `-d` | Descrição do aplicativo |
+| `--icon` | | Nome do ícone (ex: `xian-yingyong`) |
+| `--icon-color` | | Cor do ícone (padrão: `#0089FF`) |
+
+---
+
+## Gestão de formulários
+
+```bash
+# Criar formulário
+openyida create-form create <appType> "<nome>" <camposJSON> \
+  [--layout <layout>] \
+  [--theme <tema>] \
+  [--label-align <alinhamento>]
+
+# Atualizar formulário
+openyida create-form update <appType> <formUuid> <modificaçõesJSON> [--force]
+
+# Obter Schema do formulário
+openyida get-schema <appType> <formUuid>  # Obrigatório antes de qualquer operação com IDs de campo
+
+# Atualizar configuração do formulário
+openyida update-form-config <appType> <formUuid> <isRenderNav> <título>
+
+# Listar páginas de formulário de uma aplicação
+openyida list-forms <appType> [--keyword <texto>]
+```
+
+
+<Warning>
+  Os IDs de campo no Yida são gerados aleatoriamente pela plataforma (ex: `textField_eftt1aa5m`, `selectField_fix024y92`) e não podem ser deduzidos dos nomes dos campos. Antes de qualquer operação que use IDs de campo (criar/atualizar dados, configurar condições de consulta, escrever páginas personalizadas), você **deve** executar `openyida get-schema` para obter os IDs reais.
+</Warning>
+
+<Info>
+  Ao atualizar um formulário que já contém dados, o CLI realiza uma verificação de segurança antes de aplicar as alterações. Se registros existentes forem detectados e `--force` não estiver definido, o comando exibe uma resposta JSON com `requiresConfirmation: true` e encerra sem fazer alterações. Passe `--force` para pular a confirmação e prosseguir com a atualização.
+
+  A resposta de confirmação inclui:
+
+  | Campo | Tipo | Descrição |
+  |-------|------|-----------|
+  | `success` | `boolean` | Sempre `false` quando confirmação é necessária |
+  | `requiresConfirmation` | `boolean` | Sempre `true` |
+  | `formUuid` | `string` | O UUID do formulário sendo atualizado |
+  | `appType` | `string` | O ID da aplicação |
+  | `existingDataCount` | `number` | Número de registros existentes no formulário |
+  | `message` | `string` | Mensagem de confirmação legível |
+  | `hint` | `string` | Dica de uso mostrando a sintaxe do flag `--force` |
+</Info>
+
+### Listar páginas de formulário
+
+Recupera todas as páginas de formulário de uma aplicação, com filtragem opcional por palavra-chave. O comando exibe um array JSON no stdout.
+
+```bash
+openyida list-forms <appType> [--keyword <texto>]
+```
+
+| Argumento | Descrição |
+|-----------|-----------|
+| `<appType>` | ID da aplicação (ex: `APP_XXXXX`) |
+
+| Opção | Descrição | Padrão |
+|-------|-----------|--------|
+| `--keyword <texto>` | Filtrar por nome, UUID, tipo ou caminho do formulário (sem distinção de maiúsculas) | — |
+
+#### Saída
+
+O comando exibe um array JSON no stdout. Cada entrada tem a seguinte forma:
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `formUuid` | `string` | Identificador único do formulário |
+| `formName` | `string` | Nome localizado do formulário |
+| `formType` | `string` | Tipo de formulário (ex: `display`, `process`) |
+| `pathName` | `string` | Nome do caminho URL do formulário |
+
+**Exemplo de saída:**
+
+```json
+[
+  {
+    "formUuid": "FORM-AAA",
+    "formName": "Informações do cliente",
+    "formType": "display",
+    "pathName": "customer-info"
+  },
+  {
+    "formUuid": "FORM-BBB",
+    "formName": "Reembolso de despesas",
+    "formType": "process",
+    "pathName": "expense"
+  }
+]
+```
+
+**Exemplos:**
+
+```bash
+# Listar todos os formulários de uma aplicação
+openyida list-forms APP_XXXXX
+
+# Filtrar por palavra-chave
+openyida list-forms APP_XXXXX --keyword "cliente"
+```
+
+<Info>
+  Itens de navegação do sistema (ex: visualizações de tarefas integradas) são automaticamente excluídos. Apenas páginas de formulário criadas pelo usuário são retornadas.
+</Info>
+
+<Info>
+  Você deve estar logado antes de executar este comando. Execute `openyida login` se ainda não estiver autenticado.
+</Info>
+
+### Tipos de campo suportados
+
+O comando `create-form` aceita apenas os seguintes tipos de campo. Usar um tipo não suportado retorna um erro.
+
+#### Campos base
+
+Campos integrados que não requerem plugins adicionais.
+
+| Tipo | Descrição |
+|------|-----------|
+| `TextField` | Texto de uma linha |
+| `TextareaField` | Texto multilinha |
+| `NumberField` | Número |
+| `RateField` | Avaliação |
+| `DateField` | Data |
+| `RadioField` | Botões de rádio |
+| `SelectField` | Dropdown (seleção única) |
+| `CheckboxField` | Caixas de seleção |
+| `MultiSelectField` | Dropdown (seleção múltipla) |
+| `CascadeSelectField` | Seleção em cascata |
+| `CascadeDateField` | Data em cascata |
+| `EmployeeField` | Seletor de membro |
+| `DepartmentSelectField` | Seletor de departamento |
+| `AssociationFormField` | Formulário associado |
+| `AssociationQuery` | Consulta de associação |
+| `AttachmentField` | Anexo |
+| `ImageField` | Imagem |
+| `AddressField` | Endereço |
+| `CountrySelectField` | Seletor de país/região |
+| `TableField` | Subformulário / detalhe |
+| `SerialNumberField` | Número de série |
+
+#### Campos avançados
+
+Campos integrados com funcionalidade estendida. Algumas funções podem requerer ativação.
+
+| Tipo | Descrição |
+|------|-----------|
+| `EditorField` | Editor de texto rico |
+| `DigitalSignatureField` | Assinatura digital |
+| `LocationField` | Localização GPS |
+
+#### Campos de plugin
+
+Estes campos requerem a instalação do plugin correspondente do centro de plugins antes do uso.
+
+| Tipo | Plugin necessário |
+|------|-------------------|
+| `TimeZoneDateField` | Componente de fuso horário internacional |
+| `CC_AIButtonField` | Componente de IA |
+| `CC_PG_ESignField` | Componente de finanças inteligentes |
+| `CC_TeambitionProjectLinksField` | Plugin Teambition |
+| `CC_TeambitionTaskLinksField` | Plugin Teambition |
+| `CC_MoneyField` | Componente de finanças inteligentes |
+| `CC_PhoneNumberField` | Componente de extensão |
+| `CC_ChineseIdField` | Componente de extensão |
+| `YidaDingtalkAgentField` | Plugin de agente DingTalk |
+
+<Warning>
+Campos de plugin falharão se o plugin necessário não estiver instalado na sua organização. Instale os plugins do centro de plugins antes de usar estes tipos de campo.
+</Warning>
+
+<Warning>
+Tipos de campo como `MobileField` e `EmailField` não são suportados e serão rejeitados. Use apenas os tipos listados acima.
+</Warning>
+
+---
+
+## Gestão de páginas
+
+```bash
+# Criar página personalizada
+openyida create-page <appType> "<nome>" [--mode dashboard] [--open|--no-open]
+
+# Compilar e publicar página
+openyida publish <caminho_arquivo_fonte> <appType> <formUuid> [--health-check] [--force] [--open|--no-open]
+
+# Configuração de compartilhamento de página
+openyida save-share-config <appType> <formUuid> <url> <isOpen> [openAuth]
+openyida get-page-config <appType> <formUuid>
+openyida verify-short-url <appType> <formUuid> <url>
+```
+
+---
+
+## Gestão de dados
+
+<Warning>
+  Antes de criar ou atualizar dados, você **deve** executar `openyida get-schema` para obter os IDs de campo reais. Após a escrita, verifique com `openyida data query form <appType> <formUuid> --size 1` se os campos de `formData` contêm valores reais. Se todos estiverem vazios, os IDs de campo estão incorretos e devem ser obtidos novamente via `get-schema`.
+</Warning>
+
+```bash
+# Gestão unificada de dados
+openyida data <ação> <recurso> [args]
+
+# Dados do formulário
+openyida data query form <appType> <formUuid> [--page N] [--size N] [--search-json JSON]
+openyida data get form <appType> --inst-id <id>
+openyida data create form <appType> <formUuid> --data-json <JSON>  # As chaves JSON podem ser IDs ou rótulos de campo
+openyida data update form <appType> --inst-id <id> --data-json <JSON>
+
+# Dados do processo
+openyida data query process <appType> <formUuid> [--instance-status STATUS]
+openyida data get process <appType> --process-inst-id <id>
+openyida data create process <appType> <formUuid> --process-code <código> --data-json <JSON>
+
+# Gestão de tarefas
+openyida data query tasks <appType> --type <todo|done|submitted|cc>
+openyida data execute task <appType> --task-id <id> --process-inst-id <id> --out-result <AGREE|DISAGREE>
+
+# Subformulários
+openyida data query subform <appType> <formUuid> --inst-id <id> --table-field-id <fieldId>
+```
+
+---
+
+## Centro de tarefas global
+
+Consulte os dados do centro de tarefas global do usuário atual sem especificar um `appType`.
+
+```bash
+# Tarefas pendentes
+openyida task-center todo [--page N] [--size N] [--keyword TEXT]
+
+# Criadas por mim
+openyida task-center created [--page N] [--size N] [--keyword TEXT] [--no-detail]
+
+# Processadas
+openyida task-center done [--page N] [--size N] [--keyword TEXT]
+
+# Com cópia
+openyida task-center cc [--page N] [--size N] [--keyword TEXT]
+
+# Enviadas por delegação
+openyida task-center proxy [--page N] [--size N] [--keyword TEXT]
+```
+
+### Tipos de tarefas
+
+| Tipo | Descrição | Endpoint da API |
+|------|-----------|----------------|
+| `todo` | Tarefas pendentes de ação | `getTodoTasksInCorp` |
+| `created` | Processos que você iniciou | `getMyCreateInCorp` |
+| `done` | Tarefas já processadas | `getDoneTasksInCorp` |
+| `cc` | Tarefas em cópia | `getNotifyMeInCorp` |
+| `proxy` | Processos enviados por delegação | `getSubmitAgentInCorp` |
+
+### Parâmetros opcionais
+
+| Parâmetro | Descrição | Padrão |
+|-----------|-----------|--------|
+| `--page N` | Número da página | `1` |
+| `--size N` | Itens por página (máx. 100) | `20` |
+| `--keyword TEXT` | Palavra-chave de pesquisa | — |
+| `--no-detail` | Omitir detalhes (apenas para tipo `created`) | — |
+
+<Info>
+  Diferente de `openyida data query tasks`, o comando `task-center` consulta dados do centro de tarefas global e não requer um parâmetro `appType`.
+</Info>
+
+---
+
+## Gestão de processos
+
+```bash
+# Criar formulário de processo (integrado) - Novo formulário com processo
+openyida create-process <appType> <formTitle> <fieldsJsonFile> <processDefinitionFile>
+
+# Reutilizar formulário existente para criar processo
+openyida create-process <appType> --formUuid <formUuid> <processDefinitionFile>
+
+# Configurar e publicar processo
+openyida configure-process <appType> <formUuid> <processDefinitionFile> [processCode]
+
+# Pré-visualizar instância de processo (fluxograma visual)
+openyida process preview <appType> <processInstanceId> [--output <path>]
+```
+
+### Pré-visualização de instância de processo
+
+Gera um fluxograma HTML interativo para uma instância de processo em execução ou concluída. O fluxograma destaca os estados dos nós — concluído (verde), nó atual (pulso azul), pendente (cinza), ignorado (linha tracejada) — e mostra detalhes do aprovador e carimbos de data/hora ao passar o cursor.
+
+```bash
+openyida process preview <appType> <processInstanceId> [--output <path>]
+```
+
+| Argumento | Descrição |
+|-----------|-----------|
+| `<appType>` | ID da aplicação (ex. `APP_XXXXX`) |
+| `<processInstanceId>` | ID da instância de processo a visualizar |
+
+| Opção | Alias | Descrição | Padrão |
+|-------|-------|-----------|--------|
+| `--output` | `-o` | Caminho de saída do arquivo HTML gerado | Gerado automaticamente no diretório atual |
+
+O comando obtém os detalhes da instância de processo e os registros de operações de aprovação, então gera um arquivo HTML baseado em SVG e o abre no navegador padrão.
+
+**Exemplo:**
+
+```bash
+openyida process preview APP_XXXXX proc-inst-id-xxx
+openyida process preview APP_XXXXX proc-inst-id-xxx --output flowchart.html
+```
+
+<Info>
+  Você deve estar logado antes de executar este comando. Execute `openyida login` primeiro se ainda não estiver autenticado.
+</Info>
+
+### Propriedades de URL da página de detalhes na definição de processo
+
+O arquivo JSON de definição de processo suporta as seguintes propriedades opcionais para personalizar a URL da página de detalhes exibida ao visualizar uma instância de processo.
+
+| Propriedade | Tipo | Descrição |
+|-------------|------|-----------|
+| `processDetailUrl` | `string` | URL personalizada para a página de detalhes do processo na web/PC. Sobrescreve todas as outras configurações de URL de detalhes para web. |
+| `processMobileDetailUrl` | `string` | URL personalizada para a página de detalhes do processo no celular. Sobrescreve todas as outras configurações de URL de detalhes para celular. |
+| `customDetailPageUrl` | `string` | Uma URL de página personalizada usada tanto para web quanto para celular. No celular, `?procInsId=` é adicionado automaticamente. |
+| `detailUrls` | `object` | Um objeto com URLs de detalhes específicas por plataforma. Suporta as chaves `web` (ou `pc`) e `mobile`. |
+
+A ordem de resolução para a **URL de detalhes web** é:
+
+1. `processDetailUrl`
+2. `detailUrls.web` ou `detailUrls.pc`
+3. `customDetailPageUrl`
+4. Padrão da plataforma
+
+A ordem de resolução para a **URL de detalhes mobile** é:
+
+1. `processMobileDetailUrl`
+2. `detailUrls.mobile`
+3. `customDetailPageUrl` (com `?procInsId=` adicionado)
+4. Padrão da plataforma
+
+**Exemplo** usando `detailUrls`:
+
+```json
+{
+  "detailUrls": {
+    "web": "https://example.com/process/detail",
+    "mobile": "https://m.example.com/process/detail"
+  }
+}
+```
+
+**Exemplo** usando `customDetailPageUrl` (mesma URL para ambas as plataformas):
+
+```json
+{
+  "customDetailPageUrl": "https://example.com/custom-detail"
+}
+```
+
+### Tratamento de erros e nova tentativa
+
+Se a configuração do processo falhar mas o formulário já tiver sido criado, o comando exibe uma dica de nova tentativa com o flag `--formUuid` para reutilizar o formulário sem recriá-lo:
+
+```bash
+openyida create-process <appType> --formUuid <formUuid> <processDefinitionFile>
+```
+
+Isso é útil quando:
+- O arquivo de definição do processo contém erros que precisam ser corrigidos antes de tentar novamente.
+- Uma falha temporária de rede ou API interrompeu a etapa de configuração.
+
+O comando exibe um resultado JSON em `stdout`. Em caso de sucesso:
+
+```json
+{
+  "success": true,
+  "formUuid": "FORM-XXXXX",
+  "formTitle": "Order Form",
+  "appType": "APP_XXXXX",
+  "fieldCount": 5,
+  "processCode": "TPROC-XXXXX",
+  "url": "https://www.aliwork.com/APP_XXXXX/workbench/FORM-XXXXX"
+}
+```
+
+Em caso de falha (por exemplo, falha na configuração do processo):
+
+```json
+{
+  "success": false,
+  "formUuid": "FORM-XXXXX",
+  "formTitle": "Order Form",
+  "appType": "APP_XXXXX",
+  "fieldCount": 5,
+  "error": "Failed to configure process: <error details>"
+}
+```
+
+<Tip>
+  Quando você vir uma falha com `formUuid` na saída, use o flag `--formUuid` para tentar novamente sem recriar o formulário.
+</Tip>
+
+---
+
+## Integração e automação
+
+Crie e gerencie fluxos lógicos (integração e automação) com gatilhos de eventos de formulário, notificações e operações de dados.
+
+```bash
+# Criar um fluxo lógico
+openyida integration create <appType> <formUuid> <flowName> [opções]
+```
+
+### Parâmetros
+
+| Parâmetro | Obrigatório | Descrição |
+|-----------|-------------|-----------|
+| `appType` | Sim | ID do aplicativo (ex: `APP_XXXX`) |
+| `formUuid` | Sim | UUID do formulário gatilho (ex: `FORM-XXXX`) |
+| `flowName` | Sim | Nome do fluxo lógico |
+
+### Opções
+
+| Opção | Padrão | Descrição |
+|-------|--------|-----------|
+| `--process-code <code>` | Autogerado | processCode existente (`LPROC-xxx`) |
+| `--receivers <userId,...>` | Vazio | IDs de usuário para notificações DingTalk (separados por vírgulas) |
+| `--title <title>` | Igual ao flowName | Título da notificação, suporta `#{fieldId-ComponentType}#` |
+| `--content <content>` | `"Novo registro enviado"` | Conteúdo da notificação |
+| `--events <insert,update>` | `insert` | Eventos gatilho: `insert`/`update`/`delete`/`comment` |
+| `--add-data-form-uuid <formUuid>` | — | UUID do formulário destino para o nó de adição de dados |
+| `--add-data-assignment <targetFieldId:valueType:value>` | — | Atribuição de campo (especificável várias vezes). `valueType`: `processVar`/`literal`/`column` |
+| `--publish` | Não publicado | Publicar imediatamente após salvar |
+
+### Saída
+
+```json
+{
+  "success": true,
+  "published": false,
+  "processCode": "LPROC-XXXX",
+  "flowName": "Notificação de novo registro",
+  "appType": "APP_XXX",
+  "formUuid": "FORM-XXX",
+  "formEventTypes": ["insert"]
+}
+```
+
+<Info>
+  Você deve estar logado antes de executar este comando. Com `--publish`, `published` será `true`; em caso de falha, `published` será `false` com um campo `warning`.
+</Info>
+
+---
+
+## Gestão de permissões
+
+```bash
+# Consultar permissões do formulário
+openyida get-permission <appType> <formUuid>
+
+# Salvar permissões do formulário
+openyida save-permission <appType> <formUuid> \
+  [--data-permission <json>] \
+  [--action-permission <json>]
+```
+
+---
+
+## Gestão de conectores
+
+```bash
+# Listar conectores
+openyida connector list [--page N] [--size N]
+
+# Criar conector
+openyida connector create "<nome>" "<domínio>" --operations <arquivo> [opções]
+
+# Ver detalhes do conector
+openyida connector detail <connector-id>
+
+# Excluir conector
+openyida connector delete <connector-id> [--force]
+
+# Gestão de ações
+openyida connector add-action --connector-id <id> --operations <arquivo> [--confirm]
+openyida connector list-actions <connector-id>
+openyida connector delete-action <connector-id> <operation-id> [--force]
+openyida connector test --connector-id <id> --action <actionId> [opções]
+
+# Gestão de contas de autenticação
+openyida connector list-connections <connector-id>
+openyida connector create-connection <connector-id> "<nome>" [opções]
+
+# Criação inteligente
+openyida connector smart-create --curl "<comando_curl>" [--name <nome>] [--desc <desc>]
+
+# Ferramentas auxiliares
+openyida connector parse-api --curl "<comando_curl>" --output <arquivo>
+openyida connector gen-template [caminho_saída]
+```
+
+---
+
+## Gestão de relatórios
+
+```bash
+# Criar relatório
+openyida create-report <appType> "<nome>" <definição_gráfico_JSON_ou_caminho>
+
+# Adicionar gráfico
+openyida append-chart <appType> <reportId> <definição_gráfico_JSON_ou_caminho>
+```
+
+---
+
+## Gestão de CDN
+
+```bash
+# Configurar CDN
+openyida cdn-config
+
+# Upload de imagem
+openyida cdn-upload <caminho_arquivo>
+
+# Atualizar cache
+openyida cdn-refresh <caminho>
+```
+
+---
+
+## Nota flash para PRD
+
+Converte notas flash do DingTalk (transcrições de reuniões) em documentos PRD estruturados usando IA.
+
+```bash
+# A partir de arquivo
+openyida flash-to-prd --file <caminho> [--name <nome do projeto>] [--max-tokens <número>]
+
+# A partir da entrada padrão
+cat meeting.txt | openyida flash-to-prd --name <nome do projeto> [--max-tokens <número>]
+```
+
+### Parâmetros
+
+| Parâmetro | Alias | Descrição | Padrão |
+|-----------|-------|-----------|--------|
+| `--file` | `-f` | Caminho para o arquivo de nota flash | — |
+| `--name` | `-n` | Nome do projeto (detectado automaticamente se omitido) | — |
+| `--max-tokens` | — | Número máximo de tokens para a resposta da IA | `8000` |
+
+O comando lê o conteúdo da nota flash do arquivo especificado ou da entrada padrão, pré-processa o texto (incluindo extração de metadados de reunião e identificação de palestrantes) e chama o serviço de IA do Yida para gerar um PRD estruturado. O arquivo PRD é salvo no diretório `prd/` do seu projeto.
+
+### Saída
+
+O comando imprime um resultado JSON no stdout:
+
+```json
+{
+  "success": true,
+  "projectName": "Meu Projeto",
+  "prdFile": "/path/to/prd/Meu-Projeto.md",
+  "contentLength": 4096,
+  "meetingRecognition": {
+    "metaFields": 3,
+    "a1Sections": 2,
+    "speakers": 5
+  }
+}
+```
+
+<Info>
+  Você precisa estar logado antes de executar este comando. Execute `openyida login` primeiro se ainda não estiver autenticado.
+</Info>
+
+---
+
+## Integração e automação
+
+Crie fluxos de lógica de integração que são acionados em eventos de formulário e executam ações automatizadas como notificações, consultas de dados e criação de dados.
+
+```bash
+openyida integration create <appType> <formUuid> "<flowName>" [options]
+```
+
+### Argumentos obrigatórios
+
+| Argumento | Descrição |
+|-----------|-----------|
+| `<appType>` | ID da aplicação |
+| `<formUuid>` | UUID do formulário acionador |
+| `<flowName>` | Nome para o fluxo de integração |
+
+### Opções
+
+| Opção | Descrição | Padrão |
+|-------|-----------|--------|
+| `--process-code <code>` | Código de processo existente para atualizar (omitir para criar novo) | — |
+| `--receivers <id1,id2>` | IDs de usuário separados por vírgula para destinatários de notificações | — |
+| `--title <text>` | Título da notificação | Nome do fluxo |
+| `--content <text>` | Texto do corpo da notificação | — |
+| `--events <types>` | Eventos de acionamento separados por vírgula: `insert`, `update`, `delete` | `insert` |
+| `--data-form-uuid <uuid>` | UUID do formulário para um nó de dados "obter registro único" | — |
+| `--data-condition <mapping>` | Mapeamento de campos para o nó de dados (`bFieldId:bFieldName:aFieldId[:componentType]`). Pode ser especificado várias vezes. | — |
+| `--add-data-form-uuid <uuid>` | UUID do formulário para um nó de dados "adicionar registro" | — |
+| `--add-data-assignment <mapping>` | Atribuição de campos para o nó de adição de dados (`targetFieldId:valueType:value`). `valueType` pode ser `processVar`, `literal` ou `column`. Pode ser especificado várias vezes. | — |
+| `--publish` | Publicar o fluxo imediatamente após a criação | Apenas rascunho |
+
+### Exemplos
+
+```bash
+# Criar um fluxo de notificação acionado por novos envios
+openyida integration create APP_XXX FORM-YYY "New Order Alert" \
+  --receivers "user1,user2" \
+  --events insert \
+  --title "New Order" \
+  --content "A new order was submitted"
+
+# Criar e publicar imediatamente
+openyida integration create APP_XXX FORM-YYY "Auto Notify" \
+  --receivers "user1" \
+  --publish
+```
+
+---
+
+## DingTalk CLI (dws)
+
+Comandos proxy para o CLI do DingTalk Workspace para contatos, calendário, tarefas, aprovações, presença e mais.
+
+```bash
+openyida dws <command> [args]
+```
+
+<Info>
+  O comando `dws` requer que o CLI do DingTalk seja instalado separadamente. Se não estiver instalado, o OpenYida solicitará a instalação no primeiro uso.
+</Info>
+
+### Comandos comuns
+
+| Comando | Descrição |
+|---------|-----------|
+| `contact user search --keyword "<name>"` | Pesquisar contatos |
+| `calendar event list` | Listar eventos do calendário |
+| `todo task create --title "<title>" --executors "<userId>"` | Criar uma tarefa |
+| `approval instance list` | Listar instâncias de aprovação |
+| `attendance record list` | Consultar registros de presença |
+| `chat robot send --content "<message>"` | Enviar mensagem de robô de chat |
+
+### Comandos especiais
+
+```bash
+# Instalar o CLI do DingTalk
+openyida dws install
+
+# Mostrar ajuda
+openyida dws help
+```
+
+### Formato de saída
+
+Por padrão, a saída é formatada como tabela para legibilidade humana. Adicione `-f json` para saída JSON adequada para agentes de IA.
+
+```bash
+openyida dws contact user search --keyword "name" -f json
+```
+
+---
+
+## Exportar conversa
+
+Exporte registros de conversas de IA do ambiente atual de ferramentas de IA como documentos Markdown.
+
+```bash
+openyida export-conversation [options]
+```
+
+### Opções
+
+| Opção | Alias | Descrição | Padrão |
+|-------|-------|-----------|--------|
+| `--output` | `-o` | Caminho do arquivo de saída | Caminho gerado automaticamente |
+| `--input` | `-i` | Arquivo de conversa de entrada (JSON/JSONL) | — |
+| `--latest` | — | Exportar apenas a conversa mais recente | Ativado |
+| `--list` | — | Listar registros de conversas disponíveis | — |
+
+### Exemplos
+
+```bash
+# Exportar a conversa atual
+openyida export-conversation
+
+# Exportar para um arquivo específico
+openyida export-conversation -o output.md
+
+# Listar conversas disponíveis
+openyida export-conversation --list
+
+# Exportar de um arquivo de entrada específico
+openyida export-conversation -i conversation.json -o result.md
+```
+
+---
+
+## Atualização automática
+
+Verifique se há uma versão mais recente do OpenYida no npm e instale-a globalmente.
+
+```bash
+openyida update
+```
+
+O comando consulta o registro npm para obter a versão mais recente publicada. Se uma versão mais nova estiver disponível, executa `npm install -g openyida@latest` para atualizar. Se você já estiver na versão mais recente, exibe uma mensagem de confirmação e encerra.
+
+<Info>
+  O OpenYida também verifica atualizações automaticamente em segundo plano sempre que você executa um comando. O comando `update` permite acionar essa verificação e instalar manualmente.
+</Info>
+
+---
+
+## Opções globais
+
+| Opção | Descrição |
+|------|------|
+| `--help`, `-h` | Mostrar informações de ajuda |
+| `--version`, `-v` | Mostrar número da versão |
+| `--qr` | Usar QR code no terminal para login |
+| `--force` | Forçar operação, pular confirmação |
+| `--health-check` | Run a health check after publishing a custom page |
+
+---
+
+## Variáveis de ambiente
+
+| Variável | Descrição | Exemplo |
+|------|------|------|
+| `OPENYIDA_LANG` | Configurar idioma | `zh`, `en`, `ja` |
+| `LANG` / `LC_ALL` | Idioma do sistema | `zh_CN.UTF-8` |
+| `OPENYIDA_ENDPOINT` | Forçar o endpoint do serviço Yida (prioridade mais alta) | `https://yida.example.com` |
+| `OPENYIDA_LOGIN_URL` | Forçar a URL da página de login | `https://yida.example.com/login` |
+| `OPENYIDA_ENV` | Alternar ambiente sem modificar o arquivo de configuração (ideal para CI/CD) | `my-private-env` |
+| `OPENYIDA_DWS_ENDPOINT` | Endpoint do gateway OpenAPI do DingTalk privado | `https://oapi.example.com` |
+
+### Prioridade de resolução de endpoints
+
+Ao determinar o endpoint do serviço Yida, a seguinte ordem se aplica:
+
+1. Variável de ambiente `OPENYIDA_ENDPOINT`
+2. Configuração do ambiente ativo (definido via `openyida env switch`)
+3. `base_url` armazenado em cache no cookie
+4. URL padrão da nuvem pública (`https://www.aliwork.com`)
+
+Ordem de resolução da URL de login:
+
+1. Variável de ambiente `OPENYIDA_LOGIN_URL`
+2. Configuração do ambiente ativo
+3. URL de login padrão (`https://www.aliwork.com/workPlatform`)
+
+---
+
+## Códigos de saída
+
+| Código | Significado |
+|----|------|
+| 0 | Sucesso |
+| 1 | Erro geral |
+| 2 | Erro de parâmetros |
+| 3 | Erro de login / Não autenticado |
+| 4 | Erro de rede |
+| 5 | Erro de API |

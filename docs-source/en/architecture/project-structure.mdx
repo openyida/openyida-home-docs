@@ -1,0 +1,171 @@
+---
+title: Project Structure
+description: OpenYida project directory structure and code organization
+icon: "folder-tree"
+---
+
+# Project Structure
+
+OpenYida adopts a modular architecture with clear code organization for easy maintenance and extension.
+
+## Directory Overview
+
+```
+openyida/
+├── src/
+│   ├── commands/          # CLI command implementations
+│   │   ├── create-app.ts
+│   │   ├── create-form.ts
+│   │   ├── create-page.ts
+│   │   ├── publish.ts
+│   │   ├── share.ts
+│   │   ├── data.ts
+│   │   ├── connector.ts
+│   │   ├── report.ts
+│   │   ├── doctor.ts
+│   │   └── login.ts
+│   ├── core/              # Core functionality modules
+│   │   ├── yida-api.ts    # Yida API wrapper
+│   │   ├── ai-service.ts  # AI service integration
+│   │   ├── config.ts      # Configuration management
+│   │   └── auth.ts        # Authentication handling
+│   ├── utils/             # Utility functions
+│   │   ├── logger.ts
+│   │   ├── file.ts
+│   │   └── validator.ts
+│   └── types/             # TypeScript type definitions
+│       ├── yida.ts
+│       ├── ai.ts
+│       └── index.ts
+├── skills/                # Skill system
+│   ├── builtin/           # Built-in Skills
+│   └── custom/            # Custom Skills
+├── templates/             # Code templates
+│   ├── app/
+│   ├── form/
+│   └── page/
+├── docs/                  # Documentation assets
+├── tests/                 # Test files
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+## Core Modules
+
+### src/commands/
+
+Contains all CLI command implementations, each file corresponding to a subcommand:
+
+| File | Function |
+|------|----------|
+| `create-app.ts` | Create Yida application |
+| `create-form.ts` | Create form page |
+| `create-page.ts` | Create custom page |
+| `publish.ts` | Publish application |
+| `share.ts` | Share application |
+| `data.ts` | Data management operations |
+| `connector.ts` | Connector management |
+| `report.ts` | Report operations |
+| `doctor.ts` | Diagnostic tools |
+| `login.ts` | Authentication |
+
+### src/core/
+
+Core business logic modules:
+
+- **yida-api.ts**: Wraps Yida Open Platform API with unified interface
+- **ai-service.ts**: Integrates multiple AI services (OpenAI, Claude, Tongyi, etc.)
+- **config.ts**: Manages local config files (~/.openyida/config.json)
+- **auth.ts**: Handles login state, token refresh, multi-org switching
+
+### src/utils/
+
+Utility functions:
+
+- **logger.ts**: Logging with levels and colors
+- **file.ts**: File operation helpers
+- **validator.ts**: Input validation
+
+### src/types/
+
+TypeScript type definitions for code safety:
+
+- **yida.ts**: Yida API related types
+- **ai.ts**: AI service related types
+- **index.ts**: Common type exports
+
+## Skill System
+
+```
+skills/
+├── builtin/               # Built-in Skills
+│   ├── code-generator/    # Code generation
+│   ├── form-builder/      # Form building
+│   ├── page-designer/     # Page design
+│   └── data-analyzer/     # Data analysis
+└── custom/                # User custom Skills
+    └── (user extensions)
+```
+
+Skills use a plugin architecture supporting hot reload and dynamic extension.
+
+## Configuration Management
+
+### Local Config
+
+Storage location: `~/.openyida/config.json`
+
+```json
+{
+  "defaultOrg": "org-default",
+  "orgs": {
+    "org-default": {
+      "accessToken": "xxx",
+      "refreshToken": "xxx",
+      "expiresAt": 1234567890
+    }
+  },
+  "aiProvider": "openai",
+  "aiConfig": {
+    "apiKey": "sk-xxx",
+    "model": "gpt-4"
+  }
+}
+```
+
+### Project Config
+
+Create `.openyidarc.json` in project root:
+
+```json
+{
+  "appId": "APP-XXX",
+  "defaultEnv": "dev",
+  "environments": {
+    "dev": { "appKey": "xxx", "appSecret": "xxx" },
+    "prod": { "appKey": "xxx", "appSecret": "xxx" }
+  }
+}
+```
+
+## Extension Mechanisms
+
+### Adding New Commands
+
+1. Create new file in `src/commands/`
+2. Implement command handler function
+3. Register command in `src/index.ts`
+
+### Adding New Skills
+
+1. Create Skill directory in `skills/custom/`
+2. Implement `skill.json` and main logic
+3. Load with `openyida skill load`
+
+## Development Standards
+
+- All new features must include type definitions
+- Command implementations must include `--help` documentation
+- Core features must have unit test coverage
+- Follow ESLint and Prettier configuration

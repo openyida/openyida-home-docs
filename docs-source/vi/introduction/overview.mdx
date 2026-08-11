@@ -1,0 +1,85 @@
+---
+title: "OpenYida là gì?"
+description: "Công cụ CLI AI-driven cho nền tảng low-code Yida, không cần cấu hình, cài đặt và sử dụng ngay."
+icon: "rocket"
+---
+<p align="center">
+  <a href="https://www.npmjs.com/package/openyida"><img src="https://img.shields.io/npm/v/openyida?color=brightgreen&label=npm" alt="npm version"/></a> <a href="https://www.npmjs.com/package/openyida"><img src="https://img.shields.io/npm/dm/openyida?color=blue" alt="npm downloads"/></a> <a href="https://github.com/openyida/openyida/actions/workflows/ci.yml"><img src="https://github.com/openyida/openyida/actions/workflows/ci.yml/badge.svg" alt="CI"/></a> <a href="https://github.com/openyida/openyida/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a> <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" alt="Node.js ≥18"/></a>
+</p>
+
+## Tổng quan
+
+**OpenYida** là công cụ CLI không cần cấu hình, kết nối trợ lý lập trình AI với nền tảng low-code [Yida](https://www.aliwork.com). Cài đặt một lần, sau đó mô tả yêu cầu bằng ngôn ngữ tự nhiên — OpenYida sẽ tự động xử lý: tạo ứng dụng, quản lý biểu mẫu, xuất bản trang, cấu hình kết nối, tạo báo cáo, triển khai lên Yida trong vài giây.
+
+🌐 **Trang web chính thức**: [https://openyida.ai](https://openyida.ai)
+
+<CardGroup cols={2}>
+  <Card title="Tạo ứng dụng bằng một câu" icon="wand-magic-sparkles">
+    Mô tả yêu cầu bằng một câu, AI tự động tạo hệ thống kinh doanh đa biểu mẫu hoàn chỉnh.
+  </Card>
+  <Card title="Chuyển đổi tài liệu yêu cầu thành ứng dụng" icon="file-lines">
+    Dán tài liệu yêu cầu, nhận ứng dụng Yida hoàn chỉnh với đầy đủ các trường và logic được chỉ định.
+  </Card>
+  <Card title="Thao tác biểu mẫu và trang" icon="table-columns">
+    Tạo, sửa đổi, cấu hình biểu mẫu và trang hiển thị tùy chỉnh thông qua lệnh ngôn ngữ tự nhiên.
+  </Card>
+  <Card title="Xuất bản và chia sẻ" icon="share-nodes">
+    Hoàn tất biên dịch trang, xuất bản và cấu hình truy cập công cộng chỉ bằng một lệnh.
+  </Card>
+</CardGroup>
+
+---
+
+## Tính năng cốt lõi
+
+| Mô-đun tính năng | Mô tả |
+|---------|------|
+| **Quản lý ứng dụng** | Tạo ứng dụng, nhập/xuất, di chuyển và triển khai |
+| **Quản lý biểu mẫu** | Tạo/cập nhật biểu mẫu, lấy Schema, cấu hình quyền |
+| **Xuất bản trang** | Phát triển trang tùy chỉnh, biên dịch Babel, xuất bản bằng một cú nhấp chuột |
+| **Cấu hình quy trình** | Tạo biểu mẫu quy trình, cấu hình quy tắc phê duyệt |
+| **Tích hợp và tự động hóa** | Tạo và quản lý luồng logic, trình kích hoạt sự kiện biểu mẫu, thông báo, thao tác dữ liệu giữa các biểu mẫu |
+| **Quản lý dữ liệu** | Truy vấn dữ liệu biểu mẫu, quy trình, quản lý tác vụ |
+| **Kết nối** | Tạo kết nối HTTP, tích hợp API, nhập thông minh curl |
+| **Báo cáo và biểu đồ** | Tạo báo cáo Yida, thêm biểu đồ, trực quan hóa dữ liệu |
+| **Quản lý CDN** | Tải lên hình ảnh, làm mới bộ nhớ đệm, cấu hình OSS |
+| **Máy chủ MCP App** | Quản lý ứng dụng Yida trong cuộc hội thoại AI qua giao thức MCP, hỗ trợ bảng điều khiển tương tác và biểu đồ |
+
+---
+
+## Khác biệt với các nền tảng xây dựng AI khác
+
+| Chiều | OpenYida | Các nền tảng xây dựng AI khác |
+|------|----------|------------------|
+| **Người dùng mục tiêu** | Nhà phát triển (người biết code) | Nhân viên kinh doanh (không phải nhà phát triển) |
+| **Cách tương tác** | Ngôn ngữ tự nhiên + hội thoại AI | Kéo thả trực quan + bảng cấu hình |
+| **Sản phẩm đầu ra** | Ứng dụng Yida (có thể chỉnh sửa lại, hỗ trợ đầy đủ khả năng low-code) | Cấu hình (chạy trong hộp đen) |
+| **Cách triển khai** | Nền tảng Yida | Liên kết nền tảng SaaS |
+| **Mô hình AI** | Chọn theo nhu cầu, chọn mô hình phù hợp nhất | Nền tảng chỉ định, không thể thay đổi |
+| **Bảo mật và tuân thủ** | Yida có khả năng bảo mật và tuân thủ hoàn chỉnh | Phụ thuộc vào khả năng nền tảng |
+
+---
+
+## Công cụ lập trình AI được hỗ trợ
+
+OpenYida là gói kỹ năng tương thích MCP, tích hợp sẵn tất cả các môi trường lập trình AI chính thống:
+
+| Công cụ | Trạng thái |
+|------|------|
+| [Claude Code](https://claude.ai/code) | ✅ Hỗ trợ đầy đủ |
+| [Aone Copilot](https://copilot.code.alibaba-inc.com) | ✅ Hỗ trợ đầy đủ |
+| [OpenCode](https://opencode.ai) | ✅ Hỗ trợ đầy đủ |
+| [Cursor](https://cursor.com/) | ✅ Hỗ trợ đầy đủ |
+| [Visual Studio Code](https://code.visualstudio.com/) | ✅ Hỗ trợ đầy đủ |
+| [Qoder](https://qoder.com) | ✅ Hỗ trợ đầy đủ |
+| [QwenWork](https://qwenwork.cn) | ✅ Hỗ trợ đầy đủ |
+
+---
+
+## Yêu cầu môi trường
+
+| Phụ thuộc | Phiên bản | Mục đích |
+|------|------|------|
+| Node.js | ≥ 18 | Chạy CLI, xuất bản trang |
+
+Không cần Python, Playwright, bước xây dựng — triển khai bằng Node.js thuần túy.

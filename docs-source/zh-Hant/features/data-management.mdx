@@ -1,0 +1,370 @@
+---
+title: "數據管理"
+description: "使用 OpenYida CLI 統一管理宜搭數據，支持表單數據查詢與創建、流程審批、任務中心和子表單操作。"
+icon: "database"
+---
+
+OpenYida 提供統一的數據管理 CLI，支持對錶單數據、流程實例、任務、子表單等進行完整的操作。
+
+---
+
+## 功能概述
+
+<CardGroup cols={2}>
+  <Card title="表單數據" icon="table">
+    查詢、創建、更新表單實例數據。
+  </Card>
+  <Card title="流程數據" icon="diagram-project">
+    管理流程實例、審批記錄、流程狀態。
+  </Card>
+  <Card title="任務管理" icon="check-circle">
+    查詢待辦、已辦、我提交的、抄送我的任務。
+  </Card>
+  <Card title="子表單" icon="list">
+    獨立查詢和管理子表單數據。
+  </Card>
+</CardGroup>
+
+---
+
+## 命令格式
+
+```bash
+openyida data <action> <resource> [args]
+```
+
+- **action**: `query` | `get` | `create` | `update` | `execute`
+- **resource**: `form` | `process` | `task` | `subform` | `operation-records`
+
+---
+
+<Warning>
+  宜搭欄位 ID 由平台隨機生成（如 `textField_eftt1aa5m`），無法猜測或從欄位名稱推斷。建立或更新任何記錄前，**必須**先執行 `openyida get-schema <appType> <formUuid>` 取得真實欄位 ID，並將欄位名→ID 映射記錄到 `.cache/<專案名>-schema.json`。寫入資料後，查詢至少一筆記錄（`--size 1`）確認 `formData` 中欄位有實際值——若值為空則表示欄位 ID 有誤。
+</Warning>
+
+## 表單數據管理
+
+### 查詢表單數據
+
+```bash
+# 基本查詢
+openyida data query form <appType> <formUuid>
+
+# 分頁查詢
+openyida data query form <appType> <formUuid> --page 1 --size 50
+
+# 條件查詢
+openyida data query form <appType> <formUuid> \
+  --search-json '[{"key":"field_xxx","value":"value","type":"TEXT","operator":"eq","componentName":"TextField"}]'
+
+# 查詢指定實例
+openyida data query form <appType> <formUuid> --inst-id <formInstId>
+
+# 僅返回實例 ID
+openyida data query form <appType> <formUuid> --ids-only
+
+# 按建立者和日期範圍過濾
+openyida data query form <appType> <formUuid> \
+  --originator-id <userId> \
+  --create-from "2026-01-01" --create-to "2026-12-31"
+```
+
+#### 可選參數
+
+| 參數 | 說明 |
+|------|------|
+| `--page N` | 頁碼（預設 `1`） |
+| `--size N` | 每頁筆數（預設 `20`，最大 `100`）。超過 `100` 會導致 API 回傳 HTTP 500 錯誤，CLI 會自動截斷並發出警告 |
+| `--search-json JSON` | 查詢條件（必須是合法 JSON，詳見[查詢條件格式](#查詢條件格式)） |
+| `--inst-id ID` | 按實例 ID 查詢單筆記錄 |
+| `--ids-only` | 僅回傳實例 ID |
+| `--originator-id ID` | 按建立者過濾 |
+| `--create-from DATE` | 過濾指定日期之後建立的記錄 |
+| `--create-to DATE` | 過濾指定日期之前建立的記錄 |
+| `--modified-from DATE` | 過濾指定日期之後修改的記錄 |
+| `--modified-to DATE` | 過濾指定日期之前修改的記錄 |
+| `--dynamic-order FIELD` | 按欄位排序 |
+
+<Note>
+  **appType 參數說明：** 在宜搭自訂頁面的 JS 程式碼中呼叫 `this.utils.yida.searchFormDatas` 時，不需要傳 `appType`（SDK 會自動從頁面上下文取得）。透過 CLI（`openyida data query form`）或外部 HTTP 請求呼叫時，`appType` 是必填參數，格式如 `APP_XXXXXXXX`。
+</Note>
+
+<Warning>
+  **searchFormDatas 回傳結構不一致：** 宜搭 API 在不同場景下可能回傳兩種回應結構：
+  - **直接結構**（常見）：`{ data: [...], totalCount, currentPage }`
+  - **巢狀結構**（部分場景）：`{ content: { data: [...], totalCount, currentPage } }`
+
+  如果你透過 JS API 直接呼叫，請使用相容寫法讀取資料：
+  ```javascript
+  var data = (res && res.data) || (res && res.content && res.content.data) || [];
+  var total = (res && res.totalCount) || (res && res.content && res.content.totalCount) || 0;
+  ```
+  使用 `openyida data query form` CLI 命令時無需處理此問題，CLI 已自動歸一化為直接結構。
+</Warning>
+
+### 獲取單條數據
+
+```bash
+openyida data get form <appType> --inst-id <formInstId>
+```
+
+### 創建數據
+
+```bash
+openyida data create form <appType> <formUuid> \
+  --data-json '{"field_xxx": "value", "field_yyy": 123}' \
+  --dept-id <departmentId>
+```
+
+### 更新數據
+
+```bash
+openyida data update form <appType> \
+  --inst-id <formInstId> \
+  --data-json '{"field_xxx": "new value"}' \
+  --use-latest-version y
+```
+
+---
+
+## 流程數據管理
+
+### 查詢流程實例
+
+```bash
+# 查詢流程列表
+openyida data query process <appType> <formUuid> \
+  --page 1 --size 20 \
+  --instance-status RUNNING
+
+# 狀態可選：RUNNING（進行中）、COMPLETED（已完成）、TERMINATED（已終止）
+
+# 僅返回實例 ID
+openyida data query process <appType> <formUuid> --ids-only
+
+# 按任務和審批結果過濾
+openyida data query process <appType> <formUuid> \
+  --task-id <taskId> \
+  --approved-result AGREE
+```
+
+#### 可選參數
+
+| 參數 | 說明 |
+|------|------|
+| `--page N` | 頁碼（預設 `1`） |
+| `--size N` | 每頁筆數（預設 `10`，最大 `100`） |
+| `--search-json JSON` | 查詢條件（必須是合法 JSON） |
+| `--instance-status STATUS` | 按狀態過濾：`RUNNING`、`COMPLETED`、`TERMINATED` |
+| `--task-id ID` | 按任務 ID 過濾 |
+| `--approved-result RESULT` | 按審批結果過濾：`AGREE`、`DISAGREE` |
+| `--ids-only` | 僅回傳實例 ID |
+| `--originator-id ID` | 按建立者過濾 |
+| `--create-from DATE` | 過濾指定日期之後建立的實例 |
+| `--create-to DATE` | 過濾指定日期之前建立的實例 |
+| `--modified-from DATE` | 過濾指定日期之後修改的實例 |
+| `--modified-to DATE` | 過濾指定日期之前修改的實例 |
+
+### 獲取流程詳情
+
+```bash
+openyida data get process <appType> --process-inst-id <processInstanceId>
+```
+
+### 創建流程實例
+
+```bash
+openyida data create process <appType> <formUuid> \
+  --process-code <processCode> \
+  --data-json '{"field_xxx": "value"}' \
+  --dept-id <departmentId>
+```
+
+### 更新流程實例
+
+```bash
+openyida data update process <appType> \
+  --process-inst-id <processInstanceId> \
+  --data-json '{"field_xxx": "updated value"}'
+```
+
+### 查詢審批記錄
+
+```bash
+openyida data query operation-records <appType> \
+  --process-inst-id <processInstanceId>
+```
+
+---
+
+## 任務管理
+
+<Tip>
+  如果你需要查詢跨應用的全域任務中心資料（無需指定 `appType`），請使用 `openyida task-center` 命令。詳見 [CLI 參考](/zh-Hant/features/skills#全域任務中心)。
+</Tip>
+
+### 查詢任務列表
+
+```bash
+# 待辦任務
+openyida data query tasks <appType> --type todo
+
+# 已辦任務
+openyida data query tasks <appType> --type done
+
+# 我提交的
+openyida data query tasks <appType> --type submitted
+
+# 抄送我的
+openyida data query tasks <appType> --type cc
+
+# 帶分頁和關鍵詞過濾
+openyida data query tasks <appType> --type todo --page 1 --size 20 --keyword "緊急"
+```
+
+#### 可選參數
+
+| 參數 | 說明 |
+|------|------|
+| `--type TYPE` | **必填。** 任務類型：`todo`、`done`、`submitted`、`cc` |
+| `--page N` | 頁碼（預設 `1`） |
+| `--size N` | 每頁筆數（預設 `10`，最大 `100`） |
+| `--keyword TEXT` | 搜尋關鍵詞 |
+| `--process-codes JSON` | 按流程編碼過濾（JSON 陣列） |
+| `--instance-status STATUS` | 按流程實例狀態過濾 |
+
+### 執行任務
+
+```bash
+openyida data execute task <appType> \
+  --task-id <taskId> \
+  --process-inst-id <processInstanceId> \
+  --out-result AGREE \
+  --remark "同意，請繼續推進" \
+  --data-json '{"comment": "審批通過"}'
+```
+
+| 參數 | 說明 |
+|------|------|
+| `--task-id ID` | **必填。** 任務 ID |
+| `--process-inst-id ID` | **必填。** 流程實例 ID |
+| `--out-result RESULT` | **必填。** `AGREE`（同意）或 `DISAGREE`（不同意） |
+| `--remark TEXT` | **必填。** 審批意見 |
+| `--data-json JSON` | 審批時同步更新的表單資料 |
+| `--no-execute-expressions y` | 任務完成後跳過表達式執行 |
+
+---
+
+## 子表單管理
+
+### 查詢子表單數據
+
+```bash
+openyida data query subform <appType> <formUuid> \
+  --inst-id <formInstId> \
+  --table-field-id <fieldId> \
+  --page 1 --size 20
+```
+
+---
+
+## 高級用法
+
+### 查詢條件格式
+
+`--search-json` 參數接受數組格式的查詢條件。該值必須是合法 JSON——CLI 會在傳送請求前驗證輸入，格式錯誤的 JSON 會被拒絕並報錯。
+
+每個條件是一個包含以下欄位的物件：
+
+| 欄位 | 說明 |
+|------|------|
+| `key` | 欄位 ID（如 `field_xxx`） |
+| `value` | 匹配值 |
+| `type` | 數據類型：`TEXT`、`NUMBER`、`DATE` 等 |
+| `operator` | 操作符：`eq`、`like`、`gt`、`gte`、`lt`、`lte`、`in`、`range` |
+| `componentName` | 組件類型：`TextField`、`NumberField`、`DateField` 等 |
+
+示例：
+
+```bash
+openyida data query form <appType> <formUuid> \
+  --search-json '[
+    {"key":"field_status","value":"approved","type":"TEXT","operator":"eq","componentName":"TextField"},
+    {"key":"field_amount","value":"1000","type":"NUMBER","operator":"gte","componentName":"NumberField"}
+  ]'
+```
+
+### 批量操作腳本示例
+
+```bash
+#!/bin/bash
+# 批量導出表單數據
+
+APP_TYPE="APP_XXXXXXXX"
+FORM_UUID="FORM-XXXX-XXXX"
+PAGE=1
+
+while true; do
+  RESULT=$(openyida data query form $APP_TYPE $FORM_UUID --page $PAGE --size 100)
+  
+  # 處理當前頁數據
+  echo "$RESULT" >> ./export.json
+  
+  # 檢查是否還有下一頁
+  HAS_MORE=$(echo "$RESULT" | jq '.hasMore')
+  if [ "$HAS_MORE" != "true" ]; then
+    break
+  fi
+  
+  PAGE=$((PAGE + 1))
+done
+```
+
+### AttachmentField 資料格式
+
+在建立或更新表單資料時，`AttachmentField`（附件）和 `ImageField`（圖片）欄位需要使用特定的物件陣列格式。你不能直接傳入檔案物件或純文字字串。
+
+每個附件物件需要包含以下欄位：
+
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| `name` | String | 檔案名稱 |
+| `size` | Number | 檔案大小（位元組） |
+| `fileUuid` | String | 檔案唯一識別碼（OSS objectName） |
+| `url` | String | 檔案存取 URL |
+| `downloadUrl` | String | 檔案下載 URL |
+| `previewUrl` | String | 檔案預覽 URL |
+
+範例：
+
+```bash
+openyida data create form <appType> <formUuid> \
+  --data-json '{
+    "attachmentField_xxx": [
+      {
+        "name": "report.pdf",
+        "size": 102400,
+        "fileUuid": "APP_XXX/2026/4-1/1713000000000-report.pdf",
+        "url": "/ossFileHandle?appType=APP_XXX&fileName=report.pdf&type=download",
+        "downloadUrl": "/ossFileHandle?appType=APP_XXX&fileName=report.pdf&type=download",
+        "previewUrl": "/inst/preview?appType=APP_XXX&fileName=report.pdf"
+      }
+    ]
+  }'
+```
+
+<Warning>
+  `AttachmentField` 的值必須是物件陣列，不能是單個物件、字串或 `File` 物件。傳入錯誤格式會導致類似 `syntax error, expect [` 的報錯。
+</Warning>
+
+---
+
+## 注意事項
+
+<Warning>
+  數據操作具有永久性，更新操作不可撤銷。建議在執行批量操作前先進行小規模測試。
+</Warning>
+
+<Info>
+  分頁查詢預設每頁 20 條，最大支持 100 條。設定超過 100 的 `pageSize` 會導致 API 回傳 HTTP 500 錯誤。CLI 會自動將超出值截斷為 100 並發出警告。大量數據導出建議使用迴圈分頁取得。
+</Info>

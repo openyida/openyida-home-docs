@@ -1,0 +1,226 @@
+---
+title: Architekturübersicht
+description: Globale Architektur von OpenYida und technische Auswahl
+icon: "sitemap"
+---
+
+# Architekturübersicht
+
+OpenYida ist ein auf Node.js basierendes CLI-Tool, das eine geschichtete Architektur verwendet und KI-Fähigkeiten, Yida-Plattformintegration und Entwicklererfahrung kombiniert.
+
+## Globaler Arbeitsablauf
+
+![OpenYida-Arbeitsablauf](/images/architecture-workflow.png)
+
+Der Arbeitsablauf von OpenYida unterteilt sich in 6 Phasen:
+
+1. **User Requirement** - Benutzer beschreibt Anforderungen in natürlicher Sprache
+2. **AI Understanding** - KI versteht und analysiert Benutzeranforderungen
+3. **PRD Document** - Generierung des Produktanforderungsdokuments
+4. **CLI Execution** - Ausführung von CLI-Befehlen zum Erstellen der Anwendung
+5. **Yida Platform** - Anwendungserstellung auf der Yida-Plattform
+6. **Online Access** - Online-Zugriff auf die Anwendung
+
+## Systemarchitektur
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      CLI Interface                          │
+│         (Command Parser + Interactive Prompts)              │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Command Layer                            │
+│   create-app │ create-form │ publish │ data │ doctor ...   │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Core Services                            │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │   AI Service │  │  Yida API    │  │   Config     │      │
+│  │  (Multi-LLM) │  │  (Open API)  │  │   Manager    │      │
+│  └──────────────┘  └──────────────┘  └──────────────┘      │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │  Auth        │  │  Skill       │  │   Template   │      │
+│  │  (OAuth 2.0) │  │  System      │  │   Engine     │      │
+│  └──────────────┘  └──────────────┘  └──────────────┘      │
+└─────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┴───────────────┐
+              ▼                               ▼
+┌─────────────────────────┐    ┌─────────────────────────────┐
+│    AI Providers         │    │    Yida Platform            │
+│  ┌─────────────────┐    │    │                             │
+│  │ OpenAI (GPT-4)  │    │    │   ┌─────────────────────┐   │
+│  ├─────────────────┤    │    │   │   Application       │   │
+│  │ Claude (3.5)    │    │    │   │   Engine            │   │
+│  ├─────────────────┤    │    │   ├─────────────────────┤   │
+│  │ 通义千问        │    │    │   │   Form Builder      │   │
+│  ├─────────────────┤    │    │   ├─────────────────────┤   │
+│  │ DeepSeek        │    │    │   │   Page Designer     │   │
+│  └─────────────────┘    │    │   ├─────────────────────┤   │
+│                         │    │   │   Data Management   │   │
+│                         │    │   ├─────────────────────┤   │
+│                         │    │   │   Connector Hub     │   │
+│                         │    │   ├─────────────────────┤   │
+│                         │    │   │   Report Center     │   │
+│                         │    │   └─────────────────────┘   │
+└─────────────────────────┘    └─────────────────────────────┘
+```
+
+## Authentifizierungsablauf
+
+![Authentifizierungsablauf](/images/architecture-auth.png)
+
+Der Authentifizierungsablauf von OpenYida:
+
+1. **config.json** - Speicherung von Konfigurationsinformationen
+2. **Login Session** - Einrichtung der Anmeldesitzung
+3. **Cookie Cache** - Caching von Authentifizierungsinformationen
+4. **API Request** - Senden von API-Anforderungen
+5. **Yida Backend** - Verarbeitung durch Yida-Backend
+6. **Page/Form Output** - Ausgabe von Seite/Formular
+
+## CLI-Architektur
+
+![CLI-Architektur](/images/architecture-cli.png)
+
+Interaktion zwischen OpenYida CLI und Yida-Plattform:
+
+- **AI Coding Tool** → **OpenYida CLI**
+  - Login (Anmeldung)
+  - Create App (Anwendung erstellen)
+  - Create Page (Seite erstellen)
+  - Publish (Veröffentlichen)
+  - Get Schema (Struktur abrufen)
+- **Yida Low-Code Platform**
+  - App Management (Anwendungsverwaltung)
+  - Form Pages (Formularseiten)
+  - Custom Pages (Benutzerdefinierte Seiten)
+
+## Skill-System
+
+![Skill-System](/images/architecture-skills.png)
+
+Die Skills von OpenYida sind in drei Kategorien unterteilt:
+
+### Login Skills (Anmelde-Skills)
+- `login` - Bei Yida-Plattform anmelden
+- `logout` - Abmelden
+
+### Create Skills (Erstellungs-Skills)
+- `create-app` - Anwendung erstellen
+- `create-page` - Seite erstellen
+- `create-form` - Formular erstellen
+- `get-schema` - Datenstruktur abrufen
+
+### Publish Skills (Veröffentlichungs-Skills)
+- `publish` - Anwendung veröffentlichen
+
+## Grundlegende Designprinzipien
+
+### 1. Modulares Design
+
+Jedes Funktionsmodul ist unabhängig gekapselt und interagiert über klare Schnittstellen:
+
+- **Befehlsebene** : Verarbeitet CLI-Eingaben, ruft Kerndienste auf
+- **Dienstebene** : Kapselt Geschäftslogik, stellt einheitliche API bereit
+- **Adapterebene** : Verbindet externe Systeme (KI, Yida-Plattform)
+
+### 2. Plugin-Erweiterung
+
+Das Skill-System unterstützt dynamisches Laden und Erweiterung:
+
+```typescript
+// Skill-Schnittstellendefinition
+interface Skill {
+  name: string;
+  version: string;
+  activate(context: SkillContext): void;
+  deactivate(): void;
+}
+```
+
+### 3. Konfigurationsgesteuert
+
+Unterstützt Multi-Umgebungskonfiguration, flexible Umschaltung:
+
+- Lokale globale Konfiguration (~/.openyida/)
+- Projektkonfiguration (.openyidarc.json)
+- Überschreibung durch Umgebungsvariablen
+
+### 4. Typsicherheit
+
+Volle TypeScript-Typunterstützung über die gesamte Kette, reduziert Laufzeitfehler.
+
+## Datenfluss
+
+### Anwendungserstellungsablauf
+
+```
+User Input → AI Service → Code Generation → Yida API → Application
+                ↑                              ↓
+           PRD Analysis                  Validation
+                ↑                              ↓
+           Template Selection           Deployment
+```
+
+### Datenoperationsablauf
+
+```
+User Command → Config Load → Auth Check → Yida API → Data Response
+                                              ↓
+                                         Cache/Store
+```
+
+## Technologie-Stack
+
+| Ebene | Technologie |
+|------|------|
+| Laufzeit | Node.js 18+ |
+| Sprache | TypeScript 5.x |
+| CLI-Framework | Commander.js |
+| HTTP-Client | Axios |
+| KI-SDK | OpenAI SDK, Anthropic SDK |
+| Konfigurationsverwaltung | Cosmiconfig |
+| Protokollierung | Winston |
+| Tests | Jest |
+
+## Sicherheitsdesign
+
+### Authentifizierungssicherheit
+
+- Standard OAuth 2.0-Ablauf
+- Automatischer Token-Aktualisierungsmechanismus
+- Lokal verschlüsselte Speicherung sensibler Informationen
+
+### Datenübertragung
+
+- Vollständige HTTPS-Kette
+- API-Signaturverifizierung
+- Anforderungswiederholung und Zeitüberschreitungssteuerung
+
+## Leistungsoptimierung
+
+- **Verbindungspool** : Wiederverwendung von HTTP-Verbindungen
+- **Intelligenter Cache** : Lokales Caching von Konfiguration und Metadaten
+- **Inkrementelle Updates** : Übertragung nur geänderter Inhalte
+- **Parallelitätssteuerung** : Begrenzung gleichzeitiger API-Aufrufe
+
+## Erweiterungspunkte
+
+Entwickler können auf folgenden Ebenen erweitern:
+
+1. **Neue Befehle** : Benutzerdefinierte CLI-Befehle hinzufügen
+2. **Neue Skills** : KI-Fähigkeiten erweitern
+3. **Neue Vorlagen** : Codegenerierungsvorlagen anpassen
+4. **Neue KI-Anbieter** : Andere große Modelle integrieren
+
+## Versionskompatibilität
+
+| OpenYida-Version | Unterstütztes Node.js | Yida-API-Version |
+|--------------|----------------|--------------|
+| 1.x | >= 18.0.0 | v1 |
+| 2.x | >= 20.0.0 | v2 |

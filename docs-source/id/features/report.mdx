@@ -1,0 +1,119 @@
+---
+title: "Laporan dan bagan"
+description: "Dokumen ini menjelaskan Laporan dan bagan di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan."
+icon: chart-column
+---
+
+# Laporan dan bagan
+
+Halaman ini menjelaskan Laporan dan bagan di OpenYida, termasuk tujuan, alur penggunaan, dan hal penting saat membangun aplikasi Yida dengan AI.
+
+## Ikhtisar
+
+Dokumen ini menjelaskan Laporan dan bagan di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan.
+
+## Poin penting
+
+- Gunakan halaman ini untuk memahami konteks utama sebelum menerapkannya di proyek nyata.
+- Nama perintah, parameter, kode, dan beberapa nama produk tetap menggunakan bahasa Inggris agar mudah dicari dan disalin dengan benar.
+- Saat bekerja dengan宜搭, periksa izin, organisasi, dan lingkungan sebelum publikasi.
+
+## Penggunaan
+
+Ikuti langkah dalam dokumen ini bersama OpenYida CLI dan konfigurasi organisasi. Jika ada contoh kode di bawah, contoh tersebut dapat disalin lalu disesuaikan dengan kebutuhan.
+
+## Perintah dan contoh
+
+Contoh berikut mempertahankan perintah dan kode asli untuk menjaga akurasi teknis.
+
+```bash
+openyida create-report <appType> "Report Name" '<chart-definition-JSON-or-file>'
+```
+
+```bash
+openyida create-report APP_XXXXXX "Sales Dashboard" '{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "month",
+      "yField": "amount"
+    }
+  ]
+}'
+```
+
+```bash
+openyida create-report APP_XXXXXX "Annual Report" ./charts-config.json
+```
+
+```bash
+openyida append-chart <appType> <reportId> '<chart-definition-JSON-or-file>'
+```
+
+```bash
+openyida append-chart APP_XXXXXX REPORT_XXXXX '{
+  "type": "line",
+  "title": "Growth Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "month",
+  "yField": "growth_rate"
+}'
+```
+
+```json
+{
+  "filters": [
+    {
+      "title": "Project filter",
+      "placeholder": "Select a project",
+      "cubeCode": "FORM_XXXXXX",
+      "valueField": {
+        "fieldCode": "selectField_xxx",
+        "aliasName": "Project value",
+        "dataType": "STRING"
+      },
+      "labelField": {
+        "fieldCode": "selectField_xxx",
+        "aliasName": "Project name",
+        "dataType": "STRING"
+      },
+      "linkTo": [0, 1]
+    }
+  ],
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Bar chart",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "name",
+      "yField": "value"
+    }
+  ]
+}
+```
+
+```json
+{
+  "type": "bar",
+  "title": "Sales by Region",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "region",
+  "yField": "amount",
+  "aggregation": "sum",
+  "w": 6,
+  "h": 22
+}
+```
+
+```json
+{
+  "type": "line",
+  "title": "Traffic Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "date",
+  "yField": "visitors",
+  "aggregation": "sum"
+}
+```

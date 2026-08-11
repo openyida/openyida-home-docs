@@ -1,0 +1,150 @@
+---
+title: "Inicio Rápido"
+description: "Instale OpenYida y cree su primera aplicación Yida en 2 minutos."
+icon: "bolt"
+---
+
+## Requisitos previos
+
+Antes de comenzar, asegúrese de tener instaladas las siguientes dependencias:
+
+| Dependencia | Versión | Comando de verificación |
+|------|------|----------|
+| [Node.js](https://nodejs.org) | ≥ 18 | `node --version` |
+
+<Tip>
+  Eso es todo lo que necesita. OpenYida es una implementación pura de Node.js — sin Python, sin Playwright, sin pasos de compilación.
+</Tip>
+
+---
+
+## Paso 1 — Instalación
+
+```bash
+npm install -g openyida
+```
+
+Verifique la instalación:
+
+```bash
+openyida --version
+```
+
+---
+
+## Paso 2 — Iniciar sesión en Yida
+
+```bash
+openyida login
+```
+
+OpenYida abrirá una ventana del navegador (o mostrará un código QR) para que se autentique con su cuenta Yida/Alibaba. Las credenciales se almacenan en caché localmente — solo necesita hacer esto una vez.
+
+<Info>
+  OpenYida detects QwenWork automatically. If QR login is needed, use `openyida login --qr` or `openyida login --agent-qr`.
+</Info>
+
+---
+
+## Paso 3 — Verificar entorno
+
+```bash
+openyida env
+```
+
+Esto detecta la herramienta de codificación de IA actualmente activa (Claude Code, Cursor, QwenWork, etc.) y muestra su estado de inicio de sesión actual. Ejecute este comando cada vez que cambie de entorno.
+
+---
+
+## Paso 4 — Inicializar espacio de trabajo del proyecto
+
+```bash
+openyida copy
+```
+
+Esto copia la plantilla de espacio de trabajo `project/` en el directorio de trabajo de su herramienta de IA actual, permitiendo que la IA acceda a la configuración de su aplicación y a las plantillas de página.
+
+---
+
+## Paso 5 — Comenzar a construir
+
+Ahora simplemente hable con su asistente de codificación de IA. Aquí hay algunos prompts de inicio:
+
+```
+Constrúyame un sistema IPD en Yida para gestionar el flujo de trabajo completo de producción de chips
+```
+
+```
+Ayúdeme a construir un sistema CRM con leads, contactos y deals
+```
+
+```
+Cree una aplicación de calculadora de salario personal
+```
+
+```
+Genere un mini-juego de felicitación de cumpleaños en Yida
+```
+
+La IA utilizará el paquete de habilidades de OpenYida para llamar a los comandos CLI correctos en secuencia: `create-app` → `create-form` / `create-page` → `publish` → `save-share-config`.
+
+---
+
+## Paso 6 — Publicar la aplicación
+
+Después de que la IA genere la aplicación, use el siguiente comando para publicar:
+
+```bash
+openyida check-page project/pages/src/dashboard.oyd.jsx
+openyida compile project/pages/src/dashboard.oyd.jsx
+openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+```
+
+O pregunte a la IA:
+```
+Publique la página [nombre de la página]
+Haga que la página sea accesible públicamente
+```
+
+---
+
+## Ejecutar diagnósticos
+
+Si algo no funciona bien, ejecute la herramienta de diagnóstico integrada:
+
+```bash
+openyida doctor
+```
+
+Verifica su versión de Node.js, estado de inicio de sesión y configuración del entorno, y puede corregir automáticamente problemas comunes con `--fix`.
+
+---
+
+## Integración OpenClaw
+
+Si está utilizando OpenClaw, instale directamente el paquete de habilidades de OpenYida:
+
+```bash
+npx clawhub@latest install nicky1108/yida-app
+```
+
+Luego úselo a través de [yida-app en ClawhHub](https://clawhub.ai/nicky1108/yida-app).
+
+---
+
+## Próximos pasos
+
+<CardGroup cols={2}>
+  <Card title="Prompts comunes" icon="comments" href="/es/features/common-prompts">
+    Explore la lista completa de prompts en lenguaje natural compatibles con OpenYida.
+  </Card>
+  <Card title="Referencia CLI" icon="terminal" href="/es/features/skills">
+    Explore todos los comandos CLI y módulos de habilidades.
+  </Card>
+  <Card title="Casos de demostración" icon="images" href="/es/introduction/demo">
+    Vea aplicaciones reales construidas con OpenYida.
+  </Card>
+  <Card title="Mejores prácticas" icon="star" href="/es/guides/best-practices">
+    Consejos para aprovechar al máximo la generación de aplicaciones impulsada por IA.
+  </Card>
+</CardGroup>

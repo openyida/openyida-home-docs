@@ -1,0 +1,66 @@
+---
+title: "Обзор архитектуры"
+description: "Этот документ описывает Обзор архитектуры в OpenYida: сценарии использования, команды и важные замечания."
+icon: sitemap
+---
+
+# Обзор архитектуры
+
+Эта страница описывает Обзор архитектуры в OpenYida: назначение, рабочий процесс и важные замечания при создании приложений Yida с помощью AI.
+
+## Обзор
+
+Этот документ описывает Обзор архитектуры в OpenYida: сценарии использования, команды и важные замечания.
+
+## Ключевые моменты
+
+- Используйте эту страницу, чтобы понять основной контекст перед применением в реальном проекте.
+- Имена команд, параметры, код и часть названий продуктов оставлены на английском, чтобы их можно было точно найти и скопировать.
+- При работе с宜搭 перед публикацией проверьте права, организацию и выбранное окружение.
+
+## Использование
+
+Следуйте шагам из документа вместе с OpenYida CLI и настройками организации. Если ниже есть примеры кода, их можно скопировать и адаптировать под задачу.
+
+## Команды и примеры
+
+Следующие примеры сохраняют исходные команды и код для технической точности.
+
+```
+AI coding agent
+  -> openyida CLI
+  -> local project workspace
+  -> Yida web APIs with cached login cookies
+  -> Yida low-code app, form, page, report, or data result
+```
+
+```text
+project/
+  config.json
+  pages/
+    src/
+    build/
+    dist/
+  .cache/
+```
+
+```bash
+openyida create-page <appType> "Dashboard"
+openyida check-page project/pages/src/dashboard.oyd.jsx
+openyida compile project/pages/src/dashboard.oyd.jsx
+openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+```
+
+```bash
+openyida env --json
+openyida login --check-only --json
+openyida env <setup|list|show|switch|add|remove>
+```
+
+```bash
+openyida get-schema <appType> <formUuid>
+```
+
+```bash
+openyida commands --json
+```

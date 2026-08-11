@@ -1,0 +1,325 @@
+---
+title: "보고서 및 차트"
+description: "OpenYida로 Yida 보고서를 만들고 데이터 시각화 차트를 추가합니다. 막대 그래프, 꺾은선 그래프, 원형 차트, 테이블 등을 지원합니다."
+icon: "chart-column"
+---
+
+OpenYida는 `create-report` 및 `append-chart` 명령어를 사용하여 Yida 보고서 생성 및 데이터 시각화를 위한 차트 추가를 지원합니다.
+
+---
+
+## 기능 개요
+
+<CardGroup cols={2}>
+  <Card title="보고서 생성" icon="file-plus">
+    사용자 정의 차트 설정으로 Yida 보고서를 생성합니다.
+  </Card>
+  <Card title="차트 추가" icon="chart-pie">
+    기존 보고서에 다양한 유형의 차트를 추가합니다.
+  </Card>
+  <Card title="데이터 바인딩" icon="link">
+    양식 데이터 소스를 자동으로 바인딩하고 데이터를 실시간으로 표시합니다.
+  </Card>
+  <Card title="차트 유형" icon="shapes">
+    막대형, 꺾은선형, 원형, 테이블 등 다양한 차트 유형을 지원합니다.
+  </Card>
+</CardGroup>
+
+---
+
+## 보고서 생성
+
+### 기본 사용법
+
+```bash
+openyida create-report <appType> "보고서 이름" '<차트-정의-JSON-또는-파일>'
+```
+
+세 번째 인수는 인라인 JSON 문자열 또는 JSON 파일 경로일 수 있습니다.
+
+### 예: 판매 보고서 생성
+
+```bash
+openyida create-report APP_XXXXXX "Sales Dashboard" '{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "month",
+      "yField": "amount"
+    }
+  ]
+}'
+```
+
+### 파일에서 차트 정의 로드
+
+```bash
+openyida create-report APP_XXXXXX "Annual Report" ./charts-config.json
+```
+
+---
+
+## 보고서에 차트 추가
+
+```bash
+openyida append-chart <appType> <reportId> '<차트-정의-JSON-또는-파일>'
+```
+
+### 예
+
+```bash
+openyida append-chart APP_XXXXXX REPORT_XXXXX '{
+  "type": "line",
+  "title": "Growth Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "month",
+  "yField": "growth_rate"
+}'
+```
+
+---
+
+## 필터 설정
+
+보고서는 차트와의 연동 필터링을 위한 필터를 지원합니다. 차트 정의 JSON의 `filters` 배열로 필터를 설정할 수 있습니다.
+
+### 필터가 포함된 전체 설정
+
+```json
+{
+  "filters": [
+    {
+      "title": "프로젝트 필터",
+      "placeholder": "프로젝트를 선택하세요",
+      "cubeCode": "FORM_XXXXXX",
+      "valueField": {
+        "fieldCode": "selectField_xxx",
+        "aliasName": "프로젝트 값",
+        "dataType": "STRING"
+      },
+      "labelField": {
+        "fieldCode": "selectField_xxx",
+        "aliasName": "프로젝트 이름",
+        "dataType": "STRING"
+      },
+      "linkTo": [0, 1]
+    }
+  ],
+  "charts": [
+    {
+      "type": "bar",
+      "title": "막대 차트",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "name",
+      "yField": "value"
+    }
+  ]
+}
+```
+
+### 필터 필드 설명
+
+| 필드 | 필수 | 설명 |
+|------|------|------|
+| `title` | 예 | 필터 제목 |
+| `placeholder` | 아니오 | 플레이스홀더 텍스트 |
+| `cubeCode` | 예 | 데이터 소스 양식 ID (예: `FORM_XXXXXX`) |
+| `valueField` | 예 | 값 필드 정의 (`fieldCode`, `aliasName`, `dataType` 포함) |
+| `labelField` | 예 | 표시 필드 정의 (`fieldCode`, `aliasName`, `dataType` 포함) |
+| `linkTo` | 아니오 | 연동 대상 차트. 배열 요소는 차트 인덱스(숫자) 또는 차트 제목(문자열). 미지정 시 모든 차트에 연동 |
+
+<Info>
+  `filters`를 설정하지 않으면 차트의 `selectField` 유형 필드에 대해 자동으로 드롭다운 필터가 생성됩니다.
+</Info>
+
+---
+
+## 차트 유형
+
+| 유형 | 설명 | 적합한 용도 |
+|------|-------------|----------|
+| **bar** | 막대형 차트 | 카테고리 비교 |
+| **line** | 꺾은선형 차트 | 시간에 따른 추세 |
+| **pie** | 원형 차트 | 부분 대 전체 관계 |
+| **table** | 데이터 테이블 | 상세 데이터 보기 |
+| **area** | 영역형 차트 | 누적 추세 |
+| **scatter** | 산점도 | 상관 분석 |
+| **indicator** | 인디케이터 카드 | 주요 지표 표시 |
+| **combo** | 콤보 차트 (막대 + 꺾은선) | 이중 축 비교 |
+| **pivot** | 크로스 피벗 테이블 | 다차원 분석 |
+| **gauge** | 게이지 차트 | 진행률 또는 목표 추적 |
+| **radar** | 레이더 차트 | 다차원 비교 분석 |
+| **funnel** | 퍼널 차트 | 단계별 전환 |
+
+---
+
+## 차트 레이아웃 크기
+
+`w` 및 `h` 속성을 사용하여 보고서 그리드 내 각 차트의 너비와 높이를 제어할 수 있습니다. 보고서는 6열 그리드 시스템을 사용합니다.
+
+- **`w`** — 그리드 너비 (1-6열). 차트가 현재 행의 남은 공간을 초과하면 다음 행으로 줄바꿈됩니다.
+- **`h`** — 그리드 높이 (그리드 단위).
+
+`w` 또는 `h`를 `0`으로 설정하는 것은 유효합니다. 생략하면 아래의 기본값이 사용됩니다.
+
+| 차트 유형 | 기본 `w` | 기본 `h` |
+|-----------|----------|----------|
+| **indicator** | 6 | 6 |
+| **pie** | 3 | 22 |
+| **bar** | 3 | 22 |
+| **line** | 3 | 22 |
+| **combo** | 6 | 22 |
+| **table** | 6 | 38 |
+| **pivot** | 6 | 30 |
+| **gauge** | 2 | 18 |
+| 기타 유형 | 3 | 22 |
+
+---
+
+## 차트 정의 형식
+
+### 막대형 차트
+
+```json
+{
+  "type": "bar",
+  "title": "Sales by Region",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "region",
+  "yField": "amount",
+  "aggregation": "sum",
+  "w": 6,
+  "h": 22
+}
+```
+
+### 꺾은선형 차트
+
+```json
+{
+  "type": "line",
+  "title": "Traffic Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "date",
+  "yField": "visitors",
+  "aggregation": "sum"
+}
+```
+
+### 원형 차트
+
+```json
+{
+  "type": "pie",
+  "title": "Market Share",
+  "cubeCode": "FORM_XXXXXX",
+  "categoryField": "product",
+  "valueField": "share"
+}
+```
+
+### 데이터 테이블
+
+```json
+{
+  "type": "table",
+  "title": "Detail View",
+  "cubeCode": "FORM_XXXXXX",
+  "columns": [
+    { "field": "name", "title": "Name" },
+    { "field": "amount", "title": "Amount" },
+    { "field": "date", "title": "Date" }
+  ]
+}
+```
+
+## cubeCode 형식
+
+차트 정의의 `cubeCode`는 보고서 엔진의 데이터 소스 식별자입니다. 양식의 `formUuid`를 기반으로 하이픈을 **밑줄**로 대체합니다.
+
+```
+formUuid: FORM-AB4ACB9D-D12C-470D-8204-7E05CDC19166
+cubeCode: FORM_AB4ACB9D_D12C_470D_8204_7E05CDC19166
+```
+
+<Tip>
+  `openyida get-schema`로 양식의 `formUuid`를 가져온 다음 하이픈을 밑줄로 바꿔 `cubeCode`를 얻을 수 있습니다. 하이픈 형식도 자동 변환됩니다.
+</Tip>
+
+---
+
+## 집계 함수
+
+| 함수 | 설명 |
+|----------|-------------|
+| **sum** | 값의 합계 |
+| **avg** | 평균 값 |
+| **count** | 레코드 수 |
+| **max** | 최대 값 |
+| **min** | 최소 값 |
+
+---
+
+## 완전한 설정 예
+
+### sales-report-charts.json
+
+```json
+{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_MONTHLY_SALES",
+      "xField": "month",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "pie",
+      "title": "Product Categories",
+      "cubeCode": "FORM_SALES",
+      "categoryField": "product_category",
+      "valueField": "sales_amount"
+    },
+    {
+      "type": "line",
+      "title": "Sales Trend",
+      "cubeCode": "FORM_DAILY_SALES",
+      "xField": "date",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "table",
+      "title": "Sales Detail",
+      "cubeCode": "FORM_SALES",
+      "columns": [
+        { "field": "order_no", "title": "Order No.", "width": 150 },
+        { "field": "customer_name", "title": "Customer", "width": 200 },
+        { "field": "product_name", "title": "Product", "width": 200 },
+        { "field": "amount", "title": "Amount", "width": 120 },
+        { "field": "sales_date", "title": "Date", "width": 150 }
+      ],
+      "pageSize": 10
+    }
+  ]
+}
+```
+
+보고서 생성:
+
+```bash
+openyida create-report APP_XXXXXX "Sales Analysis Report" ./sales-report-charts.json
+```
+
+---
+
+## 모범 사례
+
+1. **적절한 차트 유형 선택** - 추세에는 꺾은선형, 비교에는 막대형, 비율에는 원형 차트 사용
+2. **차트 수 제한** - 보고서당 6개 이하의 차트 유지
+3. **데이터 테이블 포함** - 상세 데이터 검사를 위해 차트와 테이블을 함께 사용
+4. **적절한 페이지 크기 설정** - 데이터 테이블은 페이지당 10-20행 사용

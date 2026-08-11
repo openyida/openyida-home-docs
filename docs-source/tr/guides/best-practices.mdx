@@ -1,0 +1,70 @@
+---
+title: "En iyi uygulamalar"
+description: "Bu belge OpenYida içinde En iyi uygulamalar konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar."
+icon: star
+---
+
+# En iyi uygulamalar
+
+Bu sayfa OpenYida içinde En iyi uygulamalar konusunu açıklar; amaç, kullanım akışı ve AI ile Yida uygulaması geliştirirken dikkat edilmesi gereken noktaları kapsar.
+
+## Genel bakış
+
+Bu belge OpenYida içinde En iyi uygulamalar konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar.
+
+## Önemli noktalar
+
+- Gerçek bir projeye uygulamadan önce ana bağlamı anlamak için bu sayfayı kullanın.
+- Komut adları, parametreler, kod ve bazı ürün adları doğru arama ve kopyalama için İngilizce bırakılmıştır.
+- 宜搭 ile çalışırken yayımlamadan önce izinleri, organizasyonu ve ortamı kontrol edin.
+
+## Kullanım
+
+Bu dokümandaki adımları OpenYida CLI ve organizasyon ayarlarıyla birlikte izleyin. Aşağıdaki kod örnekleri doğrudan kopyalanıp ihtiyaca göre uyarlanabilir.
+
+## Komutlar ve örnekler
+
+Aşağıdaki örnekler teknik doğruluğu korumak için özgün komut ve kodu saklar.
+
+```text Vague (Avoid)
+Create a CRM
+```
+
+```text Detailed (Recommended)
+Create a CRM with three related forms:
+1. Lead Form — Fields: Name, Company, Phone, Email, Source (Dropdown: Referral/Website/Event/Cold Call), Status (Dropdown: New Lead/Contacted/Qualified/Disqualified), Assigned To (Member Selector)
+2. Customer Form — Converted from leads, Fields: Company Name, Industry, Annual Revenue, Key Contact, Account Manager
+3. Opportunity Form — Linked to customers, Fields: Opportunity Name, Amount, Stage (Dropdown: Proposal/Negotiation/Won/Lost), Expected Close Date, Notes
+```
+
+```
+Generate a Yida app based on the following requirements document:
+
+[Paste PRD — field names, types, validation rules, workflows, etc.]
+```
+
+```
+Step 1: Create a basic employee information form
+Step 2: Add a leave request form linked to employees
+Step 3: Configure the leave approval workflow
+Step 4: Add a manager dashboard showing pending approvals
+Step 5: Publish the dashboard as a public page
+```
+
+```bash
+openyida get-schema <appType> <formUuid>
+```
+
+```bash
+openyida data query form <appType> <formUuid> --size 1
+```
+
+```
+Show the current Schema of the [Form Name] form
+Check if the [Page Name] page is published and accessible
+```
+
+```bash
+openyida env --json
+openyida login --check-only --json
+```

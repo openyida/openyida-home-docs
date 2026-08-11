@@ -1,0 +1,70 @@
+---
+title: "แนวทางปฏิบัติที่ดีที่สุด"
+description: "เอกสารนี้อธิบาย แนวทางปฏิบัติที่ดีที่สุด ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง"
+icon: star
+---
+
+# แนวทางปฏิบัติที่ดีที่สุด
+
+หน้านี้อธิบาย แนวทางปฏิบัติที่ดีที่สุด ของ OpenYida โดยสรุปเป้าหมาย ขั้นตอนการใช้งาน และข้อควรระวังที่เกี่ยวข้องสำหรับการสร้างแอป Yida ด้วย AI
+
+## ภาพรวม
+
+เอกสารนี้อธิบาย แนวทางปฏิบัติที่ดีที่สุด ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง
+
+## ประเด็นสำคัญ
+
+- ใช้หน้านี้เพื่อทำความเข้าใจบริบทหลักก่อนเริ่มลงมือในโครงการจริง
+- ชื่อคำสั่ง พารามิเตอร์ โค้ด และชื่อผลิตภัณฑ์บางส่วนคงไว้เป็นภาษาอังกฤษเพื่อให้ค้นหาและคัดลอกได้ถูกต้อง
+- เมื่อใช้งานกับ宜搭จริง ให้ตรวจสอบสิทธิ์ องค์กร และสภาพแวดล้อมก่อนเผยแพร่
+
+## การใช้งาน
+
+ปฏิบัติตามขั้นตอนในเอกสารนี้ร่วมกับคำสั่ง OpenYida CLI และการตั้งค่าขององค์กร หากมีตัวอย่างโค้ดด้านล่าง สามารถคัดลอกไปปรับใช้ได้โดยตรง
+
+## คำสั่งและตัวอย่าง
+
+ตัวอย่างต่อไปนี้คงคำสั่งและโค้ดต้นฉบับไว้เพื่อความถูกต้องทางเทคนิค
+
+```text Vague (Avoid)
+Create a CRM
+```
+
+```text Detailed (Recommended)
+Create a CRM with three related forms:
+1. Lead Form — Fields: Name, Company, Phone, Email, Source (Dropdown: Referral/Website/Event/Cold Call), Status (Dropdown: New Lead/Contacted/Qualified/Disqualified), Assigned To (Member Selector)
+2. Customer Form — Converted from leads, Fields: Company Name, Industry, Annual Revenue, Key Contact, Account Manager
+3. Opportunity Form — Linked to customers, Fields: Opportunity Name, Amount, Stage (Dropdown: Proposal/Negotiation/Won/Lost), Expected Close Date, Notes
+```
+
+```
+Generate a Yida app based on the following requirements document:
+
+[Paste PRD — field names, types, validation rules, workflows, etc.]
+```
+
+```
+Step 1: Create a basic employee information form
+Step 2: Add a leave request form linked to employees
+Step 3: Configure the leave approval workflow
+Step 4: Add a manager dashboard showing pending approvals
+Step 5: Publish the dashboard as a public page
+```
+
+```bash
+openyida get-schema <appType> <formUuid>
+```
+
+```bash
+openyida data query form <appType> <formUuid> --size 1
+```
+
+```
+Show the current Schema of the [Form Name] form
+Check if the [Page Name] page is published and accessible
+```
+
+```bash
+openyida env --json
+openyida login --check-only --json
+```

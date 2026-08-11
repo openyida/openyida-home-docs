@@ -1,0 +1,74 @@
+---
+title: "Руководство по интеграции DingTalk CLI"
+description: "Этот документ описывает Руководство по интеграции DingTalk CLI в OpenYida: сценарии использования, команды и важные замечания."
+icon: book-open
+---
+
+# Руководство по интеграции DingTalk CLI
+
+Эта страница описывает Руководство по интеграции DingTalk CLI в OpenYida: назначение, рабочий процесс и важные замечания при создании приложений Yida с помощью AI.
+
+## Обзор
+
+Этот документ описывает Руководство по интеграции DingTalk CLI в OpenYida: сценарии использования, команды и важные замечания.
+
+## Ключевые моменты
+
+- Используйте эту страницу, чтобы понять основной контекст перед применением в реальном проекте.
+- Имена команд, параметры, код и часть названий продуктов оставлены на английском, чтобы их можно было точно найти и скопировать.
+- При работе с宜搭 перед публикацией проверьте права, организацию и выбранное окружение.
+
+## Использование
+
+Следуйте шагам из документа вместе с OpenYida CLI и настройками организации. Если ниже есть примеры кода, их можно скопировать и адаптировать под задачу.
+
+## Команды и примеры
+
+Следующие примеры сохраняют исходные команды и код для технической точности.
+
+```bash
+openyida dws install
+```
+
+```bash
+    curl -fsSL https://raw.githubusercontent.com/DingTalk-Real-AI/dingtalk-workspace-cli/main/scripts/install.sh | sh
+    ```
+
+```bash
+    irm https://raw.githubusercontent.com/DingTalk-Real-AI/dingtalk-workspace-cli/main/scripts/install.ps1 | iex
+    ```
+
+```bash
+    export DWS_CLIENT_ID="<your-app-key>"
+    export DWS_CLIENT_SECRET="<your-app-secret>"
+    ```
+
+```bash
+    openyida dws auth login --client-id <your-app-key> --client-secret <your-app-secret>
+    ```
+
+```bash
+    openyida dws auth login
+    ```
+
+```bash
+# Search contacts
+openyida dws contact user search --keyword "张三"
+
+# List departments
+openyida dws contact department list
+
+# Get user details
+openyida dws contact user get --userid <userId>
+```
+
+```bash
+# List calendar events
+openyida dws calendar event list
+
+# Create an event
+openyida dws calendar event create --title "团队会议" --start-time "2026-03-29T10:00:00Z"
+
+# Query free/busy status
+openyida dws calendar free-busy query --userids <userId1>,<userId2>
+```

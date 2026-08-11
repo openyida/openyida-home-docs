@@ -1,0 +1,108 @@
+---
+title: "Структура проекта"
+description: "Этот документ описывает Структура проекта в OpenYida: сценарии использования, команды и важные замечания."
+icon: folder-tree
+---
+
+# Структура проекта
+
+Эта страница описывает Структура проекта в OpenYida: назначение, рабочий процесс и важные замечания при создании приложений Yida с помощью AI.
+
+## Обзор
+
+Этот документ описывает Структура проекта в OpenYida: сценарии использования, команды и важные замечания.
+
+## Ключевые моменты
+
+- Используйте эту страницу, чтобы понять основной контекст перед применением в реальном проекте.
+- Имена команд, параметры, код и часть названий продуктов оставлены на английском, чтобы их можно было точно найти и скопировать.
+- При работе с宜搭 перед публикацией проверьте права, организацию и выбранное окружение.
+
+## Использование
+
+Следуйте шагам из документа вместе с OpenYida CLI и настройками организации. Если ниже есть примеры кода, их можно скопировать и адаптировать под задачу.
+
+## Команды и примеры
+
+Следующие примеры сохраняют исходные команды и код для технической точности.
+
+```
+openyida/
+├── src/
+│   ├── commands/          # CLI command implementations
+│   │   ├── create-app.ts
+│   │   ├── create-form.ts
+│   │   ├── create-page.ts
+│   │   ├── publish.ts
+│   │   ├── share.ts
+│   │   ├── data.ts
+│   │   ├── connector.ts
+│   │   ├── report.ts
+│   │   ├── doctor.ts
+│   │   └── login.ts
+│   ├── core/              # Core functionality modules
+│   │   ├── yida-api.ts    # Yida API wrapper
+│   │   ├── ai-service.ts  # AI service integration
+│   │   ├── config.ts      # Configuration management
+│   │   └── auth.ts        # Authentication handling
+│   ├── utils/             # Utility functions
+│   │   ├── logger.ts
+│   │   ├── file.ts
+│   │   └── validator.ts
+│   └── types/             # TypeScript type definitions
+│       ├── yida.ts
+│       ├── ai.ts
+│       └── index.ts
+├── skills/                # Skill system
+│   ├── builtin/           # Built-in Skills
+│   └── custom/            # Custom Skills
+├── templates/             # Code templates
+│   ├── app/
+│   ├── form/
+│   └── page/
+├── docs/                  # Documentation assets
+├── tests/                 # Test files
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+```
+skills/
+├── builtin/               # Built-in Skills
+│   ├── code-generator/    # Code generation
+│   ├── form-builder/      # Form building
+│   ├── page-designer/     # Page design
+│   └── data-analyzer/     # Data analysis
+└── custom/                # User custom Skills
+    └── (user extensions)
+```
+
+```json
+{
+  "defaultOrg": "org-default",
+  "orgs": {
+    "org-default": {
+      "accessToken": "xxx",
+      "refreshToken": "xxx",
+      "expiresAt": 1234567890
+    }
+  },
+  "aiProvider": "openai",
+  "aiConfig": {
+    "apiKey": "sk-xxx",
+    "model": "gpt-4"
+  }
+}
+```
+
+```json
+{
+  "appId": "APP-XXX",
+  "defaultEnv": "dev",
+  "environments": {
+    "dev": { "appKey": "xxx", "appSecret": "xxx" },
+    "prod": { "appKey": "xxx", "appSecret": "xxx" }
+  }
+}
+```

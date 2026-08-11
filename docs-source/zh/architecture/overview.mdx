@@ -1,0 +1,95 @@
+---
+title: 架构概览
+description: "了解 OpenYida 如何把 AI 编程工具连接到宜搭低代码平台。"
+icon: "sitemap"
+---
+
+# 架构概览
+
+OpenYida 是一个 Node.js CLI，用来让 AI 编程工具操作宜搭低代码平台。它本身不运行大模型服务，而是为 Codex、Claude Code、Cursor、Qoder、千问办公等工具提供稳定的命令层，完成应用、表单、自定义页面、报表、连接器、集成自动化和数据操作。
+
+## 分层结构
+
+```
+AI 编程工具
+  -> openyida CLI
+  -> 本地 project 工作区
+  -> 携带本地登录 Cookie 调用宜搭 Web API
+  -> 生成宜搭应用、表单、页面、报表或数据结果
+```
+
+| 层级 | 源码路径 | 职责 |
+| --- | --- | --- |
+| CLI 入口 | `bin/yida.js` | 解析命令并路由到具体实现模块。 |
+| 核心工具 | `lib/core/` | 环境检测、国际化、更新检查、工作区复制、数据查询工具和 Babel 转换。 |
+| 登录认证 | `lib/auth/` | 登录、Cookie 缓存、二维码交接、组织切换和多环境支持。 |
+| 应用与页面 | `lib/app/` | 创建应用、创建表单、创建自定义展示页面、列出页面、检查、编译和发布页面。 |
+| 分享配置 | `lib/page-config/` | 校验短链并保存公开访问或组织内分享配置。 |
+| 权限配置 | `lib/permission/` | 查询和保存表单权限组。 |
+| 流程与自动化 | `lib/process/`、`lib/integration/` | 创建流程表单、配置流程规则、预览流程实例、创建集成自动化。 |
+| 连接器与报表 | `lib/connector/`、`lib/report/` | 管理 HTTP 连接器和宜搭原生报表。 |
+| 技能文档 | `yida-skills/` | 给 AI 代理读取的 Markdown 工作流说明。 |
+
+## 本地工作区
+
+`openyida copy` 会初始化 AI 可读写的项目工作区：
+
+```text
+project/
+  config.json
+  pages/
+    src/
+    build/
+    dist/
+  .cache/
+```
+
+- `config.json` 保存应用和组织上下文。
+- `pages/src/` 保存自定义页面源码。
+- `pages/build/` 和 `pages/dist/` 保存编译产物。
+- `.cache/` 保存 Schema、登录缓存等本地元数据。
+
+## 自定义页面发布链路
+
+自定义展示页面使用兼容宜搭 React 16 运行时的源码。
+
+```bash
+openyida create-page <appType> "经营看板"
+openyida check-page project/pages/src/dashboard.oyd.jsx
+openyida compile project/pages/src/dashboard.oyd.jsx
+openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+```
+
+`create-page` 会返回页面 `formUuid`。AI 代理应使用命令返回值，不要猜测或手写 ID。
+
+## 登录和环境
+
+OpenYida 会把登录态存储在当前项目缓存中，并携带 Cookie 调用宜搭接口。当前环境可以是公有云、海外环境或私有化部署。
+
+```bash
+openyida env --json
+openyida login --check-only --json
+openyida env <setup|list|show|switch|add|remove>
+```
+
+在 Codex 等 AI 编程环境中，OpenYida 会优先复用缓存登录态；必要时再使用浏览器登录、终端二维码或 AI 对话框二维码交接。
+
+## 数据和 Schema 约束
+
+宜搭字段 ID 由平台生成。创建数据、更新数据、配置查询条件，或在自定义页面中读取表单数据前，应先执行：
+
+```bash
+openyida get-schema <appType> <formUuid>
+```
+
+数据操作统一使用 `openyida data`。全局任务中心查询使用 `openyida task-center`，不需要传入 `appType`。
+
+## 机器可读命令清单
+
+CLI 会暴露当前命令能力，便于 AI 代理和文档检查使用：
+
+```bash
+openyida commands --json
+```
+
+维护文档时，应优先以这个 manifest 为准，减少手写命令表过期的风险。

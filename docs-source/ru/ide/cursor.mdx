@@ -1,0 +1,61 @@
+---
+title: "Использование Cursor"
+description: "Этот документ описывает Использование Cursor в OpenYida: сценарии использования, команды и важные замечания."
+icon: cursor
+---
+
+# Использование Cursor
+
+Эта страница описывает Использование Cursor в OpenYida: назначение, рабочий процесс и важные замечания при создании приложений Yida с помощью AI.
+
+## Обзор
+
+Этот документ описывает Использование Cursor в OpenYida: сценарии использования, команды и важные замечания.
+
+## Ключевые моменты
+
+- Используйте эту страницу, чтобы понять основной контекст перед применением в реальном проекте.
+- Имена команд, параметры, код и часть названий продуктов оставлены на английском, чтобы их можно было точно найти и скопировать.
+- При работе с宜搭 перед публикацией проверьте права, организацию и выбранное окружение.
+
+## Использование
+
+Следуйте шагам из документа вместе с OpenYida CLI и настройками организации. Если ниже есть примеры кода, их можно скопировать и адаптировать под задачу.
+
+## Команды и примеры
+
+Следующие примеры сохраняют исходные команды и код для технической точности.
+
+```bash
+    npm install -g openyida
+    ```
+
+```
+    Help me log in to Yida
+    ```
+
+```
+Create a project management system on Yida:
+- Project form: project name, owner, start date, end date, status
+- Task form: linked to project, task name, priority, assignee, due date
+- Create a project overview dashboard page
+```
+
+```
+Help me create a meeting room booking app
+```
+
+```
+Add a refund approval workflow to the "Order Management" app
+```
+
+```json
+{
+  "mcpServers": {
+    "openyida": {
+      "command": "npx",
+      "args": ["-y", "@openyida/mcp-app", "--stdio"]
+    }
+  }
+}
+```

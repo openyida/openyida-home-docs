@@ -1,0 +1,848 @@
+---
+title: "CLI 參考"
+description: "OpenYida 所有 CLI 命令的完整參考，包括應用創建、表單管理、數據操作、連接器、報表和環境診斷等功能。"
+icon: "file-lines"
+---
+
+OpenYida 提供豐富的 CLI 命令，支持應用全生命週期管理。
+
+---
+
+## 環境與認證
+
+```bash
+# 環境檢測
+openyida env
+
+# 多環境管理
+openyida env list                  # 列出所有環境，高亮當前激活環境
+openyida env add <name>            # 交互式添加私有化部署環境
+openyida env switch <name>         # 切換激活環境
+openyida env remove <name>         # 刪除環境（public 不可刪）
+openyida env show [name]           # 顯示環境詳細配置
+
+# 登錄
+openyida login [--qr]              # --qr 使用終端二維碼
+openyida login --agent-qr         # Agent QR handoff
+
+# 退出登錄
+openyida logout
+
+# 登錄態管理
+openyida auth status               # 查看登錄狀態
+openyida auth login                # 執行登錄
+openyida auth refresh              # 刷新登錄態
+openyida auth logout               # 退出登錄
+
+# 組織管理
+openyida org list                  # 列出可訪問的組織
+openyida org switch --corp-id <id> # 切換組織
+
+# 初始化工作目錄
+openyida copy [--force]            # 複製 project 目錄（空目錄時直接鋪入內容）
+openyida copy -skills              # 複製 yida-skills 到 AI 工具 skills 目錄
+
+# 診斷工具
+openyida doctor [--fix]            # 環境診斷
+openyida doctor --monitor          # 健康監控
+openyida doctor --report <format>  # 生成報告 (json|markdown|html)
+
+# 自更新
+openyida update                    # 檢查並更新到最新版本
+```
+
+---
+
+## 應用管理
+
+```bash
+# 創建應用
+openyida create-app "<名稱>" [desc] [icon] [color] [themeColor]
+
+# 導出應用
+openyida export <appType> [output] # 生成遷移包
+
+# 導入應用
+openyida import <file> [name]      # 從遷移包重建應用
+
+# 更新應用資訊
+openyida update-app <appType> --name "<名稱>" [--desc "<描述>"] [--icon "<圖標>"] [--icon-color "<顏色>"]
+```
+
+| 選項 | 縮寫 | 說明 |
+|------|------|------|
+| `--name` | `-n` | 應用名稱（至少需要一個更新欄位） |
+| `--desc` | `-d` | 應用描述 |
+| `--icon` | | 圖標名稱（如 `xian-yingyong`） |
+| `--icon-color` | | 圖標顏色（預設：`#0089FF`） |
+
+---
+
+## 表單管理
+
+```bash
+# 創建表單
+openyida create-form create <appType> "<表單名>" <字段JSON> \
+  [--layout <佈局>] \
+  [--theme <主題>] \
+  [--label-align <對齊>]
+
+# 更新表單
+openyida create-form update <appType> <formUuid> <修改JSON> [--force]
+
+# 獲取表單 Schema
+openyida get-schema <appType> <formUuid>  # 任何涉及欄位 ID 的操作前必須執行
+
+# 更新表單配置
+openyida update-form-config <appType> <formUuid> <isRenderNav> <title>
+
+# 列出應用內的表單頁面
+openyida list-forms <appType> [--keyword <關鍵詞>]
+```
+
+<Warning>
+  宜搭欄位 ID 由平台隨機生成（如 `textField_eftt1aa5m`、`selectField_fix024y92`），無法從欄位名稱推斷。在執行任何涉及欄位 ID 的操作前（包括建立/更新資料、設定查詢條件、撰寫自訂頁面），**必須**先執行 `openyida get-schema` 取得真實欄位 ID。
+</Warning>
+
+<Info>
+  更新已有資料的表單時，CLI 會在修改前進行安全檢查。如果偵測到已有記錄且未設定 `--force`，指令會輸出包含 `requiresConfirmation: true` 的 JSON 回應並退出，不會進行任何修改。傳入 `--force` 可跳過確認並繼續更新。
+
+  確認回應包含以下欄位：
+
+  | 欄位 | 類型 | 說明 |
+  |------|------|------|
+  | `success` | `boolean` | 需要確認時始終為 `false` |
+  | `requiresConfirmation` | `boolean` | 始終為 `true` |
+  | `formUuid` | `string` | 正在更新的表單 UUID |
+  | `appType` | `string` | 應用 ID |
+  | `existingDataCount` | `number` | 表單中已有的記錄數 |
+  | `message` | `string` | 可讀的確認訊息 |
+  | `hint` | `string` | 顯示 `--force` 用法的提示 |
+</Info>
+
+### 列出表單頁面
+
+查詢指定應用內的所有表單頁面，支援按關鍵詞過濾。指令將 JSON 陣列輸出到 stdout。
+
+```bash
+openyida list-forms <appType> [--keyword <關鍵詞>]
+```
+
+| 參數 | 說明 |
+|------|------|
+| `<appType>` | 應用 ID（例如 `APP_XXXXX`） |
+
+| 選項 | 說明 | 預設值 |
+|------|------|--------|
+| `--keyword <關鍵詞>` | 按表單名稱、UUID、類型或路徑名稱過濾（不區分大小寫） | — |
+
+#### 輸出
+
+指令在 stdout 輸出 JSON 陣列。每個條目包含以下欄位：
+
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| `formUuid` | `string` | 表單唯一標識 |
+| `formName` | `string` | 本地化的表單名稱 |
+| `formType` | `string` | 表單類型（如 `display`、`process`） |
+| `pathName` | `string` | 表單的 URL 路徑名稱 |
+
+**輸出範例：**
+
+```json
+[
+  {
+    "formUuid": "FORM-AAA",
+    "formName": "客戶資訊",
+    "formType": "display",
+    "pathName": "customer-info"
+  },
+  {
+    "formUuid": "FORM-BBB",
+    "formName": "費用報銷",
+    "formType": "process",
+    "pathName": "expense"
+  }
+]
+```
+
+**使用範例：**
+
+```bash
+# 列出應用內所有表單
+openyida list-forms APP_XXXXX
+
+# 按關鍵詞過濾
+openyida list-forms APP_XXXXX --keyword "客戶"
+```
+
+<Info>
+  系統導航項目（如內建的任務檢視）會自動排除，輸出僅包含使用者建立的表單頁面。
+</Info>
+
+<Info>
+  執行此指令前需要先登入。如尚未認證，請先執行 `openyida login`。
+</Info>
+
+### 支援的欄位類型
+
+`create-form` 指令僅接受以下欄位類型。使用不支援的類型會回傳錯誤。
+
+#### 基礎欄位
+
+內建欄位，無需安裝任何外掛。
+
+| 類型 | 說明 |
+|------|------|
+| `TextField` | 單行文字 |
+| `TextareaField` | 多行文字 |
+| `NumberField` | 數字 |
+| `RateField` | 評分 |
+| `DateField` | 日期 |
+| `RadioField` | 單選按鈕 |
+| `SelectField` | 下拉單選 |
+| `CheckboxField` | 核取方塊 |
+| `MultiSelectField` | 下拉多選 |
+| `CascadeSelectField` | 級聯選擇 |
+| `CascadeDateField` | 級聯日期 |
+| `EmployeeField` | 成員選擇 |
+| `DepartmentSelectField` | 部門選擇 |
+| `AssociationFormField` | 關聯表單 |
+| `AssociationQuery` | 關聯查詢 |
+| `AttachmentField` | 附件 |
+| `ImageField` | 圖片 |
+| `AddressField` | 地址 |
+| `CountrySelectField` | 國家/地區選擇 |
+| `TableField` | 子表單/明細 |
+| `SerialNumberField` | 流水號 |
+
+#### 進階欄位
+
+內建欄位，部分功能可能需要開通。
+
+| 類型 | 說明 |
+|------|------|
+| `EditorField` | 富文字編輯器 |
+| `DigitalSignatureField` | 數位簽名 |
+| `LocationField` | GPS 定位 |
+
+#### 外掛欄位
+
+使用前需要從外掛中心安裝對應外掛。
+
+| 類型 | 所需外掛 |
+|------|----------|
+| `TimeZoneDateField` | 國際化時區元件 |
+| `CC_AIButtonField` | AI 元件 |
+| `CC_PG_ESignField` | 智慧財務元件 |
+| `CC_TeambitionProjectLinksField` | Teambition 外掛 |
+| `CC_TeambitionTaskLinksField` | Teambition 外掛 |
+| `CC_MoneyField` | 智慧財務元件 |
+| `CC_PhoneNumberField` | 擴充元件 |
+| `CC_ChineseIdField` | 擴充元件 |
+| `YidaDingtalkAgentField` | 釘釘相關外掛 |
+
+<Warning>
+外掛欄位在未安裝對應外掛的情況下會建立失敗。請先從外掛中心安裝所需外掛後再使用這些欄位類型。
+</Warning>
+
+<Warning>
+`MobileField`、`EmailField` 等欄位類型不受支援，使用時會被拒絕。請僅使用上表中列出的類型。
+</Warning>
+
+---
+
+## 頁面管理
+
+```bash
+# 創建自定義頁面
+openyida create-page <appType> "<頁面名>" [--mode dashboard] [--open|--no-open]
+
+# 編譯併發布頁面
+openyida publish <源文件路徑> <appType> <formUuid> [--health-check] [--force] [--open|--no-open]
+
+# 頁面分享配置
+openyida save-share-config <appType> <formUuid> <url> <isOpen> [openAuth]
+openyida get-page-config <appType> <formUuid>
+openyida verify-short-url <appType> <formUuid> <url>
+```
+
+---
+
+## 數據管理
+
+<Warning>
+  建立或更新資料前，**必須**先執行 `openyida get-schema` 取得真實欄位 ID。寫入資料後，使用 `openyida data query form <appType> <formUuid> --size 1` 抽查一筆記錄，確認 `formData` 中欄位有實際值。若所有欄位值為空，表示欄位 ID 有誤，需透過 `get-schema` 重新取得。
+</Warning>
+
+```bash
+# 統一數據管理
+openyida data <action> <resource> [args]
+
+# 表單數據
+openyida data query form <appType> <formUuid> [--page N] [--size N] [--search-json JSON]
+openyida data get form <appType> --inst-id <id>
+openyida data create form <appType> <formUuid> --data-json <JSON>  # JSON 鍵可以是欄位 ID 或欄位標籤
+openyida data update form <appType> --inst-id <id> --data-json <JSON>
+
+# 流程數據
+openyida data query process <appType> <formUuid> [--instance-status STATUS]
+openyida data get process <appType> --process-inst-id <id>
+openyida data create process <appType> <formUuid> --process-code <code> --data-json <JSON>
+
+# 任務管理
+openyida data query tasks <appType> --type <todo|done|submitted|cc>
+openyida data execute task <appType> --task-id <id> --process-inst-id <id> --out-result <AGREE|DISAGREE>
+
+# 子表單
+openyida data query subform <appType> <formUuid> --inst-id <id> --table-field-id <fieldId>
+```
+
+---
+
+## 全域任務中心
+
+查詢當前使用者的全域任務中心資料，無需指定 `appType`。
+
+```bash
+# 待辦任務
+openyida task-center todo [--page N] [--size N] [--keyword TEXT]
+
+# 我創建的
+openyida task-center created [--page N] [--size N] [--keyword TEXT] [--no-detail]
+
+# 我已處理
+openyida task-center done [--page N] [--size N] [--keyword TEXT]
+
+# 抄送我的
+openyida task-center cc [--page N] [--size N] [--keyword TEXT]
+
+# 我代提交的
+openyida task-center proxy [--page N] [--size N] [--keyword TEXT]
+```
+
+### 任務類型
+
+| 類型 | 說明 | API 介面 |
+|------|------|----------|
+| `todo` | 待辦任務（需要我處理的） | `getTodoTasksInCorp` |
+| `created` | 我創建的（我發起的流程） | `getMyCreateInCorp` |
+| `done` | 我已處理（我已經處理過的） | `getDoneTasksInCorp` |
+| `cc` | 抄送我的 | `getNotifyMeInCorp` |
+| `proxy` | 我代提交的（代理提交的流程） | `getSubmitAgentInCorp` |
+
+### 可選參數
+
+| 參數 | 說明 | 預設值 |
+|------|------|--------|
+| `--page N` | 頁碼 | `1` |
+| `--size N` | 每頁筆數（最大 100） | `20` |
+| `--keyword TEXT` | 搜尋關鍵詞 | — |
+| `--no-detail` | 不回傳詳情（僅 `created` 類型支援） | — |
+
+<Info>
+  與 `openyida data query tasks` 不同，`task-center` 命令查詢的是全域任務中心資料，不需要傳入 `appType` 參數。
+</Info>
+
+---
+
+## 流程管理
+
+```bash
+# 創建流程表單（一體化）- 新建表單並配置流程
+openyida create-process <appType> <formTitle> <fieldsJsonFile> <processDefinitionFile>
+
+# 複用已有表單創建流程
+openyida create-process <appType> --formUuid <formUuid> <processDefinitionFile>
+
+# 配置並發佈流程
+openyida configure-process <appType> <formUuid> <processDefinitionFile> [processCode]
+
+# 預覽流程實例（視覺化流程圖）
+openyida process preview <appType> <processInstanceId> [--output <path>]
+```
+
+### 流程實例預覽
+
+為執行中或已完成的流程實例產生互動式 HTML 流程圖。流程圖會醒目顯示節點狀態——已完成（綠色）、當前節點（藍色脈衝）、未到達（灰色）、被跳過（虛線）——並在懸停時顯示審批人詳情和時間戳記。
+
+```bash
+openyida process preview <appType> <processInstanceId> [--output <path>]
+```
+
+| 參數 | 說明 |
+|------|------|
+| `<appType>` | 應用程式 ID（例如 `APP_XXXXX`） |
+| `<processInstanceId>` | 要視覺化的流程實例 ID |
+
+| 選項 | 別名 | 說明 | 預設值 |
+|------|------|------|--------|
+| `--output` | `-o` | 產生的 HTML 檔案輸出路徑 | 在當前目錄自動產生 |
+
+該命令會取得流程實例詳情和審批操作紀錄，然後產生基於 SVG 的 HTML 檔案並在預設瀏覽器中開啟。
+
+**範例：**
+
+```bash
+openyida process preview APP_XXXXX proc-inst-id-xxx
+openyida process preview APP_XXXXX proc-inst-id-xxx --output flowchart.html
+```
+
+<Info>
+  執行此命令前需要先登入。如果尚未認證，請先執行 `openyida login`。
+</Info>
+
+### 流程定義詳情頁 URL 屬性
+
+流程定義 JSON 檔案支援以下可選屬性，用於自訂使用者查看流程實例時的詳情頁 URL。
+
+| 屬性 | 類型 | 說明 |
+|------|------|------|
+| `processDetailUrl` | `string` | 自訂 Web/PC 端流程詳情頁 URL。優先級最高，覆蓋其他 Web 端詳情 URL 設定。 |
+| `processMobileDetailUrl` | `string` | 自訂行動端流程詳情頁 URL。優先級最高，覆蓋其他行動端詳情 URL 設定。 |
+| `customDetailPageUrl` | `string` | 統一的自訂詳情頁 URL，同時適用於 Web 和行動端。行動端會自動附加 `?procInsId=`。 |
+| `detailUrls` | `object` | 按平台區分的詳情頁 URL 物件。支援 `web`（或 `pc`）和 `mobile` 鍵。 |
+
+**Web 端詳情 URL** 的解析順序：
+
+1. `processDetailUrl`
+2. `detailUrls.web` 或 `detailUrls.pc`
+3. `customDetailPageUrl`
+4. 平台預設值
+
+**行動端詳情 URL** 的解析順序：
+
+1. `processMobileDetailUrl`
+2. `detailUrls.mobile`
+3. `customDetailPageUrl`（自動附加 `?procInsId=`）
+4. 平台預設值
+
+**範例** — 使用 `detailUrls`：
+
+```json
+{
+  "detailUrls": {
+    "web": "https://example.com/process/detail",
+    "mobile": "https://m.example.com/process/detail"
+  }
+}
+```
+
+**範例** — 使用 `customDetailPageUrl`（Web 和行動端共用同一 URL）：
+
+```json
+{
+  "customDetailPageUrl": "https://example.com/custom-detail"
+}
+```
+
+### 錯誤處理與重試
+
+如果流程設定失敗但表單已建立完成，命令會輸出重試提示，並附帶 `--formUuid` 參數，方便你複用已建立的表單而無需重新建立：
+
+```bash
+openyida create-process <appType> --formUuid <formUuid> <processDefinitionFile>
+```
+
+適用場景：
+- 流程定義檔案存在錯誤，需要修正後重試。
+- 網路或 API 臨時故障導致設定步驟中斷。
+
+命令會將 JSON 結果輸出到 `stdout`。成功時：
+
+```json
+{
+  "success": true,
+  "formUuid": "FORM-XXXXX",
+  "formTitle": "Order Form",
+  "appType": "APP_XXXXX",
+  "fieldCount": 5,
+  "processCode": "TPROC-XXXXX",
+  "url": "https://www.aliwork.com/APP_XXXXX/workbench/FORM-XXXXX"
+}
+```
+
+失敗時（例如流程設定失敗）：
+
+```json
+{
+  "success": false,
+  "formUuid": "FORM-XXXXX",
+  "formTitle": "Order Form",
+  "appType": "APP_XXXXX",
+  "fieldCount": 5,
+  "error": "Failed to configure process: <error details>"
+}
+```
+
+<Tip>
+  當輸出中包含 `formUuid` 的失敗訊息時，使用 `--formUuid` 參數重試即可避免重複建立表單。
+</Tip>
+
+---
+
+## 整合與自動化
+
+建立和管理邏輯流（整合&自動化），支援表單事件觸發、訊息通知、資料操作等場景。
+
+```bash
+# 建立邏輯流
+openyida integration create <appType> <formUuid> <flowName> [選項]
+```
+
+### 參數
+
+| 參數 | 必填 | 說明 |
+|------|------|------|
+| `appType` | 是 | 應用 ID（如 `APP_XXXX`） |
+| `formUuid` | 是 | 觸發表單 UUID（如 `FORM-XXXX`） |
+| `flowName` | 是 | 邏輯流名稱 |
+
+### 選項
+
+| 選項 | 預設值 | 說明 |
+|------|--------|------|
+| `--process-code <code>` | 自動產生 | 已有邏輯流的 processCode（`LPROC-xxx` 格式） |
+| `--receivers <userId,...>` | 空 | 接收釘釘工作通知的使用者 ID，多個用逗號分隔 |
+| `--title <title>` | 同 flowName | 通知標題，支援 `#{fieldId-ComponentType}#` 引用表單欄位 |
+| `--content <content>` | `"表單有新記錄提交，請及時查看。"` | 通知內容，支援欄位變數引用 |
+| `--events <insert,update>` | `insert` | 觸發事件：`insert`/`update`/`delete`/`comment`，多個用逗號分隔 |
+| `--add-data-form-uuid <formUuid>` | — | 新增資料節點的目標表單 UUID |
+| `--add-data-assignment <targetFieldId:valueType:value>` | — | 新增資料的欄位賦值，可多次傳入。`valueType` 可選 `processVar`/`literal`/`column` |
+| `--publish` | 不發佈 | 儲存後立即發佈（開啟狀態），否則僅儲存為草稿 |
+
+### 輸出
+
+```json
+{
+  "success": true,
+  "published": false,
+  "processCode": "LPROC-XXXX",
+  "flowName": "新增記錄通知",
+  "appType": "APP_XXX",
+  "formUuid": "FORM-XXX",
+  "formEventTypes": ["insert"]
+}
+```
+
+<Info>
+  執行此命令前需要先登入。使用 `--publish` 時 `published` 為 `true`；若發佈失敗，`published` 為 `false` 並附帶 `warning` 欄位。
+</Info>
+
+---
+
+## 權限管理
+
+```bash
+# 查詢表單權限
+openyida get-permission <appType> <formUuid>
+
+# 保存表單權限
+openyida save-permission <appType> <formUuid> \
+  [--data-permission <json>] \
+  [--action-permission <json>]
+```
+
+---
+
+## 連接器管理
+
+```bash
+# 列出連接器
+openyida connector list [--page N] [--size N]
+
+# 創建連接器
+openyida connector create "<名稱>" "<域名>" --operations <file> [選項]
+
+# 查看連接器詳情
+openyida connector detail <connector-id>
+
+# 刪除連接器
+openyida connector delete <connector-id> [--force]
+
+# 動作管理
+openyida connector add-action --connector-id <id> --operations <file> [--confirm]
+openyida connector list-actions <connector-id>
+openyida connector delete-action <connector-id> <operation-id> [--force]
+openyida connector test --connector-id <id> --action <actionId> [選項]
+
+# 鑑權賬號管理
+openyida connector list-connections <connector-id>
+openyida connector create-connection <connector-id> "<名稱>" [選項]
+
+# 智能創建
+openyida connector smart-create --curl "<curl命令>" [--name <name>] [--desc <desc>]
+
+# 輔助工具
+openyida connector parse-api --curl "<curl命令>" --output <file>
+openyida connector gen-template [輸出路徑]
+```
+
+---
+
+## 報表管理
+
+```bash
+# 創建報表
+openyida create-report <appType> "<報表名稱>" <圖表定義JSON或文件路徑>
+
+# 追加圖表
+openyida append-chart <appType> <reportId> <圖表定義JSON或文件路徑>
+```
+
+---
+
+## CDN 管理
+
+```bash
+# 配置 CDN
+openyida cdn-config
+
+# 上傳圖片
+openyida cdn-upload <文件路徑>
+
+# 刷新緩存
+openyida cdn-refresh <路徑>
+```
+
+---
+
+## 閃記轉 PRD
+
+使用 AI 將釘釘閃記（會議錄音轉文字）轉化為結構化的 PRD 文檔。
+
+```bash
+# 從檔案讀取
+openyida flash-to-prd --file <檔案路徑> [--name <專案名>] [--max-tokens <數量>]
+
+# 從標準輸入讀取
+cat meeting.txt | openyida flash-to-prd --name <專案名> [--max-tokens <數量>]
+```
+
+### 參數
+
+| 參數 | 縮寫 | 說明 | 預設值 |
+|------|------|------|--------|
+| `--file` | `-f` | 閃記檔案路徑 | — |
+| `--name` | `-n` | 專案名稱（未指定時自動從內容推斷） | — |
+| `--max-tokens` | — | AI 回應的最大 token 數 | `8000` |
+
+該命令從指定檔案或標準輸入讀取閃記內容，對文字進行預處理（包括會議元資料提取和發言人識別），然後呼叫宜搭 AI 服務生成結構化的 PRD。輸出的 PRD 檔案儲存到專案的 `prd/` 目錄。
+
+### 輸出
+
+命令在 stdout 輸出 JSON 格式的結果：
+
+```json
+{
+  "success": true,
+  "projectName": "我的專案",
+  "prdFile": "/path/to/prd/我的專案.md",
+  "contentLength": 4096,
+  "meetingRecognition": {
+    "metaFields": 3,
+    "a1Sections": 2,
+    "speakers": 5
+  }
+}
+```
+
+<Info>
+  執行此命令前需要先登入。如果尚未認證，請先執行 `openyida login`。
+</Info>
+
+---
+
+## 整合與自動化
+
+建立整合邏輯流程，在表單事件觸發時自動執行通知、資料查詢、資料新增等操作。
+
+```bash
+openyida integration create <appType> <formUuid> "<流程名稱>" [options]
+```
+
+### 必填參數
+
+| 參數 | 說明 |
+|------|------|
+| `<appType>` | 應用程式 ID |
+| `<formUuid>` | 觸發表單 UUID |
+| `<flowName>` | 整合流程名稱 |
+
+### 選項
+
+| 選項 | 說明 | 預設值 |
+|------|------|--------|
+| `--process-code <code>` | 已有流程編碼（省略則新建） | — |
+| `--receivers <id1,id2>` | 通知接收人使用者 ID（逗號分隔） | — |
+| `--title <text>` | 通知標題 | 流程名稱 |
+| `--content <text>` | 通知正文 | — |
+| `--events <types>` | 觸發事件（逗號分隔）：`insert`、`update`、`delete` | `insert` |
+| `--data-form-uuid <uuid>` | 「取得單筆資料」節點的表單 UUID | — |
+| `--data-condition <mapping>` | 資料節點欄位對應（`bFieldId:bFieldName:aFieldId[:componentType]`），可多次指定 | — |
+| `--add-data-form-uuid <uuid>` | 「新增資料」節點的表單 UUID | — |
+| `--add-data-assignment <mapping>` | 新增資料節點欄位賦值（`目標欄位ID:valueType:value`），`valueType` 可選：`processVar`（引用觸發表單欄位）、`literal`（固定值）、`column`（公式），可多次指定 | — |
+| `--publish` | 建立後立即發佈流程 | 僅儲存草稿 |
+
+### 範例
+
+```bash
+# 建立新提交通知流程
+openyida integration create APP_XXX FORM-YYY "新訂單提醒" \
+  --receivers "user1,user2" \
+  --events insert \
+  --title "新訂單" \
+  --content "有新訂單提交，請及時查看"
+
+# 建立並立即發佈
+openyida integration create APP_XXX FORM-YYY "自動通知" \
+  --receivers "user1" \
+  --publish
+```
+
+---
+
+## 釘釘 CLI (dws)
+
+代理執行釘釘 CLI 命令，支援通訊錄、行事曆、待辦、審批、考勤等功能。
+
+```bash
+openyida dws <command> [args]
+```
+
+<Info>
+  `dws` 命令需要單獨安裝釘釘 CLI。如果未安裝，OpenYida 會在首次使用時提示安裝。
+</Info>
+
+### 常用命令
+
+| 命令 | 說明 |
+|------|------|
+| `contact user search --keyword "<姓名>"` | 搜尋聯絡人 |
+| `calendar event list` | 列出行事曆事件 |
+| `todo task create --title "<標題>" --executors "<使用者ID>"` | 建立待辦任務 |
+| `approval instance list` | 列出審批實例 |
+| `attendance record list` | 查詢考勤紀錄 |
+| `chat robot send --content "<訊息>"` | 傳送機器人訊息 |
+
+### 特殊命令
+
+```bash
+# 安裝釘釘 CLI
+openyida dws install
+
+# 顯示說明
+openyida dws help
+```
+
+### 輸出格式
+
+預設使用表格輸出（適合人類閱讀）。加上 `-f json` 參數使用 JSON 輸出（適合 AI Agent）。
+
+```bash
+openyida dws contact user search --keyword "张三" -f json
+```
+
+---
+
+## 匯出對話紀錄
+
+將目前 AI 工具的對話紀錄匯出為 Markdown 文件。
+
+```bash
+openyida export-conversation [選項]
+```
+
+### 選項
+
+| 選項 | 縮寫 | 說明 | 預設值 |
+|------|------|------|--------|
+| `--output` | `-o` | 輸出檔案路徑 | 自動產生路徑 |
+| `--input` | `-i` | 輸入對話檔案（JSON/JSONL） | — |
+| `--latest` | — | 只匯出最新對話 | 預設啟用 |
+| `--list` | — | 列出可用的對話紀錄 | — |
+
+### 範例
+
+```bash
+# 匯出目前對話紀錄
+openyida export-conversation
+
+# 匯出到指定路徑
+openyida export-conversation -o output.md
+
+# 列出可用對話
+openyida export-conversation --list
+
+# 從指定輸入檔案匯出
+openyida export-conversation -i conversation.json -o result.md
+```
+
+---
+
+## 自更新
+
+檢查 npm 上是否有更新版本的 OpenYida，並全局安裝。
+
+```bash
+openyida update
+```
+
+該命令會查詢 npm registry 獲取最新發佈版本。如果有更新的版本，會執行 `npm install -g openyida@latest` 進行升級。如果已是最新版本，會列印確認資訊並退出。
+
+<Info>
+  OpenYida 在每次運行命令時也會在後台自動檢查更新。`update` 命令可以讓你手動觸發檢查並立即安裝。
+</Info>
+
+---
+
+## 全局選項
+
+| 選項 | 說明 |
+|------|------|
+| `--help`, `-h` | 顯示幫助信息 |
+| `--version`, `-v` | 顯示版本號 |
+| `--qr` | 使用終端二維碼登錄 |
+| `--force` | 強制操作，跳過確認 |
+| `--health-check` | Run a health check after publishing a custom page |
+
+---
+
+## 環境變量
+
+| 變量 | 說明 | 示例 |
+|------|------|------|
+| `OPENYIDA_LANG` | 設置語言 | `zh`, `en`, `ja` |
+| `LANG` / `LC_ALL` | 系統語言 | `zh_CN.UTF-8` |
+| `OPENYIDA_ENDPOINT` | 強制指定宜搭服務地址（優先級最高） | `https://yida.example.com` |
+| `OPENYIDA_LOGIN_URL` | 強制指定登錄頁地址 | `https://yida.example.com/login` |
+| `OPENYIDA_ENV` | 快速切換環境（不修改配置文件，適合 CI/CD） | `my-private-env` |
+| `OPENYIDA_DWS_ENDPOINT` | 私有化釘釘 OpenAPI 網關地址 | `https://oapi.example.com` |
+
+### 端點解析優先級
+
+當確定宜搭服務地址時，按以下順序解析：
+
+1. `OPENYIDA_ENDPOINT` 環境變量
+2. 當前激活環境的配置（通過 `openyida env switch` 設置）
+3. Cookie 中緩存的 `base_url`
+4. 默認公有雲地址（`https://www.aliwork.com`）
+
+登錄頁地址解析順序：
+
+1. `OPENYIDA_LOGIN_URL` 環境變量
+2. 當前激活環境的配置
+3. 默認登錄頁地址（`https://www.aliwork.com/workPlatform`）
+
+---
+
+## 退出碼
+
+| 碼 | 含義 |
+|----|------|
+| 0 | 成功 |
+| 1 | 一般錯誤 |
+| 2 | 參數錯誤 |
+| 3 | 登錄失敗/未登錄 |
+| 4 | 網絡錯誤 |
+| 5 | API 錯誤 |

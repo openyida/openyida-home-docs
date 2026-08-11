@@ -1,0 +1,85 @@
+---
+title: "Qu'est-ce qu'OpenYida ?"
+description: "Outil CLI alimenté par l'IA pour la plateforme low-code Yida, zéro configuration, prêt à l'emploi."
+icon: "rocket"
+---
+<p align="center">
+  <a href="https://www.npmjs.com/package/openyida"><img src="https://img.shields.io/npm/v/openyida?color=brightgreen&label=npm" alt="npm version"/></a> <a href="https://www.npmjs.com/package/openyida"><img src="https://img.shields.io/npm/dm/openyida?color=blue" alt="npm downloads"/></a> <a href="https://github.com/openyida/openyida/actions/workflows/ci.yml"><img src="https://github.com/openyida/openyida/actions/workflows/ci.yml/badge.svg" alt="CI"/></a> <a href="https://github.com/openyida/openyida/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a> <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" alt="Node.js ≥18"/></a>
+</p>
+
+## Vue d'ensemble
+
+**OpenYida** est un outil CLI sans configuration qui connecte les assistants de programmation IA à la plateforme low-code [Yida](https://www.aliwork.com). Installez-le une fois, puis décrivez vos besoins en langage naturel — OpenYida gère automatiquement : création d'application, gestion de formulaires, publication de pages, configuration de connecteurs, génération de rapports, déploiement en secondes sur Yida.
+
+🌐 **Site officiel**: [https://openyida.ai](https://openyida.ai)
+
+<CardGroup cols={2}>
+  <Card title="Générer une application en une phrase" icon="wand-magic-sparkles">
+    Décrivez vos besoins en une phrase, l'IA génère automatiquement un système métier complet avec plusieurs formulaires.
+  </Card>
+  <Card title="Document de besoins vers application" icon="file-lines">
+    Collez un document de besoins, obtenez une application Yida fonctionnelle avec tous les champs et logiques spécifiés.
+  </Card>
+  <Card title="Opérations sur formulaires et pages" icon="table-columns">
+    Créez, modifiez et configurez des formulaires et des pages d'affichage personnalisées via des commandes en langage naturel.
+  </Card>
+  <Card title="Publication et partage" icon="share-nodes">
+    Une seule commande pour compiler, publier et configurer l'accès public aux pages.
+  </Card>
+</CardGroup>
+
+---
+
+## Fonctionnalités principales
+
+| Module de fonctionnalité | Description |
+|---------|------|
+| **Gestion des applications** | Création d'application, import/export, migration et déploiement |
+| **Gestion des formulaires** | Création/mise à jour de formulaires, récupération du Schema, configuration des permissions |
+| **Publication de pages** | Développement de pages personnalisées, compilation Babel, publication en un clic |
+| **Configuration des processus** | Création de formulaires de processus, configuration des règles d'approbation |
+| **Intégration et automatisation** | Création et gestion de flux logiques, déclencheurs d'événements de formulaire, notifications, opérations de données inter-formulaires |
+| **Gestion des données** | Requêtes de données de formulaire, instances de processus, gestion des tâches |
+| **Connecteurs** | Création de connecteurs HTTP, intégration API, import intelligent curl |
+| **Rapports et graphiques** | Création de rapports Yida, ajout de graphiques, visualisation des données |
+| **Gestion CDN** | Téléchargement d'images, rafraîchissement du cache, configuration OSS |
+| **Serveur MCP App** | Gérez les applications Yida dans les conversations IA via le protocole MCP, avec tableaux de bord interactifs et graphiques |
+
+---
+
+## Différences avec d'autres plateformes de construction IA
+
+| Dimension | OpenYida | Autres plateformes de construction IA |
+|------|----------|------------------|
+| **Utilisateurs cibles** | Développeurs (personnes connaissant le code) | Personnel métier (non-développeurs) |
+| **Mode d'interaction** | Langage naturel + conversation IA | Glisser-déposer visuel + panneaux de configuration |
+| **Résultat** | Application Yida (éditable, supporte des capacités low-code complètes) | Configuration (exécution en boîte noire) |
+| **Mode de déploiement** | Plateforme Yida | Liaison à une plateforme SaaS |
+| **Modèle IA** | Choix à la demande, modèle le plus approprié | Spécifié par la plateforme, non remplaçable |
+| **Sécurité et conformité** | Yida dispose de capacités complètes de sécurité et de conformité | Dépend des capacités de la plateforme |
+
+---
+
+## Outils de programmation IA pris en charge
+
+OpenYida est un pack de compétences compatible MCP, intégré nativement à tous les principaux environnements de programmation IA :
+
+| Outil | Statut |
+|------|------|
+| [Claude Code](https://claude.ai/code) | ✅ Support complet |
+| [Aone Copilot](https://copilot.code.alibaba-inc.com) | ✅ Support complet |
+| [OpenCode](https://opencode.ai) | ✅ Support complet |
+| [Cursor](https://cursor.com/) | ✅ Support complet |
+| [Visual Studio Code](https://code.visualstudio.com/) | ✅ Support complet |
+| [Qoder](https://qoder.com) | ✅ Support complet |
+| [QwenWork](https://qwenwork.cn) | ✅ Support complet |
+
+---
+
+## Exigences de l'environnement
+
+| Dépendance | Version | Utilisation |
+|------|------|------|
+| Node.js | ≥ 18 | Exécution CLI, publication de pages |
+
+Pas besoin de Python, Playwright ou d'étapes de construction — implémentation pure Node.js.

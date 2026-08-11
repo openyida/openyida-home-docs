@@ -1,0 +1,368 @@
+---
+title: "Gestion des données"
+description: "Interface unifié de gestion des données, prenant en charge les opérations sur les formulaires, processus, tâches, sous-formulaires, etc."
+icon: "database"
+---
+
+OpenYida fournit un CLI de gestion des données unifié, prenant en charge des opérations complètes sur les données de formulaire, les instances de processus, les tâches, les sous-formulaires, etc.
+
+---
+
+## Vue d'ensemble des fonctionnalités
+
+<CardGroup cols={2}>
+  <Card title="Données de formulaire" icon="table">
+    Interroger, créer, mettre à jour les données d'instance de formulaire.
+  </Card>
+  <Card title="Données de processus" icon="diagram-project">
+    Gérer les instances de processus, les enregistrements d'approbation, les statuts de processus.
+  </Card>
+  <Card title="Gestion des tâches" icon="check-circle">
+    Interroger les tâches à faire, terminées, soumises par moi, en copie.
+  </Card>
+  <Card title="Sous-formulaires" icon="list">
+    Interroger et gérer indépendamment les données de sous-formulaires.
+  </Card>
+</CardGroup>
+
+---
+
+## Format de commande
+
+```bash
+openyida data <action> <ressource> [args]
+```
+
+- **action**: `query` | `get` | `create` | `update` | `execute`
+- **ressource**: `form` | `process` | `task` | `subform` | `operation-records`
+
+---
+
+<Warning>
+  Les ID de champs Yida sont générés aléatoirement par la plateforme (ex : `textField_eftt1aa5m`) et ne peuvent pas être devinés. Avant de créer ou mettre à jour un enregistrement, vous **devez** exécuter `openyida get-schema <appType> <formUuid>` pour obtenir les vrais ID de champs et enregistrer le mapping nom→ID dans `.cache/<nom-projet>-schema.json`. Après l'écriture, interrogez au moins un enregistrement (`--size 1`) pour confirmer que les champs de `formData` contiennent des valeurs réelles. Des valeurs vides indiquent des ID de champs incorrects.
+</Warning>
+
+## Gestion des données de formulaire
+
+### Interroger les données de formulaire
+
+```bash
+# Requête de base
+openyida data query form <appType> <formUuid>
+
+# Requête paginée
+openyida data query form <appType> <formUuid> --page 1 --size 50
+
+# Requête conditionnelle
+openyida data query form <appType> <formUuid> \
+  --search-json '[{"key":"field_xxx","value":"value","type":"TEXT","operator":"eq","componentName":"TextField"}]'
+
+# Interroger une instance spécifique
+openyida data query form <appType> <formUuid> --inst-id <formInstId>
+
+# Retourner uniquement les ID
+openyida data query form <appType> <formUuid> --ids-only
+
+# Filtrer par créateur et plage de dates
+openyida data query form <appType> <formUuid> \
+  --originator-id <userId> \
+  --create-from "2026-01-01" --create-to "2026-12-31"
+```
+
+#### Paramètres optionnels
+
+| Paramètre | Description |
+|-----------|-------------|
+| `--page N` | Numéro de page (par défaut `1`) |
+| `--size N` | Éléments par page (par défaut `20`, max `100`). Les valeurs supérieures à `100` provoquent une erreur HTTP 500 de l'API ; le CLI ajuste automatiquement la valeur et affiche un avertissement |
+| `--search-json JSON` | Conditions de recherche (doit être un JSON valide) |
+| `--inst-id ID` | Rechercher un enregistrement par ID d'instance |
+| `--ids-only` | Retourner uniquement les ID d'instance |
+| `--originator-id ID` | Filtrer par créateur |
+| `--create-from DATE` | Filtrer les enregistrements créés après cette date |
+| `--create-to DATE` | Filtrer les enregistrements créés avant cette date |
+| `--modified-from DATE` | Filtrer les enregistrements modifiés après cette date |
+| `--modified-to DATE` | Filtrer les enregistrements modifiés avant cette date |
+| `--dynamic-order FIELD` | Trier par champ |
+
+<Note>
+  **Paramètre appType :** Lors de l'appel de `this.utils.yida.searchFormDatas` depuis une page personnalisée Yida, vous n'avez pas besoin de passer `appType` — le SDK l'obtient automatiquement du contexte de la page. Lors de l'appel via CLI (`openyida data query form`) ou des requêtes HTTP externes, `appType` est obligatoire (format : `APP_XXXXXXXX`).
+</Note>
+
+<Warning>
+  **Structure de réponse incohérente de searchFormDatas :** L'API Yida peut retourner deux structures de réponse différentes selon le scénario :
+  - **Structure directe** (courante) : `{ data: [...], totalCount, currentPage }`
+  - **Structure imbriquée** (certains scénarios) : `{ content: { data: [...], totalCount, currentPage } }`
+
+  Si vous appelez l'API JS directement, utilisez un pattern défensif pour lire les données :
+  ```javascript
+  var data = (res && res.data) || (res && res.content && res.content.data) || [];
+  var total = (res && res.totalCount) || (res && res.content && res.content.totalCount) || 0;
+  ```
+  Avec la commande CLI `openyida data query form`, ce problème est géré automatiquement — le CLI normalise les réponses vers la structure directe.
+</Warning>
+
+### Obtenir une seule donnée
+
+```bash
+openyida data get form <appType> --inst-id <formInstId>
+```
+
+### Créer des données
+
+```bash
+openyida data create form <appType> <formUuid> \
+  --data-json '{"field_xxx": "value", "field_yyy": 123}' \
+  --dept-id <departmentId>
+```
+
+### Mettre à jour les données
+
+```bash
+openyida data update form <appType> \
+  --inst-id <formInstId> \
+  --data-json '{"field_xxx": "new value"}' \
+  --use-latest-version y
+```
+
+---
+
+## Gestion des données de processus
+
+### Interroger les instances de processus
+
+```bash
+# Lister les processus
+openyida data query process <appType> <formUuid> \
+  --page 1 --size 20 \
+  --instance-status RUNNING
+
+# Statuts disponibles : RUNNING (en cours), COMPLETED (terminé), TERMINATED (terminé)
+
+# Retourner uniquement les ID
+openyida data query process <appType> <formUuid> --ids-only
+
+# Filtrer par tâche et résultat d'approbation
+openyida data query process <appType> <formUuid> \
+  --task-id <taskId> \
+  --approved-result AGREE
+```
+
+#### Paramètres optionnels
+
+| Paramètre | Description |
+|-----------|-------------|
+| `--page N` | Numéro de page (par défaut `1`) |
+| `--size N` | Éléments par page (par défaut `10`, max `100`) |
+| `--search-json JSON` | Conditions de recherche (doit être un JSON valide) |
+| `--instance-status STATUS` | Filtrer par statut : `RUNNING`, `COMPLETED`, `TERMINATED` |
+| `--task-id ID` | Filtrer par ID de tâche |
+| `--approved-result RESULT` | Filtrer par résultat : `AGREE`, `DISAGREE` |
+| `--ids-only` | Retourner uniquement les ID d'instance |
+| `--originator-id ID` | Filtrer par créateur |
+| `--create-from DATE` / `--create-to DATE` | Filtrer par date de création |
+| `--modified-from DATE` / `--modified-to DATE` | Filtrer par date de modification |
+
+### Obtenir les détails du processus
+
+```bash
+openyida data get process <appType> --process-inst-id <processInstanceId>
+```
+
+### Créer une instance de processus
+
+```bash
+openyida data create process <appType> <formUuid> \
+  --process-code <processCode> \
+  --data-json '{"field_xxx": "value"}' \
+  --dept-id <departmentId>
+```
+
+### Mettre à jour une instance de processus
+
+```bash
+openyida data update process <appType> \
+  --process-inst-id <processInstanceId> \
+  --data-json '{"field_xxx": "updated value"}'
+```
+
+### Interroger les enregistrements d'approbation
+
+```bash
+openyida data query operation-records <appType> \
+  --process-inst-id <processInstanceId>
+```
+
+---
+
+## Gestion des tâches
+
+<Tip>
+  Pour interroger les données du centre de tâches global sans spécifier d'`appType`, utilisez la commande `openyida task-center`. Voir la [référence CLI](/fr/features/skills#centre-de-tâches-global).
+</Tip>
+
+### Interroger la liste des tâches
+
+```bash
+# Tâches à faire
+openyida data query tasks <appType> --type todo
+
+# Tâches terminées
+openyida data query tasks <appType> --type done
+
+# Soumises par moi
+openyida data query tasks <appType> --type submitted
+
+# En copie
+openyida data query tasks <appType> --type cc
+
+# Avec pagination et filtre par mot-clé
+openyida data query tasks <appType> --type todo --page 1 --size 20 --keyword "urgent"
+```
+
+#### Paramètres optionnels
+
+| Paramètre | Description |
+|-----------|-------------|
+| `--type TYPE` | **Obligatoire.** Type: `todo`, `done`, `submitted`, `cc` |
+| `--page N` | Numéro de page (par défaut `1`) |
+| `--size N` | Éléments par page (par défaut `10`, max `100`) |
+| `--keyword TEXT` | Mot-clé de recherche |
+| `--process-codes JSON` | Filtrer par codes de processus (tableau JSON) |
+| `--instance-status STATUS` | Filtrer par statut d'instance |
+
+### Exécuter une tâche
+
+```bash
+openyida data execute task <appType> \
+  --task-id <taskId> \
+  --process-inst-id <processInstanceId> \
+  --out-result AGREE \
+  --remark "D'accord, veuillez continuer" \
+  --data-json '{"comment": "Approbation réussie"}'
+```
+
+#### Paramètres
+
+| Paramètre | Description |
+|-----------|-------------|
+| `--task-id ID` | **Obligatoire.** ID de tâche |
+| `--process-inst-id ID` | **Obligatoire.** ID d'instance de processus |
+| `--out-result RESULT` | **Obligatoire.** `AGREE` (approuver) ou `DISAGREE` (rejeter) |
+| `--remark TEXT` | **Obligatoire.** Commentaire d'approbation |
+| `--data-json JSON` | Données de formulaire à mettre à jour lors de l'approbation |
+| `--no-execute-expressions y` | Ignorer l'exécution des expressions après la complétion |
+
+---
+
+## Gestion des sous-formulaires
+
+### Interroger les données de sous-formulaire
+
+```bash
+openyida data query subform <appType> <formUuid> \
+  --inst-id <formInstId> \
+  --table-field-id <fieldId> \
+  --page 1 --size 20
+```
+
+---
+
+## Utilisation avancée
+
+### Format des conditions de requête
+
+Le paramètre `--search-json` accepte un format de requête basé sur un tableau. La valeur doit être un JSON valide — le CLI valide l'entrée avant l'envoi et rejette tout JSON malformé avec une erreur. Chaque condition est un objet avec les champs suivants :
+
+| Champ | Description |
+|-------|-------------|
+| `key` | ID du champ (ex: `field_xxx`) |
+| `value` | Valeur à comparer |
+| `type` | Type de données : `TEXT`, `NUMBER`, `DATE`, etc. |
+| `operator` | Opérateur : `eq`, `like`, `gt`, `gte`, `lt`, `lte`, `in`, `range` |
+| `componentName` | Type de composant : `TextField`, `NumberField`, `DateField`, etc. |
+
+Exemple :
+
+```bash
+openyida data query form <appType> <formUuid> \
+  --search-json '[
+    {"key":"field_status","value":"approved","type":"TEXT","operator":"eq","componentName":"TextField"},
+    {"key":"field_amount","value":"1000","type":"NUMBER","operator":"gte","componentName":"NumberField"}
+  ]'
+```
+
+### Exemple de script d'opérations par lots
+
+```bash
+#!/bin/bash
+# Export par lot des données de formulaire
+
+APP_TYPE="APP_XXXXXXXX"
+FORM_UUID="FORM-XXXX-XXXX"
+PAGE=1
+
+while true; do
+  RESULT=$(openyida data query form $APP_TYPE $FORM_UUID --page $PAGE --size 100)
+  
+  # Traiter les données de la page actuelle
+  echo "$RESULT" >> ./export.json
+  
+  # Vérifier s'il y a une page suivante
+  HAS_MORE=$(echo "$RESULT" | jq '.hasMore')
+  if [ "$HAS_MORE" != "true" ]; then
+    break
+  fi
+  
+  PAGE=$((PAGE + 1))
+done
+```
+
+### Format de données AttachmentField
+
+Lors de la création ou de la mise à jour de données de formulaire, les champs `AttachmentField` (pièce jointe) et `ImageField` (image) nécessitent un format spécifique de tableau d'objets. Vous ne pouvez pas passer directement des objets fichier ou des chaînes de texte brut.
+
+Chaque objet de pièce jointe doit inclure les champs suivants :
+
+| Champ | Type | Description |
+|-------|------|-------------|
+| `name` | String | Nom du fichier |
+| `size` | Number | Taille du fichier en octets |
+| `fileUuid` | String | Identifiant unique du fichier (OSS objectName) |
+| `url` | String | URL d'accès au fichier |
+| `downloadUrl` | String | URL de téléchargement du fichier |
+| `previewUrl` | String | URL de prévisualisation du fichier |
+
+Exemple :
+
+```bash
+openyida data create form <appType> <formUuid> \
+  --data-json '{
+    "attachmentField_xxx": [
+      {
+        "name": "report.pdf",
+        "size": 102400,
+        "fileUuid": "APP_XXX/2026/4-1/1713000000000-report.pdf",
+        "url": "/ossFileHandle?appType=APP_XXX&fileName=report.pdf&type=download",
+        "downloadUrl": "/ossFileHandle?appType=APP_XXX&fileName=report.pdf&type=download",
+        "previewUrl": "/inst/preview?appType=APP_XXX&fileName=report.pdf"
+      }
+    ]
+  }'
+```
+
+<Warning>
+  La valeur de `AttachmentField` doit être un tableau d'objets — pas un objet unique, une chaîne ou un objet `File`. Un format incorrect provoque des erreurs telles que `syntax error, expect [`.
+</Warning>
+
+---
+
+## Précautions
+
+<Warning>
+  Les opérations sur les données sont permanentes, les opérations de mise à jour ne peuvent pas être annulées. Il est recommandé d'effectuer des tests à petite échelle avant d'exécuter des opérations par lots.
+</Warning>
+
+<Info>
+  La requête paginée renvoie par défaut 20 résultats par page, avec un maximum de 100. Un `pageSize` supérieur à 100 provoque une erreur HTTP 500 de l'API. Le CLI ajuste automatiquement les valeurs supérieures à 100 et affiche un avertissement. Pour l'export de grandes quantités de données, il est recommandé d'utiliser la pagination en boucle.
+</Info>

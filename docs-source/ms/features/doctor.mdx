@@ -1,0 +1,81 @@
+---
+title: "Alat diagnostik"
+description: "Dokumen ini menerangkan Alat diagnostik dalam OpenYida, termasuk aliran penggunaan, arahan dan perkara yang perlu diberi perhatian."
+icon: stethoscope
+---
+
+# Alat diagnostik
+
+Halaman ini menerangkan Alat diagnostik dalam OpenYida, termasuk tujuan, aliran penggunaan dan perkara penting semasa membina aplikasi Yida dengan AI.
+
+## Gambaran keseluruhan
+
+Dokumen ini menerangkan Alat diagnostik dalam OpenYida, termasuk aliran penggunaan, arahan dan perkara yang perlu diberi perhatian.
+
+## Perkara penting
+
+- Gunakan halaman ini untuk memahami konteks utama sebelum menggunakannya dalam projek sebenar.
+- Nama arahan, parameter, kod dan beberapa nama produk dikekalkan dalam bahasa Inggeris supaya mudah dicari dan disalin dengan tepat.
+- Apabila bekerja dengan宜搭, semak kebenaran, organisasi dan persekitaran sebelum penerbitan.
+
+## Penggunaan
+
+Ikuti langkah dalam dokumen ini bersama OpenYida CLI dan konfigurasi organisasi. Jika terdapat contoh kod di bawah, contoh tersebut boleh disalin dan disesuaikan mengikut keperluan.
+
+## Arahan dan contoh
+
+Contoh berikut mengekalkan arahan dan kod asal untuk memastikan ketepatan teknikal.
+
+```bash
+openyida doctor
+```
+
+```bash
+openyida doctor --fix
+```
+
+```bash
+openyida doctor --report markdown
+openyida doctor --report json
+openyida doctor --report html
+```
+
+```bash
+openyida doctor --monitor
+```
+
+```bash
+openyida doctor env
+```
+
+```bash
+# Node.js version
+openyida doctor env --check node
+
+# Playwright browsers
+openyida doctor env --check playwright
+
+# Login status
+openyida doctor env --check auth
+
+# Network connectivity
+openyida doctor env --check network
+```
+
+```bash
+openyida doctor app --app <appId>
+```
+
+```bash
+# Check PRD files
+openyida doctor app --check prd
+
+# Check page source
+openyida doctor app --check pages
+
+# Check schema cache
+openyida doctor app --check schema
+
+# Check React Hooks
+openyida doctor app --check hooks
+```

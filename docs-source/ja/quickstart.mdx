@@ -1,0 +1,150 @@
+---
+title: "クイックスタート"
+description: "ステップバイステップガイドでOpenYidaをインストールし、Yidaプラットフォームにログインして、AI自然言語プロンプトで最初のアプリを構築します。"
+icon: "bolt"
+---
+
+## 前提条件
+
+開始する前に、以下の依存関係がインストールされていることを確認してください：
+
+| 依存関係 | バージョン | 確認コマンド |
+|------|------|----------|
+| [Node.js](https://nodejs.org) | ≥ 18 | `node --version` |
+
+<Tip>
+  これだけです。OpenYida は純粋な Node.js 実装です — Python、Playwright、ビルドステップは不要です。
+</Tip>
+
+---
+
+## ステップ 1 — インストール
+
+```bash
+npm install -g openyida
+```
+
+インストールを確認：
+
+```bash
+openyida --version
+```
+
+---
+
+## ステップ 2 — Yida にログイン
+
+```bash
+openyida login
+```
+
+OpenYida はブラウザウィンドウを開く（または QR コードを表示する）ことで、Yida/Alibaba アカウントで認証します。認証情報はローカルにキャッシュされます — これは一度だけ実行すればよいです。
+
+<Info>
+  OpenYida detects QwenWork automatically. If QR login is needed, use `openyida login --qr` or `openyida login --agent-qr`.
+</Info>
+
+---
+
+## ステップ 3 — 環境を確認
+
+```bash
+openyida env
+```
+
+これにより、現在アクティブな AI コーディングツール（Claude Code、Cursor、QwenWorkなど）が検出され、現在のログイン状態が表示されます。環境を切り替えるときはいつでもこのコマンドを実行してください。
+
+---
+
+## ステップ 4 — プロジェクトワークスペースを初期化
+
+```bash
+openyida copy
+```
+
+これにより、`project/` ワークスペーステンプレートが現在の AI ツールの作業ディレクトリにコピーされ、AI がアプリ設定とページテンプレートにアクセスできるようになります。
+
+---
+
+## ステップ 5 — 構築を開始
+
+AI コーディングアシスタントと話すだけです。以下はスタータープロンプトです：
+
+```
+Yida で IPD システムを構築し、完全なチップ生産ワークフローを管理してください
+```
+
+```
+リード、連絡先、取引を含む CRM システムを構築してください
+```
+
+```
+個人給与計算機アプリを作成してください
+```
+
+```
+Yida で誕生日祝福ミニゲームを生成してください
+```
+
+AI は OpenYida のスキルパックを使用して、正しい CLI コマンドを順番に呼び出します：`create-app` → `create-form` / `create-page` → `publish` → `save-share-config`。
+
+---
+
+## ステップ 6 — アプリを公開
+
+AI がアプリを生成した後、以下のコマンドを使用して公開します：
+
+```bash
+openyida check-page project/pages/src/dashboard.oyd.jsx
+openyida compile project/pages/src/dashboard.oyd.jsx
+openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+```
+
+または AI に尋ねてください：
+```
+[ページ名] ページを公開してください
+ページを公開アクセス可能にしてください
+```
+
+---
+
+## 診断を実行
+
+何か問題があると感じた場合は、内蔵の診断ツールを実行してください：
+
+```bash
+openyida doctor
+```
+
+Node.js バージョン、ログイン状態、環境設定を確認し、`--fix` で一般的な問題を自動的に修正できます。
+
+---
+
+## OpenClaw 統合
+
+OpenClaw を使用している場合は、OpenYida スキルパックを直接インストールしてください：
+
+```bash
+npx clawhub@latest install nicky1108/yida-app
+```
+
+その後、[ClawhHub の yida-app](https://clawhub.ai/nicky1108/yida-app) を通じて使用します。
+
+---
+
+## 次のステップ
+
+<CardGroup cols={2}>
+  <Card title="一般的なプロンプト" icon="comments" href="/ja/features/common-prompts">
+    OpenYida がサポートする自然言語プロンプトの完全なリストを参照してください。
+  </Card>
+  <Card title="CLI リファレンス" icon="terminal" href="/ja/features/skills">
+    すべての CLI コマンドとスキルモジュールを探索してください。
+  </Card>
+  <Card title="デモケース" icon="images" href="/ja/introduction/demo">
+    OpenYida で構築された実際のアプリケーションを表示してください。
+  </Card>
+  <Card title="ベストプラクティス" icon="star" href="/ja/guides/best-practices">
+    AI 駆動アプリ生成を最大限に活用するためのヒント。
+  </Card>
+</CardGroup>

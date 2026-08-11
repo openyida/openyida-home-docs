@@ -1,0 +1,313 @@
+---
+title: "Rapports et graphiques"
+description: "Créez des rapports Yida et ajoutez des graphiques de visualisation de données."
+icon: "chart-column"
+---
+
+OpenYida permet de créer des rapports Yida et d'ajouter des graphiques pour la visualisation de données à l'aide des commandes `create-report` et `append-chart`.
+
+---
+
+## Vue d'ensemble des fonctionnalités
+
+<CardGroup cols={2}>
+  <Card title="Création de rapports" icon="file-plus">
+    Créez des rapports Yida avec une configuration de graphiques personnalisée.
+  </Card>
+  <Card title="Ajout de graphiques" icon="chart-pie">
+    Ajoutez divers types de graphiques aux rapports existants.
+  </Card>
+  <Card title="Liaison de données" icon="link">
+    Liez automatiquement les sources de données de formulaire, affichez les données en temps réel.
+  </Card>
+  <Card title="Types de graphiques" icon="shapes">
+    Prend en charge les graphiques à barres, linéaires, circulaires, tabulaires et plus.
+  </Card>
+</CardGroup>
+
+---
+
+## Créer des rapports
+
+### Utilisation de base
+
+```bash
+openyida create-report <appType> "Nom du rapport" '<définition-JSON-ou-fichier>'
+```
+
+Le troisième argument peut être une chaîne JSON en ligne ou un chemin vers un fichier JSON.
+
+### Exemple : créer un rapport de ventes
+
+```bash
+openyida create-report APP_XXXXXX "Sales Dashboard" '{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "month",
+      "yField": "amount"
+    }
+  ]
+}'
+```
+
+### Charger la définition du graphique à partir d'un fichier
+
+```bash
+openyida create-report APP_XXXXXX "Annual Report" ./charts-config.json
+```
+
+---
+
+## Ajouter des graphiques à un rapport
+
+```bash
+openyida append-chart <appType> <reportId> '<définition-JSON-ou-fichier>'
+```
+
+### Exemple
+
+```bash
+openyida append-chart APP_XXXXXX REPORT_XXXXX '{
+  "type": "line",
+  "title": "Growth Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "month",
+  "yField": "growth_rate"
+}'
+```
+
+---
+
+## Configuration des filtres
+
+Les rapports prennent en charge des filtres liés aux graphiques, permettant aux utilisateurs de filtrer dynamiquement les données affichées. Les filtres sont définis dans le tableau `filters` de la configuration du rapport.
+
+```json
+{
+  "filters": [
+    {
+      "title": "Région",
+      "placeholder": "Sélectionnez une région",
+      "cubeCode": "FORM_XXXXXX",
+      "valueField": "region_id",
+      "labelField": "region_name",
+      "linkTo": ["chart_1", "chart_2"]
+    }
+  ]
+}
+```
+
+| Champ | Requis | Description |
+|-------|--------|-------------|
+| **title** | Oui | Libellé affiché pour le filtre |
+| **placeholder** | Non | Texte indicatif affiché lorsque aucune valeur n'est sélectionnée |
+| **cubeCode** | Oui | Code du cube de données source pour les options du filtre |
+| **valueField** | Oui | Champ utilisé comme valeur de l'option |
+| **labelField** | Oui | Champ utilisé comme libellé affiché de l'option |
+| **linkTo** | Oui | Liste des identifiants de graphiques auxquels le filtre est lié |
+
+<Info>
+Les champs de type `selectField` génèrent automatiquement des filtres déroulants dans le rapport.
+</Info>
+
+---
+
+## Types de graphiques
+
+| Type | Description | Idéal pour |
+|------|-------------|----------|
+| **bar** | Graphique à barres | Comparer des catégories |
+| **line** | Graphique linéaire | Tendances dans le temps |
+| **pie** | Graphique circulaire | Relations partie-tout |
+| **table** | Tableau de données | Vue détaillée des données |
+| **area** | Graphique de zone | Tendances cumulatives |
+| **scatter** | Graphique de dispersion | Analyse de corrélation |
+| **indicator** | Carte d'indicateur | Affichage des métriques clés |
+| **combo** | Graphique combiné (barres + lignes) | Comparaisons à double axe |
+| **pivot** | Tableau croisé dynamique | Analyse multidimensionnelle |
+| **gauge** | Jauge | Suivi de progression ou d'objectifs |
+| **radar** | Graphique radar | Comparaisons multidimensionnelles |
+| **funnel** | Graphique en entonnoir | Conversion par étapes |
+
+---
+
+## Dimensionnement de la disposition des graphiques
+
+Vous pouvez contrôler la largeur et la hauteur de chaque graphique dans la grille du rapport à l'aide des propriétés `w` et `h`. Le rapport utilise un système de grille à 6 colonnes.
+
+- **`w`** — largeur de la grille (1-6 colonnes). Lorsqu'un graphique dépasse l'espace restant sur la ligne actuelle, il passe à la ligne suivante.
+- **`h`** — hauteur de la grille (en unités de grille).
+
+Définir `w` ou `h` à `0` est valide et sera respecté. Si omis, les valeurs par défaut ci-dessous sont utilisées.
+
+| Type de graphique | `w` par défaut | `h` par défaut |
+|-------------------|----------------|----------------|
+| **indicator** | 6 | 6 |
+| **pie** | 3 | 22 |
+| **bar** | 3 | 22 |
+| **line** | 3 | 22 |
+| **combo** | 6 | 22 |
+| **table** | 6 | 38 |
+| **pivot** | 6 | 30 |
+| **gauge** | 2 | 18 |
+| Autres types | 3 | 22 |
+
+---
+
+## Format de définition du graphique
+
+### Graphique à barres
+
+```json
+{
+  "type": "bar",
+  "title": "Sales by Region",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "region",
+  "yField": "amount",
+  "aggregation": "sum",
+  "w": 6,
+  "h": 22
+}
+```
+
+### Graphique linéaire
+
+```json
+{
+  "type": "line",
+  "title": "Traffic Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "date",
+  "yField": "visitors",
+  "aggregation": "sum"
+}
+```
+
+### Graphique circulaire
+
+```json
+{
+  "type": "pie",
+  "title": "Market Share",
+  "cubeCode": "FORM_XXXXXX",
+  "categoryField": "product",
+  "valueField": "share"
+}
+```
+
+### Tableau de données
+
+```json
+{
+  "type": "table",
+  "title": "Detail View",
+  "cubeCode": "FORM_XXXXXX",
+  "columns": [
+    { "field": "name", "title": "Name" },
+    { "field": "amount", "title": "Amount" },
+    { "field": "date", "title": "Date" }
+  ]
+}
+```
+
+---
+
+## Format du cubeCode
+
+Le `cubeCode` est dérivé du `formUuid` du formulaire source, en remplaçant les tirets (`-`) par des underscores (`_`) et en convertissant le tout en majuscules.
+
+Par exemple, si le `formUuid` est :
+
+```
+form-monthly-sales
+```
+
+Le `cubeCode` correspondant sera :
+
+```
+FORM_MONTHLY_SALES
+```
+
+<Tip>
+Pour obtenir le `cubeCode` d'un formulaire, prenez son `formUuid`, remplacez tous les tirets par des underscores et mettez le résultat en majuscules.
+</Tip>
+
+---
+
+## Fonctions d'agrégation
+
+| Fonction | Description |
+|----------|-------------|
+| **sum** | Somme des valeurs |
+| **avg** | Valeur moyenne |
+| **count** | Nombre d'enregistrements |
+| **max** | Valeur maximale |
+| **min** | Valeur minimale |
+
+---
+
+## Exemple de configuration complet
+
+### sales-report-charts.json
+
+```json
+{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_MONTHLY_SALES",
+      "xField": "month",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "pie",
+      "title": "Product Categories",
+      "cubeCode": "FORM_SALES",
+      "categoryField": "product_category",
+      "valueField": "sales_amount"
+    },
+    {
+      "type": "line",
+      "title": "Sales Trend",
+      "cubeCode": "FORM_DAILY_SALES",
+      "xField": "date",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "table",
+      "title": "Sales Detail",
+      "cubeCode": "FORM_SALES",
+      "columns": [
+        { "field": "order_no", "title": "Order No.", "width": 150 },
+        { "field": "customer_name", "title": "Customer", "width": 200 },
+        { "field": "product_name", "title": "Product", "width": 200 },
+        { "field": "amount", "title": "Amount", "width": 120 },
+        { "field": "sales_date", "title": "Date", "width": 150 }
+      ],
+      "pageSize": 10
+    }
+  ]
+}
+```
+
+Créer le rapport :
+
+```bash
+openyida create-report APP_XXXXXX "Sales Analysis Report" ./sales-report-charts.json
+```
+
+---
+
+## Meilleures pratiques
+
+1. **Choisissez le type de graphique approprié** - Graphiques linéaires pour les tendances, à barres pour les comparaisons, circulaires pour les proportions
+2. **Limitez le nombre de graphiques** - Gardez 6 graphiques ou moins par rapport
+3. **Incluez des tableaux de données** - Associez des tableaux aux graphiques pour une inspection détaillée
+4. **Définissez des tailles de page raisonnables** - Pour les tableaux de données, utilisez 10-20 lignes par page

@@ -1,0 +1,368 @@
+---
+title: "データ管理"
+description: "統一データ管理インターフェース、フォーム、プロセス、タスク、サブフォームなどのデータ操作をサポート。"
+icon: "database"
+---
+
+OpenYidaは統一データ管理CLIを提供し、フォームデータ、プロセスインスタンス、タスク、サブフォームなどの操作をサポートします。
+
+---
+
+## 機能概要
+
+<CardGroup cols={2}>
+  <Card title="フォームデータ" icon="table">
+    フォームインスタンスデータのクエリ、作成、更新。
+  </Card>
+  <Card title="プロセスデータ" icon="diagram-project">
+    プロセスインスタンス、承認記録、プロセス状態の管理。
+  </Card>
+  <Card title="タスク管理" icon="check-circle">
+    未処理、完了、自分が提出した、自分にCCされたタスクのクエリ。
+  </Card>
+  <Card title="サブフォーム" icon="list">
+    サブフォームデータの独立したクエリと管理。
+  </Card>
+</CardGroup>
+
+---
+
+## コマンド形式
+
+```bash
+openyida data <action> <resource> [args]
+```
+
+- **action**: `query` | `get` | `create` | `update` | `execute`
+- **resource**: `form` | `process` | `task` | `subform` | `operation-records`
+
+---
+
+<Warning>
+  Yidaのフィールドid はプラットフォームによりランダムに生成されます（例: `textField_eftt1aa5m`）。推測やフィールド名からの推定はできません。レコードの作成・更新前に、**必ず** `openyida get-schema <appType> <formUuid>` を実行して実際のフィールドIDを取得し、フィールド名→IDマッピングを `.cache/<プロジェクト名>-schema.json` に記録してください。データ書き込み後、少なくとも1件のレコードを照会（`--size 1`）し、`formData` のフィールドに実際の値があることを確認してください。値が空の場合、フィールドIDが正しくありません。
+</Warning>
+
+## フォームデータ管理
+
+### フォームデータのクエリ
+
+```bash
+# 基本クエリ
+openyida data query form <appType> <formUuid>
+
+# ページネーションクエリ
+openyida data query form <appType> <formUuid> --page 1 --size 50
+
+# 条件クエリ
+openyida data query form <appType> <formUuid> \
+  --search-json '[{"key":"field_xxx","value":"value","type":"TEXT","operator":"eq","componentName":"TextField"}]'
+
+# 指定インスタンスのクエリ
+openyida data query form <appType> <formUuid> --inst-id <formInstId>
+
+# IDのみ返す
+openyida data query form <appType> <formUuid> --ids-only
+
+# 作成者と日付範囲でフィルタ
+openyida data query form <appType> <formUuid> \
+  --originator-id <userId> \
+  --create-from "2026-01-01" --create-to "2026-12-31"
+```
+
+#### オプションパラメータ
+
+| パラメータ | 説明 |
+|-----------|------|
+| `--page N` | ページ番号（デフォルト `1`） |
+| `--size N` | 1ページあたりの件数（デフォルト `20`、最大 `100`）。`100` を超える値を指定すると API が HTTP 500 エラーを返します。CLI は自動的に値を切り詰めて警告を表示します |
+| `--search-json JSON` | 検索条件（有効なJSONである必要があります。[クエリ条件フォーマット](#クエリ条件フォーマット)を参照） |
+| `--inst-id ID` | インスタンスIDで単一レコードを検索 |
+| `--ids-only` | インスタンスIDのみを返す |
+| `--originator-id ID` | 作成者でフィルタ |
+| `--create-from DATE` | 指定日以降に作成されたレコードをフィルタ |
+| `--create-to DATE` | 指定日以前に作成されたレコードをフィルタ |
+| `--modified-from DATE` | 指定日以降に更新されたレコードをフィルタ |
+| `--modified-to DATE` | 指定日以前に更新されたレコードをフィルタ |
+| `--dynamic-order FIELD` | フィールドでソート |
+
+<Note>
+  **appType パラメータについて：** Yida カスタムページの JS コード内で `this.utils.yida.searchFormDatas` を呼び出す場合、`appType` を渡す必要はありません（SDK がページコンテキストから自動的に取得します）。CLI（`openyida data query form`）または外部 HTTP リクエストで呼び出す場合、`appType` は必須パラメータです（形式：`APP_XXXXXXXX`）。
+</Note>
+
+<Warning>
+  **searchFormDatas のレスポンス構造の不一致：** Yida API はシナリオによって2つの異なるレスポンス構造を返す場合があります：
+  - **直接構造**（一般的）：`{ data: [...], totalCount, currentPage }`
+  - **ネスト構造**（一部のシナリオ）：`{ content: { data: [...], totalCount, currentPage } }`
+
+  JS API を直接呼び出す場合は、防御的なパターンを使用してデータを読み取ってください：
+  ```javascript
+  var data = (res && res.data) || (res && res.content && res.content.data) || [];
+  var total = (res && res.totalCount) || (res && res.content && res.content.totalCount) || 0;
+  ```
+  `openyida data query form` CLI コマンドを使用する場合、この処理は自動的に行われます。CLI はレスポンスを直接構造に正規化します。
+</Warning>
+
+### 単一データの取得
+
+```bash
+openyida data get form <appType> --inst-id <formInstId>
+```
+
+### データの作成
+
+```bash
+openyida data create form <appType> <formUuid> \
+  --data-json '{"field_xxx": "value", "field_yyy": 123}' \
+  --dept-id <departmentId>
+```
+
+### データの更新
+
+```bash
+openyida data update form <appType> \
+  --inst-id <formInstId> \
+  --data-json '{"field_xxx": "new value"}' \
+  --use-latest-version y
+```
+
+---
+
+## プロセスデータ管理
+
+### プロセスインスタンスのクエリ
+
+```bash
+# プロセスリストのクエリ
+openyida data query process <appType> <formUuid> \
+  --page 1 --size 20 \
+  --instance-status RUNNING
+
+# ステータスオプション：RUNNING（進行中）、COMPLETED（完了）、TERMINATED（終了）
+
+# IDのみ返す
+openyida data query process <appType> <formUuid> --ids-only
+
+# タスクと承認結果でフィルタ
+openyida data query process <appType> <formUuid> \
+  --task-id <taskId> \
+  --approved-result AGREE
+```
+
+#### オプションパラメータ
+
+| パラメータ | 説明 |
+|-----------|------|
+| `--page N` | ページ番号（デフォルト `1`） |
+| `--size N` | 1ページあたりの件数（デフォルト `10`、最大 `100`） |
+| `--search-json JSON` | 検索条件（有効なJSONである必要があります） |
+| `--instance-status STATUS` | ステータスでフィルタ：`RUNNING`、`COMPLETED`、`TERMINATED` |
+| `--task-id ID` | タスクIDでフィルタ |
+| `--approved-result RESULT` | 承認結果でフィルタ：`AGREE`、`DISAGREE` |
+| `--ids-only` | インスタンスIDのみを返す |
+| `--originator-id ID` | 作成者でフィルタ |
+| `--create-from DATE` | 指定日以降に作成されたインスタンスをフィルタ |
+| `--create-to DATE` | 指定日以前に作成されたインスタンスをフィルタ |
+| `--modified-from DATE` | 指定日以降に更新されたインスタンスをフィルタ |
+| `--modified-to DATE` | 指定日以前に更新されたインスタンスをフィルタ |
+
+### プロセス詳細の取得
+
+```bash
+openyida data get process <appType> --process-inst-id <processInstanceId>
+```
+
+### プロセスインスタンスの作成
+
+```bash
+openyida data create process <appType> <formUuid> \
+  --process-code <processCode> \
+  --data-json '{"field_xxx": "value"}' \
+  --dept-id <departmentId>
+```
+
+### プロセスインスタンスの更新
+
+```bash
+openyida data update process <appType> \
+  --process-inst-id <processInstanceId> \
+  --data-json '{"field_xxx": "updated value"}'
+```
+
+### 承認記録のクエリ
+
+```bash
+openyida data query operation-records <appType> \
+  --process-inst-id <processInstanceId>
+```
+
+---
+
+## タスク管理
+
+<Tip>
+  `appType` を指定せずにすべてのアプリケーションのグローバルタスクセンターデータを照会するには、`openyida task-center` コマンドを使用してください。[CLI リファレンス](/ja/features/skills#グローバルタスクセンター) を参照してください。
+</Tip>
+
+### タスクリストのクエリ
+
+```bash
+# 未処理タスク
+openyida data query tasks <appType> --type todo
+
+# 完了タスク
+openyida data query tasks <appType> --type done
+
+# 自分が提出した
+openyida data query tasks <appType> --type submitted
+
+# 自分にCCされた
+openyida data query tasks <appType> --type cc
+
+# ページネーションとキーワードフィルタ付き
+openyida data query tasks <appType> --type todo --page 1 --size 20 --keyword "緊急"
+```
+
+#### オプションパラメータ
+
+| パラメータ | 説明 |
+|-----------|------|
+| `--type TYPE` | **必須。** タスクタイプ：`todo`、`done`、`submitted`、`cc` |
+| `--page N` | ページ番号（デフォルト `1`） |
+| `--size N` | 1ページあたりの件数（デフォルト `10`、最大 `100`） |
+| `--keyword TEXT` | 検索キーワード |
+| `--process-codes JSON` | プロセスコードでフィルタ（JSON配列） |
+| `--instance-status STATUS` | プロセスインスタンスのステータスでフィルタ |
+
+### タスクの実行
+
+```bash
+openyida data execute task <appType> \
+  --task-id <taskId> \
+  --process-inst-id <processInstanceId> \
+  --out-result AGREE \
+  --remark "同意、続けて進めてください" \
+  --data-json '{"comment": "承認済み"}'
+```
+
+| パラメータ | 説明 |
+|-----------|------|
+| `--task-id ID` | **必須。** タスクID |
+| `--process-inst-id ID` | **必須。** プロセスインスタンスID |
+| `--out-result RESULT` | **必須。** `AGREE`（承認）または `DISAGREE`（却下） |
+| `--remark TEXT` | **必須。** 承認コメント |
+| `--data-json JSON` | 承認時に更新するフォームデータ |
+| `--no-execute-expressions y` | タスク完了後の式実行をスキップ |
+
+---
+
+## サブフォーム管理
+
+### サブフォームデータのクエリ
+
+```bash
+openyida data query subform <appType> <formUuid> \
+  --inst-id <formInstId> \
+  --table-field-id <fieldId> \
+  --page 1 --size 20
+```
+
+---
+
+## 高度な使用法
+
+### クエリ条件形式
+
+`--search-json` パラメータは配列ベースのクエリ形式を受け付けます。値は有効なJSONである必要があり、CLIはリクエスト送信前に入力を検証します。各条件は以下のフィールドを持つオブジェクトです：
+
+| フィールド | 説明 |
+|------------|------|
+| `key` | フィールドID（例：`field_xxx`） |
+| `value` | マッチする値 |
+| `type` | データ型：`TEXT`、`NUMBER`、`DATE` など |
+| `operator` | 演算子：`eq`、`like`、`gt`、`gte`、`lt`、`lte`、`in`、`range` |
+| `componentName` | コンポーネント型：`TextField`、`NumberField`、`DateField` など |
+
+例：
+
+```bash
+openyida data query form <appType> <formUuid> \
+  --search-json '[
+    {"key":"field_status","value":"approved","type":"TEXT","operator":"eq","componentName":"TextField"},
+    {"key":"field_amount","value":"1000","type":"NUMBER","operator":"gte","componentName":"NumberField"}
+  ]'
+```
+
+### バッチ操作スクリプト例
+
+```bash
+#!/bin/bash
+# フォームデータのバッチエクスポート
+
+APP_TYPE="APP_XXXXXXXX"
+FORM_UUID="FORM-XXXX-XXXX"
+PAGE=1
+
+while true; do
+  RESULT=$(openyida data query form $APP_TYPE $FORM_UUID --page $PAGE --size 100)
+  
+  # 現在のページのデータを処理
+  echo "$RESULT" >> ./export.json
+  
+  # 次のページがあるか確認
+  HAS_MORE=$(echo "$RESULT" | jq '.hasMore')
+  if [ "$HAS_MORE" != "true" ]; then
+    break
+  fi
+  
+  PAGE=$((PAGE + 1))
+done
+```
+
+### AttachmentField データ形式
+
+フォームデータの作成または更新時、`AttachmentField`（添付ファイル）および `ImageField`（画像）フィールドには特定のオブジェクト配列形式が必要です。ファイルオブジェクトやプレーンテキスト文字列を直接渡すことはできません。
+
+各添付ファイルオブジェクトには以下のフィールドが必要です：
+
+| フィールド | 型 | 説明 |
+|------------|------|------|
+| `name` | String | ファイル名 |
+| `size` | Number | ファイルサイズ（バイト） |
+| `fileUuid` | String | ファイル一意識別子（OSS objectName） |
+| `url` | String | ファイルアクセス URL |
+| `downloadUrl` | String | ファイルダウンロード URL |
+| `previewUrl` | String | ファイルプレビュー URL |
+
+例：
+
+```bash
+openyida data create form <appType> <formUuid> \
+  --data-json '{
+    "attachmentField_xxx": [
+      {
+        "name": "report.pdf",
+        "size": 102400,
+        "fileUuid": "APP_XXX/2026/4-1/1713000000000-report.pdf",
+        "url": "/ossFileHandle?appType=APP_XXX&fileName=report.pdf&type=download",
+        "downloadUrl": "/ossFileHandle?appType=APP_XXX&fileName=report.pdf&type=download",
+        "previewUrl": "/inst/preview?appType=APP_XXX&fileName=report.pdf"
+      }
+    ]
+  }'
+```
+
+<Warning>
+  `AttachmentField` の値はオブジェクトの配列でなければなりません。単一のオブジェクト、文字列、または `File` オブジェクトは使用できません。不正な形式を渡すと `syntax error, expect [` のようなエラーが発生します。
+</Warning>
+
+---
+
+## 注意事項
+
+<Warning>
+  データ操作は永続的であり、更新操作は取り消せません。バッチ操作を実行する前に、小規模なテストを行うことをお勧めします。
+</Warning>
+
+<Info>
+  ページネーションクエリはデフォルトで1ページあたり20件、最大100件をサポートします。`pageSize` を 100 を超える値に設定すると、API は HTTP 500 エラーを返します。CLI は自動的に値を100に切り詰め、警告を表示します。大量のデータをエクスポートする場合は、ループページネーションを使用して取得することをお勧めします。
+</Info>

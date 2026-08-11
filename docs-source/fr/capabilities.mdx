@@ -1,0 +1,86 @@
+---
+title: "Liste complète des fonctionnalités"
+description: "Liste des capacités OpenYida et des commandes CLI correspondantes, regroupées par scénario."
+icon: "list-ul"
+---
+
+Cette page résume les capacités actuelles d’OpenYida pour les utilisateurs Yida et les AI Agents, avec les commandes `openyida` généralement utilisées.
+
+<Note>
+Utilisez `openyida agent-capabilities --summary-json` comme pré-vérification légère par défaut. Utilisez `openyida agent-capabilities --json` uniquement pour un diagnostic complet, le Manifest des commandes, les métadonnées de permission ou les détails bruts d’échec de connexion.
+</Note>
+
+## Bases
+
+| Fonctionnalité | Commande |
+|---|---|
+| Pré-vérification légère Agent | `openyida agent-capabilities --summary-json` |
+| Diagnostic Agent complet | `openyida agent-capabilities --json` |
+| Vérifier l’environnement et la connexion | `openyida env` / `openyida env --json` |
+| Gérer les profiles d’environnement | `openyida env <setup\|list\|show\|switch\|add\|remove>` |
+| Connexion OAuth token | `openyida login` |
+| Connexion avec une URL cible | `openyida login <target-url>` |
+| État et rafraîchissement du token | `openyida auth <status\|login\|refresh\|logout>` |
+| Changement d’organisation | `openyida org <list\|switch> [--corp-id <corpId>]` |
+| Manifest des commandes | `openyida commands --json` |
+
+## Applications et formulaires
+
+| Fonctionnalité | Commande |
+|---|---|
+| Lister les applications | `openyida app-list [--size N]` |
+| Créer ou mettre à jour une application | `openyida create-app ...` / `openyida update-app ...` |
+| Importer ou exporter des packages de migration | `openyida export ...` / `openyida import ...` |
+| Créer, mettre à jour, patcher, valider ou lier des formulaires | `openyida create-form <create\|update\|patch\|rule\|validation\|bind-datasource> ...` |
+| Consulter les formulaires et les Schemas | `openyida list-forms ...` / `openyida get-schema ...` |
+| Gérer les groupes de navigation | `openyida nav-group <list\|create\|rename\|delete\|move\|order\|hide\|show> ...` |
+| Gérer les permissions | `openyida app-permission ...` / `openyida get-permission ...` / `openyida save-permission ...` |
+
+## Pages, données et processus
+
+| Fonctionnalité | Commande |
+|---|---|
+| Créer des pages d’affichage | `openyida create-page <appType> "<name>"` |
+| Générer, vérifier, compiler et publier du code de page | `openyida generate-page ...` / `openyida check-page ...` / `openyida compile ...` / `openyida publish ...` |
+| Publier des pages Code Canvas | `openyida publish <src.canvas.jsx> <appType> <formUuid>` |
+| Lire ou modifier les données form/process/task/subform | `openyida data <action> <resource> ...` |
+| Créer et configurer des processus | `openyida create-process ...` / `openyida configure-process ...` |
+| Consulter les tâches et délégations | `openyida task-center ...` / `openyida agent-center ...` |
+
+## Intégrations, rapports et outils
+
+| Fonctionnalité | Commande |
+|---|---|
+| Rapports et tableaux de bord | `openyida create-report ...` / `openyida append-chart ...` |
+| Connecteurs HTTP | `openyida connector <list\|create\|detail\|add-action\|test\|smart-create> ...` |
+| Automatisation d’intégration | `openyida integration <create\|list\|enable\|disable\|check\|diagnose> ...` |
+| Documents DingTalk et DWS CLI | `openyida read-dingtalk-doc ...` / `openyida dws <command>` |
+| AI, assets, formules et conversion PRD | `openyida ai ...` / `openyida asset ...` / `openyida formula evaluate ...` / `openyida flash-to-prd ...` |
+| Initialisation locale, diagnostic et batch | `openyida copy` / `openyida doctor` / `openyida batch` |
+| MCP, A2A et bridge local | `openyida mcp` / `openyida a2a ...` / `openyida bridge start ...` |
+| Sortie silencieuse et vérification de mise à jour | `openyida --quiet ...` / `YIDA_QUIET=1` / `OPENYIDA_SKIP_UPDATE_CHECK=1` |
+
+## Pages personnalisées, chaîne de publication et i18n
+
+| Capacité | Commande |
+|---|---|
+| Générer une page Code Canvas métier depuis une spécification | `openyida generate-page <template> --spec <page-spec.json> --output project/pages/src/<name>.canvas.jsx --compile` |
+| Appliquer un profil visuel et une portée de thème pendant la génération | `openyida generate-page ... --theme-profile <profile> --theme-scope <page\|global>` |
+| Créer des pages d'exemple Code Canvas | `openyida sample yida-canvas-custom-page <sample> --output project/pages/src/<name>.canvas.jsx` |
+| Créer des exemples de page personnalisée classique | `openyida sample yida-custom-page <sample> --output project/pages/src/<name>.oyd.jsx` |
+| Vérifier et normaliser le code avant publication | `openyida check-page <src>` / `openyida build-page <src> --write` |
+| Relire la configuration en ligne avant d'écraser les modifications du designer | `openyida get-form-config <appType> <formUuid> --json` / `openyida get-schema <appType> <formUuid>` |
+| Publier des pages personnalisées classiques | `openyida publish project/pages/src/<name>.oyd.jsx <appType> <formUuid>` |
+| Publier des pages Code Canvas | `openyida publish project/pages/src/<name>.canvas.jsx <appType> <formUuid> --canvas` |
+| Lancer un health check juste après publication | `openyida publish <src> <appType> <formUuid> --health-check` |
+| Mettre à jour la configuration de page ou de formulaire après publication | `openyida update-form-config <appType> <formUuid> ...` |
+| Configurer l'accès public, la navigation masquée et les entrées de partage | `openyida verify-short-url ...` / `openyida save-share-config ...` / `openyida get-page-config ...` |
+| Téléverser les assets de page vers le CDN | `openyida cdn-upload <asset-path>` |
+| Lire la configuration CDN et rafraîchir les ressources | `openyida cdn-config` / `openyida cdn-refresh ...` |
+| Vérifier et mettre à jour le paquet CLI OpenYida | `openyida update` / `npm install -g openyida@latest` |
+| Gérer les packs de langue de l'application | `openyida i18n <overview\|config\|languages\|list\|upsert\|batch-upsert\|bind\|delete\|translate\|translate-all\|upgrade> ...` |
+| Exécuter la CLI avec un pack de langue sélectionné | `OPENYIDA_LANG=<locale> openyida ...` / `OPENYIDA_LOCALE_DIR=<dir> openyida ...` |
+
+<Warning>
+Les anciens flags de connexion comme `--qr`, `--browser`, `--codex`, `--qoder` ne sont plus pris en charge. Utilisez la connexion OAuth token.
+</Warning>

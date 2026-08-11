@@ -1,0 +1,848 @@
+---
+title: "CLI 참조"
+description: "OpenYida의 모든 CLI 명령에 대한 완전한 참조입니다. 앱 생성, 양식 관리, 데이터 작업, 커넥터, 보고서 및 환경 진단을 포함합니다."
+icon: "file-lines"
+---
+
+OpenYida는 풍부한 CLI 명령을 제공하며 앱의 전체 수명 주기 관리를 지원합니다.
+
+---
+
+## 환경 및 인증
+
+```bash
+# 환경 감지
+openyida env
+
+# 다중 환경 관리
+openyida env list                  # 모든 환경 나열, 활성 환경 강조
+openyida env add <name>            # 프라이빗 배포 환경을 대화식으로 추가
+openyida env switch <name>         # 활성 환경 전환
+openyida env remove <name>         # 환경 삭제 (public은 삭제 불가)
+openyida env show [name]           # 환경 상세 설정 표시
+
+# 로그인
+openyida login [--qr]              # --qr은 터미널 QR 코드 사용
+openyida login --agent-qr         # Agent QR handoff
+
+# 로그아웃
+openyida logout
+
+# 로그인 상태 관리
+openyida auth status               # 로그인 상태 확인
+openyida auth login                # 로그인 실행
+openyida auth refresh              # 로그인 상태 갱신
+openyida auth logout               # 로그아웃
+
+# 조직 관리
+openyida org list                  # 액세스 가능한 조직 나열
+openyida org switch --corp-id <id> # 조직 전환
+
+# 작업 디렉터리 초기화
+openyida copy [--force]            # project 디렉터리 복사 (빈 디렉터리에는 내용을 직접 복사)
+openyida copy -skills              # yida-skills를 AI 도구 skills 디렉터리에 복사
+
+# 진단 도구
+openyida doctor [--fix]            # 환경 진단
+openyida doctor --monitor          # 헬스 모니터링
+openyida doctor --report <format>  # 보고서 생성 (json|markdown|html)
+
+# 셀프 업데이트
+openyida update                    # 최신 버전 확인 및 설치
+```
+
+---
+
+## 앱 관리
+
+```bash
+# 앱 생성
+openyida create-app "<名称>" [desc] [icon] [color] [themeColor]
+
+# 앱 내보내기
+openyida export <appType> [output] # 마이그레이션 패키지 생성
+
+# 앱 가져오기
+openyida import <file> [name]      # 마이그레이션 패키지에서 앱 재구축
+
+# 앱 정보 업데이트
+openyida update-app <appType> --name "<이름>" [--desc "<설명>"] [--icon "<아이콘>"] [--icon-color "<색상>"]
+```
+
+| 옵션 | 별칭 | 설명 |
+|------|------|------|
+| `--name` | `-n` | 앱 이름 (최소 하나의 업데이트 필드 필요) |
+| `--desc` | `-d` | 앱 설명 |
+| `--icon` | | 아이콘 이름 (예: `xian-yingyong`) |
+| `--icon-color` | | 아이콘 색상 (기본값: `#0089FF`) |
+
+---
+
+## 양식 관리
+
+```bash
+# 양식 생성
+openyida create-form create <appType> "<表单名>" <字段JSON> \
+  [--layout <布局>] \
+  [--theme <主题>] \
+  [--label-align <对齐>]
+
+# 양식 업데이트
+openyida create-form update <appType> <formUuid> <修改JSON> [--force]
+
+# 양식 Schema 가져오기
+openyida get-schema <appType> <formUuid>  # 필드 ID를 사용하는 모든 작업 전에 반드시 실행
+
+# 양식 구성 업데이트
+openyida update-form-config <appType> <formUuid> <isRenderNav> <title>
+
+# 앱 내 양식 페이지 목록
+openyida list-forms <appType> [--keyword <텍스트>]
+```
+
+<Warning>
+  Yida 필드 ID는 플랫폼에서 무작위로 생성됩니다(예: `textField_eftt1aa5m`, `selectField_fix024y92`). 필드 이름으로는 추측할 수 없습니다. 필드 ID를 사용하는 모든 작업(데이터 생성/수정, 쿼리 조건 설정, 커스텀 페이지 작성 등) 전에 **반드시** `openyida get-schema`를 실행하여 실제 필드 ID를 가져와야 합니다.
+</Warning>
+
+<Info>
+  기존 데이터가 있는 양식을 업데이트할 때, CLI는 변경 전에 안전 검사를 수행합니다. 기존 레코드가 감지되고 `--force`가 설정되지 않은 경우, 명령은 `requiresConfirmation: true`가 포함된 JSON 응답을 출력하고 변경 없이 종료됩니다. `--force`를 전달하면 확인을 건너뛰고 업데이트를 계속합니다.
+
+  확인 응답에는 다음 필드가 포함됩니다:
+
+  | 필드 | 타입 | 설명 |
+  |------|------|------|
+  | `success` | `boolean` | 확인이 필요할 때 항상 `false` |
+  | `requiresConfirmation` | `boolean` | 항상 `true` |
+  | `formUuid` | `string` | 업데이트 대상 양식 UUID |
+  | `appType` | `string` | 애플리케이션 ID |
+  | `existingDataCount` | `number` | 양식의 기존 레코드 수 |
+  | `message` | `string` | 사람이 읽을 수 있는 확인 메시지 |
+  | `hint` | `string` | `--force` 플래그 사용법을 보여주는 힌트 |
+</Info>
+
+### 양식 페이지 목록
+
+지정된 애플리케이션 내의 모든 양식 페이지를 조회합니다. 선택적으로 키워드 필터링을 지원합니다. 명령은 JSON 배열을 stdout에 출력합니다.
+
+```bash
+openyida list-forms <appType> [--keyword <텍스트>]
+```
+
+| 인수 | 설명 |
+|------|------|
+| `<appType>` | 애플리케이션 ID (예: `APP_XXXXX`) |
+
+| 옵션 | 설명 | 기본값 |
+|------|------|--------|
+| `--keyword <텍스트>` | 양식 이름, UUID, 유형 또는 경로 이름으로 필터링 (대소문자 구분 없음) | — |
+
+#### 출력
+
+명령은 stdout에 JSON 배열을 출력합니다. 각 항목에는 다음 필드가 포함됩니다:
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `formUuid` | `string` | 양식 고유 식별자 |
+| `formName` | `string` | 현지화된 양식 이름 |
+| `formType` | `string` | 양식 유형 (예: `display`, `process`) |
+| `pathName` | `string` | 양식의 URL 경로 이름 |
+
+**출력 예시:**
+
+```json
+[
+  {
+    "formUuid": "FORM-AAA",
+    "formName": "고객 정보",
+    "formType": "display",
+    "pathName": "customer-info"
+  },
+  {
+    "formUuid": "FORM-BBB",
+    "formName": "비용 정산",
+    "formType": "process",
+    "pathName": "expense"
+  }
+]
+```
+
+**사용 예시:**
+
+```bash
+# 앱 내 모든 양식 목록
+openyida list-forms APP_XXXXX
+
+# 키워드로 필터링
+openyida list-forms APP_XXXXX --keyword "고객"
+```
+
+<Info>
+  시스템 내비게이션 항목(내장 작업 보기 등)은 자동으로 제외됩니다. 사용자가 생성한 양식 페이지만 출력됩니다.
+</Info>
+
+<Info>
+  이 명령을 실행하기 전에 로그인이 필요합니다. 아직 인증하지 않았다면 먼저 `openyida login`을 실행하세요.
+</Info>
+
+### 지원되는 필드 유형
+
+`create-form` 명령은 다음 필드 유형만 허용합니다. 지원되지 않는 유형을 사용하면 오류가 반환됩니다.
+
+#### 기본 필드
+
+내장 필드로, 플러그인 설치가 필요하지 않습니다.
+
+| 유형 | 설명 |
+|------|------|
+| `TextField` | 한 줄 텍스트 |
+| `TextareaField` | 여러 줄 텍스트 |
+| `NumberField` | 숫자 |
+| `RateField` | 평점 |
+| `DateField` | 날짜 |
+| `RadioField` | 라디오 버튼 |
+| `SelectField` | 드롭다운 (단일 선택) |
+| `CheckboxField` | 체크박스 |
+| `MultiSelectField` | 드롭다운 (다중 선택) |
+| `CascadeSelectField` | 계단식 선택 |
+| `CascadeDateField` | 계단식 날짜 |
+| `EmployeeField` | 구성원 선택 |
+| `DepartmentSelectField` | 부서 선택 |
+| `AssociationFormField` | 연관 양식 |
+| `AssociationQuery` | 연관 쿼리 |
+| `AttachmentField` | 첨부 파일 |
+| `ImageField` | 이미지 |
+| `AddressField` | 주소 |
+| `CountrySelectField` | 국가/지역 선택 |
+| `TableField` | 하위 양식/상세 |
+| `SerialNumberField` | 일련 번호 |
+
+#### 고급 필드
+
+내장 필드로, 일부 기능은 활성화가 필요할 수 있습니다.
+
+| 유형 | 설명 |
+|------|------|
+| `EditorField` | 리치 텍스트 편집기 |
+| `DigitalSignatureField` | 디지털 서명 |
+| `LocationField` | GPS 위치 |
+
+#### 플러그인 필드
+
+사용하기 전에 플러그인 센터에서 해당 플러그인을 설치해야 합니다.
+
+| 유형 | 필요한 플러그인 |
+|------|-----------------|
+| `TimeZoneDateField` | 국제화 시간대 컴포넌트 |
+| `CC_AIButtonField` | AI 컴포넌트 |
+| `CC_PG_ESignField` | 스마트 재무 컴포넌트 |
+| `CC_TeambitionProjectLinksField` | Teambition 플러그인 |
+| `CC_TeambitionTaskLinksField` | Teambition 플러그인 |
+| `CC_MoneyField` | 스마트 재무 컴포넌트 |
+| `CC_PhoneNumberField` | 확장 컴포넌트 |
+| `CC_ChineseIdField` | 확장 컴포넌트 |
+| `YidaDingtalkAgentField` | DingTalk 에이전트 플러그인 |
+
+<Warning>
+플러그인 필드는 해당 플러그인이 설치되지 않은 경우 생성에 실패합니다. 이러한 필드 유형을 사용하기 전에 플러그인 센터에서 필요한 플러그인을 설치하세요.
+</Warning>
+
+<Warning>
+`MobileField`, `EmailField` 등의 필드 유형은 지원되지 않으며 거부됩니다. 위 표에 나열된 유형만 사용하세요.
+</Warning>
+
+---
+
+## 페이지 관리
+
+```bash
+# 사용자 정의 페이지 생성
+openyida create-page <appType> "<페이지명>" [--mode dashboard] [--open|--no-open]
+
+# 페이지 컴파일 및 게시
+openyida publish <源文件路径> <appType> <formUuid> [--health-check] [--force] [--open|--no-open]
+
+# 페이지 공유 구성
+openyida save-share-config <appType> <formUuid> <url> <isOpen> [openAuth]
+openyida get-page-config <appType> <formUuid>
+openyida verify-short-url <appType> <formUuid> <url>
+```
+
+---
+
+## 데이터 관리
+
+<Warning>
+  데이터 생성 또는 수정 전에 **반드시** `openyida get-schema`를 실행하여 실제 필드 ID를 가져와야 합니다. 데이터 작성 후 `openyida data query form <appType> <formUuid> --size 1`로 1건을 조회하여 `formData` 필드에 실제 값이 있는지 확인하세요. 모든 필드 값이 비어 있으면 필드 ID가 잘못된 것이므로 `get-schema`를 다시 실행해야 합니다.
+</Warning>
+
+```bash
+# 통합 데이터 관리
+openyida data <action> <resource> [args]
+
+# 양식 데이터
+openyida data query form <appType> <formUuid> [--page N] [--size N] [--search-json JSON]
+openyida data get form <appType> --inst-id <id>
+openyida data create form <appType> <formUuid> --data-json <JSON>  # JSON 키는 필드 ID 또는 필드 레이블 가능
+openyida data update form <appType> --inst-id <id> --data-json <JSON>
+
+# 프로세스 데이터
+openyida data query process <appType> <formUuid> [--instance-status STATUS]
+openyida data get process <appType> --process-inst-id <id>
+openyida data create process <appType> <formUuid> --process-code <code> --data-json <JSON>
+
+# 작업 관리
+openyida data query tasks <appType> --type <todo|done|submitted|cc>
+openyida data execute task <appType> --task-id <id> --process-inst-id <id> --out-result <AGREE|DISAGREE>
+
+# 하위 양식
+openyida data query subform <appType> <formUuid> --inst-id <id> --table-field-id <fieldId>
+```
+
+---
+
+## 글로벌 작업 센터
+
+`appType`을 지정하지 않고 현재 사용자의 글로벌 작업 센터 데이터를 조회합니다.
+
+```bash
+# 할 일 작업
+openyida task-center todo [--page N] [--size N] [--keyword TEXT]
+
+# 내가 생성한 작업
+openyida task-center created [--page N] [--size N] [--keyword TEXT] [--no-detail]
+
+# 처리 완료
+openyida task-center done [--page N] [--size N] [--keyword TEXT]
+
+# 참조로 받은 작업
+openyida task-center cc [--page N] [--size N] [--keyword TEXT]
+
+# 대리 제출
+openyida task-center proxy [--page N] [--size N] [--keyword TEXT]
+```
+
+### 작업 유형
+
+| 유형 | 설명 | API 엔드포인트 |
+|------|------|---------------|
+| `todo` | 처리 대기 작업 | `getTodoTasksInCorp` |
+| `created` | 내가 시작한 프로세스 | `getMyCreateInCorp` |
+| `done` | 이미 처리한 작업 | `getDoneTasksInCorp` |
+| `cc` | 참조로 받은 작업 | `getNotifyMeInCorp` |
+| `proxy` | 대리 제출한 프로세스 | `getSubmitAgentInCorp` |
+
+### 선택적 매개변수
+
+| 매개변수 | 설명 | 기본값 |
+|----------|------|--------|
+| `--page N` | 페이지 번호 | `1` |
+| `--size N` | 페이지당 항목 수 (최대 100) | `20` |
+| `--keyword TEXT` | 검색 키워드 | — |
+| `--no-detail` | 상세 정보 생략 (`created` 유형만 지원) | — |
+
+<Info>
+  `openyida data query tasks`와 달리 `task-center` 명령은 글로벌 작업 센터 데이터를 조회하며 `appType` 매개변수가 필요하지 않습니다.
+</Info>
+
+---
+
+## 프로세스 관리
+
+```bash
+# 프로세스 양식 생성(통합) - 새 양식과 프로세스 생성
+openyida create-process <appType> <formTitle> <fieldsJsonFile> <processDefinitionFile>
+
+# 기존 양식을 재사용하여 프로세스 생성
+openyida create-process <appType> --formUuid <formUuid> <processDefinitionFile>
+
+# 프로세스 구성 및 배포
+openyida configure-process <appType> <formUuid> <processDefinitionFile> [processCode]
+
+# 프로세스 인스턴스 미리보기 (시각적 플로차트)
+openyida process preview <appType> <processInstanceId> [--output <path>]
+```
+
+### 프로세스 인스턴스 미리보기
+
+실행 중이거나 완료된 프로세스 인스턴스의 인터랙티브 HTML 플로차트를 생성합니다. 플로차트는 노드 상태를 강조 표시합니다 — 완료(녹색), 현재 노드(파란색 펄스), 미도달(회색), 건너뜀(점선) — 호버 시 승인자 세부 정보와 타임스탬프가 표시됩니다.
+
+```bash
+openyida process preview <appType> <processInstanceId> [--output <path>]
+```
+
+| 인수 | 설명 |
+|------|------|
+| `<appType>` | 애플리케이션 ID (예: `APP_XXXXX`) |
+| `<processInstanceId>` | 시각화할 프로세스 인스턴스 ID |
+
+| 옵션 | 별칭 | 설명 | 기본값 |
+|------|------|------|--------|
+| `--output` | `-o` | 생성된 HTML 파일 출력 경로 | 현재 디렉토리에 자동 생성 |
+
+이 명령은 프로세스 인스턴스 세부 정보와 승인 작업 기록을 가져온 다음 SVG 기반 HTML 파일을 생성하여 기본 브라우저에서 엽니다.
+
+**예시:**
+
+```bash
+openyida process preview APP_XXXXX proc-inst-id-xxx
+openyida process preview APP_XXXXX proc-inst-id-xxx --output flowchart.html
+```
+
+<Info>
+  이 명령을 실행하기 전에 로그인해야 합니다. 아직 인증하지 않았다면 먼저 `openyida login`을 실행하세요.
+</Info>
+
+### 프로세스 정의 상세 페이지 URL 속성
+
+프로세스 정의 JSON 파일은 사용자가 프로세스 인스턴스를 조회할 때 표시되는 상세 페이지 URL을 커스터마이징하기 위한 다음 선택적 속성을 지원합니다.
+
+| 속성 | 타입 | 설명 |
+|------|------|------|
+| `processDetailUrl` | `string` | 웹/PC 프로세스 상세 페이지의 커스텀 URL. 웹에 대한 다른 모든 상세 URL 설정을 재정의합니다. |
+| `processMobileDetailUrl` | `string` | 모바일 프로세스 상세 페이지의 커스텀 URL. 모바일에 대한 다른 모든 상세 URL 설정을 재정의합니다. |
+| `customDetailPageUrl` | `string` | 웹과 모바일 상세 페이지 모두에 사용되는 단일 커스텀 페이지 URL. 모바일에서는 `?procInsId=`가 자동으로 추가됩니다. |
+| `detailUrls` | `object` | 플랫폼별 상세 URL이 포함된 객체. `web` (또는 `pc`) 및 `mobile` 키를 지원합니다. |
+
+**웹 상세 URL** 해석 순서:
+
+1. `processDetailUrl`
+2. `detailUrls.web` 또는 `detailUrls.pc`
+3. `customDetailPageUrl`
+4. 플랫폼 기본값
+
+**모바일 상세 URL** 해석 순서:
+
+1. `processMobileDetailUrl`
+2. `detailUrls.mobile`
+3. `customDetailPageUrl` (`?procInsId=` 자동 추가)
+4. 플랫폼 기본값
+
+**예시** — `detailUrls` 사용:
+
+```json
+{
+  "detailUrls": {
+    "web": "https://example.com/process/detail",
+    "mobile": "https://m.example.com/process/detail"
+  }
+}
+```
+
+**예시** — `customDetailPageUrl` 사용 (양쪽 플랫폼에서 동일한 URL):
+
+```json
+{
+  "customDetailPageUrl": "https://example.com/custom-detail"
+}
+```
+
+### 오류 처리 및 재시도
+
+프로세스 구성이 실패했지만 양식이 이미 생성된 경우, 명령은 `--formUuid` 플래그가 포함된 재시도 힌트를 출력하여 양식을 다시 만들지 않고 재사용할 수 있습니다:
+
+```bash
+openyida create-process <appType> --formUuid <formUuid> <processDefinitionFile>
+```
+
+다음과 같은 경우에 유용합니다:
+- 프로세스 정의 파일에 오류가 있어 수정 후 재시도가 필요한 경우.
+- 네트워크 또는 API 일시적 장애로 구성 단계가 중단된 경우.
+
+명령은 JSON 결과를 `stdout`에 출력합니다. 성공 시:
+
+```json
+{
+  "success": true,
+  "formUuid": "FORM-XXXXX",
+  "formTitle": "Order Form",
+  "appType": "APP_XXXXX",
+  "fieldCount": 5,
+  "processCode": "TPROC-XXXXX",
+  "url": "https://www.aliwork.com/APP_XXXXX/workbench/FORM-XXXXX"
+}
+```
+
+실패 시 (예: 프로세스 구성 실패):
+
+```json
+{
+  "success": false,
+  "formUuid": "FORM-XXXXX",
+  "formTitle": "Order Form",
+  "appType": "APP_XXXXX",
+  "fieldCount": 5,
+  "error": "Failed to configure process: <error details>"
+}
+```
+
+<Tip>
+  출력에 `formUuid`가 포함된 실패 메시지가 표시되면, `--formUuid` 플래그를 사용하여 양식을 다시 만들지 않고 재시도하세요.
+</Tip>
+
+---
+
+## 통합 및 자동화
+
+로직플로우(통합 및 자동화)를 생성하고 관리합니다. 양식 이벤트 트리거, 메시지 알림, 데이터 작업 등을 지원합니다.
+
+```bash
+# 로직플로우 생성
+openyida integration create <appType> <formUuid> <flowName> [옵션]
+```
+
+### 매개변수
+
+| 매개변수 | 필수 | 설명 |
+|---------|------|------|
+| `appType` | 예 | 앱 ID (예: `APP_XXXX`) |
+| `formUuid` | 예 | 트리거 양식 UUID (예: `FORM-XXXX`) |
+| `flowName` | 예 | 로직플로우 이름 |
+
+### 옵션
+
+| 옵션 | 기본값 | 설명 |
+|------|--------|------|
+| `--process-code <code>` | 자동 생성 | 기존 로직플로우의 processCode (`LPROC-xxx` 형식) |
+| `--receivers <userId,...>` | 비어있음 | DingTalk 알림 수신자 사용자 ID (쉼표 구분) |
+| `--title <title>` | flowName과 동일 | 알림 제목, `#{fieldId-ComponentType}#`으로 필드 참조 가능 |
+| `--content <content>` | `"새 레코드가 제출되었습니다"` | 알림 내용, 필드 변수 참조 가능 |
+| `--events <insert,update>` | `insert` | 트리거 이벤트: `insert`/`update`/`delete`/`comment` (쉼표 구분) |
+| `--add-data-form-uuid <formUuid>` | — | 데이터 추가 노드의 대상 양식 UUID |
+| `--add-data-assignment <targetFieldId:valueType:value>` | — | 데이터 추가 필드 할당 (여러 번 지정 가능). `valueType`: `processVar`/`literal`/`column` |
+| `--publish` | 게시 안 함 | 저장 후 즉시 게시, 그렇지 않으면 초안으로만 저장 |
+
+### 출력
+
+```json
+{
+  "success": true,
+  "published": false,
+  "processCode": "LPROC-XXXX",
+  "flowName": "새 레코드 알림",
+  "appType": "APP_XXX",
+  "formUuid": "FORM-XXX",
+  "formEventTypes": ["insert"]
+}
+```
+
+<Info>
+  이 명령을 실행하기 전에 로그인이 필요합니다. `--publish` 사용 시 `published`가 `true`가 됩니다. 게시 실패 시 `published`가 `false`이며 `warning` 필드가 포함됩니다.
+</Info>
+
+---
+
+## 권한 관리
+
+```bash
+# 양식 권한 쿼리
+openyida get-permission <appType> <formUuid>
+
+# 양식 권한 저장
+openyida save-permission <appType> <formUuid> \
+  [--data-permission <json>] \
+  [--action-permission <json>]
+```
+
+---
+
+## 커넥터 관리
+
+```bash
+# 커넥터 나열
+openyida connector list [--page N] [--size N]
+
+# 커넥터 생성
+openyida connector create "<名称>" "<域名>" --operations <file> [选项]
+
+# 커넥터 세부 정보
+openyida connector detail <connector-id>
+
+# 커넥터 삭제
+openyida connector delete <connector-id> [--force]
+
+# 작업 관리
+openyida connector add-action --connector-id <id> --operations <file> [--confirm]
+openyida connector list-actions <connector-id>
+openyida connector delete-action <connector-id> <operation-id> [--force]
+openyida connector test --connector-id <id> --action <actionId> [选项]
+
+# 인증 계정 관리
+openyida connector list-connections <connector-id>
+openyida connector create-connection <connector-id> "<名称>" [选项]
+
+# 스마트 생성
+openyida connector smart-create --curl "<curl命令>" [--name <name>] [--desc <desc>]
+
+# 보조 도구
+openyida connector parse-api --curl "<curl命令>" --output <file>
+openyida connector gen-template [输出路径]
+```
+
+---
+
+## 보고서 관리
+
+```bash
+# 보고서 생성
+openyida create-report <appType> "<报表名称>" <图表定义JSON或文件路径>
+
+# 차트 추가
+openyida append-chart <appType> <reportId> <图表定义JSON或文件路径>
+```
+
+---
+
+## CDN 관리
+
+```bash
+# CDN 구성
+openyida cdn-config
+
+# 이미지 업로드
+openyida cdn-upload <文件路径>
+
+# 캐시 새로고침
+openyida cdn-refresh <路径>
+```
+
+---
+
+## 플래시 노트를 PRD로 변환
+
+AI를 사용하여 DingTalk 플래시 노트(회의 녹음 텍스트)를 구조화된 PRD 문서로 변환합니다.
+
+```bash
+# 파일에서 읽기
+openyida flash-to-prd --file <파일경로> [--name <프로젝트명>] [--max-tokens <숫자>]
+
+# 표준 입력에서 읽기
+cat meeting.txt | openyida flash-to-prd --name <프로젝트명> [--max-tokens <숫자>]
+```
+
+### 매개변수
+
+| 매개변수 | 단축형 | 설명 | 기본값 |
+|------|------|------|------|
+| `--file` | `-f` | 플래시 노트 파일 경로 | — |
+| `--name` | `-n` | 프로젝트 이름 (생략 시 내용에서 자동 감지) | — |
+| `--max-tokens` | — | AI 응답의 최대 토큰 수 | `8000` |
+
+이 명령은 지정된 파일 또는 표준 입력에서 플래시 노트 내용을 읽고, 텍스트 전처리(회의 메타데이터 추출 및 발화자 식별 포함)를 수행한 후 Yida AI 서비스를 호출하여 구조화된 PRD를 생성합니다. 출력된 PRD 파일은 프로젝트의 `prd/` 디렉토리에 저장됩니다.
+
+### 출력
+
+명령은 stdout에 다음 형태의 JSON 결과를 출력합니다:
+
+```json
+{
+  "success": true,
+  "projectName": "프로젝트명",
+  "prdFile": "/path/to/prd/프로젝트명.md",
+  "contentLength": 4096,
+  "meetingRecognition": {
+    "metaFields": 3,
+    "a1Sections": 2,
+    "speakers": 5
+  }
+}
+```
+
+<Info>
+  이 명령을 실행하기 전에 로그인이 필요합니다. 아직 인증하지 않았다면 먼저 `openyida login`을 실행하세요.
+</Info>
+
+---
+
+## 통합 및 자동화
+
+폼 이벤트에서 트리거되어 알림, 데이터 조회, 데이터 생성 등의 자동화된 작업을 실행하는 통합 로직 플로우를 생성합니다.
+
+```bash
+openyida integration create <appType> <formUuid> "<flowName>" [options]
+```
+
+### 필수 인수
+
+| 인수 | 설명 |
+|------|------|
+| `<appType>` | 애플리케이션 ID |
+| `<formUuid>` | 트리거 폼 UUID |
+| `<flowName>` | 통합 플로우 이름 |
+
+### 옵션
+
+| 옵션 | 설명 | 기본값 |
+|------|------|--------|
+| `--process-code <code>` | 업데이트할 기존 프로세스 코드 (생략하면 새로 생성) | — |
+| `--receivers <id1,id2>` | 알림 수신자 사용자 ID (쉼표로 구분) | — |
+| `--title <text>` | 알림 제목 | 플로우 이름 |
+| `--content <text>` | 알림 본문 | — |
+| `--events <types>` | 트리거 이벤트 (쉼표로 구분): `insert`, `update`, `delete` | `insert` |
+| `--data-form-uuid <uuid>` | "단일 레코드 가져오기" 데이터 노드의 폼 UUID | — |
+| `--data-condition <mapping>` | 데이터 노드의 필드 매핑 (`bFieldId:bFieldName:aFieldId[:componentType]`). 여러 번 지정 가능. | — |
+| `--add-data-form-uuid <uuid>` | "레코드 추가" 데이터 노드의 폼 UUID | — |
+| `--add-data-assignment <mapping>` | 데이터 추가 노드의 필드 할당 (`targetFieldId:valueType:value`). `valueType`은 `processVar`, `literal` 또는 `column`일 수 있음. 여러 번 지정 가능. | — |
+| `--publish` | 생성 후 즉시 플로우 게시 | 초안만 |
+
+### 예시
+
+```bash
+# 새 제출 시 트리거되는 알림 플로우 생성
+openyida integration create APP_XXX FORM-YYY "New Order Alert" \
+  --receivers "user1,user2" \
+  --events insert \
+  --title "New Order" \
+  --content "A new order was submitted"
+
+# 생성 후 즉시 게시
+openyida integration create APP_XXX FORM-YYY "Auto Notify" \
+  --receivers "user1" \
+  --publish
+```
+
+---
+
+## DingTalk CLI (dws)
+
+연락처, 캘린더, 할 일, 결재, 근태 등을 위한 DingTalk Workspace CLI 프록시 명령입니다.
+
+```bash
+openyida dws <command> [args]
+```
+
+<Info>
+  `dws` 명령은 DingTalk CLI를 별도로 설치해야 합니다. 설치되어 있지 않으면 OpenYida가 처음 사용 시 설치를 안내합니다.
+</Info>
+
+### 자주 사용하는 명령
+
+| 명령 | 설명 |
+|------|------|
+| `contact user search --keyword "<name>"` | 연락처 검색 |
+| `calendar event list` | 캘린더 이벤트 목록 |
+| `todo task create --title "<title>" --executors "<userId>"` | 할 일 작업 생성 |
+| `approval instance list` | 결재 인스턴스 목록 |
+| `attendance record list` | 근태 기록 조회 |
+| `chat robot send --content "<message>"` | 챗 로봇 메시지 전송 |
+
+### 특수 명령
+
+```bash
+# DingTalk CLI 설치
+openyida dws install
+
+# 도움말 표시
+openyida dws help
+```
+
+### 출력 형식
+
+기본적으로 출력은 사람이 읽기 쉬운 테이블 형식으로 포맷됩니다. AI 에이전트에 적합한 JSON 출력을 위해 `-f json`을 추가하세요.
+
+```bash
+openyida dws contact user search --keyword "name" -f json
+```
+
+---
+
+## 대화 내보내기
+
+현재 AI 도구 환경에서 AI 대화 기록을 Markdown 문서로 내보냅니다.
+
+```bash
+openyida export-conversation [options]
+```
+
+### 옵션
+
+| 옵션 | 별칭 | 설명 | 기본값 |
+|------|------|------|--------|
+| `--output` | `-o` | 출력 파일 경로 | 자동 생성 경로 |
+| `--input` | `-i` | 입력 대화 파일 (JSON/JSONL) | — |
+| `--latest` | — | 최신 대화만 내보내기 | 활성화됨 |
+| `--list` | — | 사용 가능한 대화 기록 목록 | — |
+
+### 예시
+
+```bash
+# 현재 대화 내보내기
+openyida export-conversation
+
+# 특정 파일로 내보내기
+openyida export-conversation -o output.md
+
+# 사용 가능한 대화 목록
+openyida export-conversation --list
+
+# 특정 입력 파일에서 내보내기
+openyida export-conversation -i conversation.json -o result.md
+```
+
+---
+
+## 셀프 업데이트
+
+npm에서 OpenYida의 최신 버전을 확인하고 전역으로 설치합니다.
+
+```bash
+openyida update
+```
+
+이 명령은 npm registry에서 최신 게시 버전을 조회합니다. 새로운 버전이 있으면 `npm install -g openyida@latest`를 실행하여 업그레이드합니다. 이미 최신 버전이면 확인 메시지를 출력하고 종료합니다.
+
+<Info>
+  OpenYida는 명령을 실행할 때마다 백그라운드에서 자동으로 업데이트를 확인합니다. `update` 명령을 사용하면 수동으로 확인하고 즉시 설치할 수 있습니다.
+</Info>
+
+---
+
+## 전역 옵션
+
+| 옵션 | 설명 |
+|------|------|
+| `--help`, `-h` | 도움말 정보 표시 |
+| `--version`, `-v` | 버전 표시 |
+| `--qr` | 터미널 QR 코드로 로그인 |
+| `--force` | 강제 실행, 확인 건너뛰기 |
+| `--health-check` | Run a health check after publishing a custom page |
+
+---
+
+## 환경 변수
+
+| 변수 | 설명 | 예 |
+|------|------|------|
+| `OPENYIDA_LANG` | 언어 설정 | `zh`, `en`, `ja` |
+| `LANG` / `LC_ALL` | 시스템 언어 | `zh_CN.UTF-8` |
+| `OPENYIDA_ENDPOINT` | Yida 서비스 엔드포인트 강제 지정 (최고 우선순위) | `https://yida.example.com` |
+| `OPENYIDA_LOGIN_URL` | 로그인 페이지 URL 강제 지정 | `https://yida.example.com/login` |
+| `OPENYIDA_ENV` | 설정 파일 수정 없이 환경 전환 (CI/CD에 적합) | `my-private-env` |
+| `OPENYIDA_DWS_ENDPOINT` | 프라이빗 DingTalk OpenAPI 게이트웨이 엔드포인트 | `https://oapi.example.com` |
+
+### 엔드포인트 해석 우선순위
+
+Yida 서비스 엔드포인트를 결정할 때 다음 순서로 해석됩니다:
+
+1. `OPENYIDA_ENDPOINT` 환경 변수
+2. 활성 환경 설정 (`openyida env switch`로 설정)
+3. 쿠키에 캐시된 `base_url`
+4. 기본 퍼블릭 클라우드 URL (`https://www.aliwork.com`)
+
+로그인 URL 해석 순서:
+
+1. `OPENYIDA_LOGIN_URL` 환경 변수
+2. 활성 환경 설정
+3. 기본 로그인 URL (`https://www.aliwork.com/workPlatform`)
+
+---
+
+## 종료 코드
+
+| 코드 | 의미 |
+|----|------|
+| 0 | 성공 |
+| 1 | 일반 오류 |
+| 2 | 매개변수 오류 |
+| 3 | 로그인 실패/미로그인 |
+| 4 | 네트워크 오류 |
+| 5 | API 오류 |

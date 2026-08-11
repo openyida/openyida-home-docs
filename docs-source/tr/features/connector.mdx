@@ -1,0 +1,83 @@
+---
+title: "Bağlayıcılar (HTTP entegrasyonu)"
+description: "Bu belge OpenYida içinde Bağlayıcılar (HTTP entegrasyonu) konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar."
+icon: plug
+---
+
+# Bağlayıcılar (HTTP entegrasyonu)
+
+Bu sayfa OpenYida içinde Bağlayıcılar (HTTP entegrasyonu) konusunu açıklar; amaç, kullanım akışı ve AI ile Yida uygulaması geliştirirken dikkat edilmesi gereken noktaları kapsar.
+
+## Genel bakış
+
+Bu belge OpenYida içinde Bağlayıcılar (HTTP entegrasyonu) konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar.
+
+## Önemli noktalar
+
+- Gerçek bir projeye uygulamadan önce ana bağlamı anlamak için bu sayfayı kullanın.
+- Komut adları, parametreler, kod ve bazı ürün adları doğru arama ve kopyalama için İngilizce bırakılmıştır.
+- 宜搭 ile çalışırken yayımlamadan önce izinleri, organizasyonu ve ortamı kontrol edin.
+
+## Kullanım
+
+Bu dokümandaki adımları OpenYida CLI ve organizasyon ayarlarıyla birlikte izleyin. Aşağıdaki kod örnekleri doğrudan kopyalanıp ihtiyaca göre uyarlanabilir.
+
+## Komutlar ve örnekler
+
+Aşağıdaki örnekler teknik doğruluğu korumak için özgün komut ve kodu saklar.
+
+```bash
+openyida connector smart-create \
+  --curl "curl 'https://api.example.com/v1/users' -H 'Authorization: Bearer xxx'" \
+  --name "User Management Connector" \
+  --desc "HTTP connector for managing user data"
+```
+
+```bash
+# List all connectors
+openyida connector list
+
+# Filter by keyword
+openyida connector list --keyword "user"
+
+# Filter by type (mine or manager)
+openyida connector list --type mine
+
+# Filter by date range
+openyida connector list --start-date 2024-01-01 --end-date 2024-12-31
+
+# Set page size
+openyida connector list --page-size 50
+```
+
+```bash
+openyida connector create "Connector Name" "api.example.com" \
+  --operations ./operations.json \
+  --desc "Connector description"
+```
+
+```bash
+openyida connector detail <connector-id>
+```
+
+```bash
+openyida connector delete <connector-id> --force
+```
+
+```bash
+openyida connector add-action \
+  --connector-id <id> \
+  --operations ./new-action.json \
+  --confirm
+```
+
+```bash
+openyida connector list-actions <connector-id>
+```
+
+```bash
+openyida connector test \
+  --connector-id <id> \
+  --action <actionId> \
+  --params '{"key": "value"}'
+```

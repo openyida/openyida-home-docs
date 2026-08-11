@@ -1,0 +1,171 @@
+---
+title: Structure du projet
+description: Structure du répertoire du projet OpenYida et organisation du code
+icon: "folder-tree"
+---
+
+# Structure du projet
+
+OpenYida adopte une architecture modulaire, avec une organisation du code claire, facile à maintenir et à étendre.
+
+## Vue d'ensemble du répertoire
+
+```
+openyida/
+├── src/
+│   ├── commands/          # Implémentation des commandes CLI
+│   │   ├── create-app.ts
+│   │   ├── create-form.ts
+│   │   ├── create-page.ts
+│   │   ├── publish.ts
+│   │   ├── share.ts
+│   │   ├── data.ts
+│   │   ├── connector.ts
+│   │   ├── report.ts
+│   │   ├── doctor.ts
+│   │   └── login.ts
+│   ├── core/              # Modules fonctionnels de base
+│   │   ├── yida-api.ts    # Encapsulation de l'API Yida
+│   │   ├── ai-service.ts  # Intégration du service IA
+│   │   ├── config.ts      # Gestion de la configuration
+│   │   └── auth.ts        # Traitement de l'authentification
+│   ├── utils/             # Fonctions utilitaires
+│   │   ├── logger.ts
+│   │   ├── file.ts
+│   │   └── validator.ts
+│   └── types/             # Définitions de types TypeScript
+│       ├── yida.ts
+│       ├── ai.ts
+│       └── index.ts
+├── skills/                # Système de compétences
+│   ├── builtin/           # Compétences intégrées
+│   └── custom/            # Compétences personnalisées
+├── templates/             # Modèles de code
+│   ├── app/
+│   ├── form/
+│   └── page/
+├── docs/                  # Ressources de documentation
+├── tests/                 # Fichiers de test
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+## Description des modules de base
+
+### src/commands/
+
+Contient l'implémentation de toutes les commandes CLI, chaque fichier correspondant à une sous-commande :
+
+| Fichier | Fonction |
+|------|------|
+| `create-app.ts` | Créer une application Yida |
+| `create-form.ts` | Créer des pages de formulaire |
+| `create-page.ts` | Créer des pages personnalisées |
+| `publish.ts` | Publier une application |
+| `share.ts` | Partager une application |
+| `data.ts` | Opérations de gestion des données |
+| `connector.ts` | Gestion des connecteurs |
+| `report.ts` | Opérations de rapport |
+| `doctor.ts` | Outil de diagnostic |
+| `login.ts` | Authentification de connexion |
+
+### src/core/
+
+Modules de logique métier de base :
+
+- **yida-api.ts** : Encapsule l'API de la plateforme ouverte Yida, fournit une interface d'appel unifiée
+- **ai-service.ts** : Intègre plusieurs services IA (OpenAI, Claude, 通义千问, etc.)
+- **config.ts** : Gère les fichiers de configuration locaux (~/.openyida/config.json)
+- **auth.ts** : Traite l'état de connexion, le rafraîchissement des jetons, la commutation multi-organisation
+
+### src/utils/
+
+Fonctions utilitaires générales :
+
+- **logger.ts** : Sortie de journal, prend en charge la classification et les couleurs
+- **file.ts** : Fonctions auxiliaires d'opération de fichiers
+- **validator.ts** : Validation et vérification des entrées
+
+### src/types/
+
+Définitions de types TypeScript, assurant la sécurité des types du code :
+
+- **yida.ts** : Types liés à l'API Yida
+- **ai.ts** : Types liés au service IA
+- **index.ts** : Exportation de types généraux
+
+## Système de compétences
+
+```
+skills/
+├── builtin/               # Compétences intégrées
+│   ├── code-generator/    # Génération de code
+│   ├── form-builder/      # Construction de formulaires
+│   ├── page-designer/     # Conception de pages
+│   └── data-analyzer/     # Analyse de données
+└── custom/                # Compétences utilisateur personnalisées
+    └── (extensions utilisateur)
+```
+
+Les compétences utilisent une architecture de plugins, prenant en charge le chargement à chaud et l'extension dynamique.
+
+## Gestion de la configuration
+
+### Configuration locale
+
+Emplacement de stockage : `~/.openyida/config.json`
+
+```json
+{
+  "defaultOrg": "org-default",
+  "orgs": {
+    "org-default": {
+      "accessToken": "xxx",
+      "refreshToken": "xxx",
+      "expiresAt": 1234567890
+    }
+  },
+  "aiProvider": "openai",
+  "aiConfig": {
+    "apiKey": "sk-xxx",
+    "model": "gpt-4"
+  }
+}
+```
+
+### Configuration du projet
+
+Le répertoire racine du projet peut créer `.openyidarc.json` :
+
+```json
+{
+  "appId": "APP-XXX",
+  "defaultEnv": "dev",
+  "environments": {
+    "dev": { "appKey": "xxx", "appSecret": "xxx" },
+    "prod": { "appKey": "xxx", "appSecret": "xxx" }
+  }
+}
+```
+
+## Mécanisme d'extension
+
+### Ajouter une nouvelle commande
+
+1. Créer un nouveau fichier dans `src/commands/`
+2. Implémenter la fonction de gestion de commande
+3. Enregistrer la commande dans `src/index.ts`
+
+### Ajouter une nouvelle compétence
+
+1. Créer un répertoire de compétence dans `skills/custom/`
+2. Implémenter `skill.json` et la logique principale
+3. Charger avec `openyida skill load`
+
+## Normes de développement
+
+- Toutes les nouvelles fonctionnalités doivent inclure des définitions de type
+- L'implémentation des commandes doit inclure la documentation `--help`
+- Les fonctionnalités de base doivent être couvertes par des tests unitaires
+- Suivez les configurations ESLint et Prettier

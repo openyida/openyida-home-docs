@@ -1,0 +1,327 @@
+---
+title: "报表与图表"
+description: "使用 OpenYida 创建宜搭报表并添加数据可视化图表，支持柱状图、折线图、饼图、表格等多种图表类型。"
+icon: "chart-column"
+---
+
+OpenYida 支持使用 `create-report` 和 `append-chart` 命令创建宜搭报表并添加图表，实现数据可视化。
+
+---
+
+## 功能概述
+
+<CardGroup cols={2}>
+  <Card title="报表创建" icon="file-plus">
+    通过自定义图表配置创建宜搭报表。
+  </Card>
+  <Card title="图表追加" icon="chart-pie">
+    向现有报表追加多种类型的图表。
+  </Card>
+  <Card title="数据绑定" icon="link">
+    自动绑定表单数据源，实时展示数据。
+  </Card>
+  <Card title="图表类型" icon="shapes">
+    支持柱状图、折线图、饼图、表格等多种图表。
+  </Card>
+</CardGroup>
+
+---
+
+## 创建报表
+
+### 基本用法
+
+```bash
+openyida create-report <appType> "报表名称" '<图表定义JSON或文件路径>'
+```
+
+第三个参数可以是内联 JSON 字符串或 JSON 文件路径。
+
+### 示例：创建销售报表
+
+```bash
+openyida create-report APP_XXXXXX "Sales Dashboard" '{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "month",
+      "yField": "amount"
+    }
+  ]
+}'
+```
+
+### 从文件加载图表定义
+
+```bash
+openyida create-report APP_XXXXXX "Annual Report" ./charts-config.json
+```
+
+---
+
+## 向报表追加图表
+
+```bash
+openyida append-chart <appType> <reportId> '<图表定义JSON或文件路径>'
+```
+
+### 示例
+
+```bash
+openyida append-chart APP_XXXXXX REPORT_XXXXX '{
+  "type": "line",
+  "title": "Growth Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "month",
+  "yField": "growth_rate"
+}'
+```
+
+---
+
+## 筛选器配置
+
+报表支持添加筛选器，实现与图表的联动过滤。你可以在图表定义 JSON 中使用 `filters` 数组来配置筛选器。
+
+### 带筛选器的完整配置
+
+```json
+{
+  "filters": [
+    {
+      "title": "项目筛选",
+      "placeholder": "请选择项目",
+      "cubeCode": "FORM_XXXXXX",
+      "valueField": {
+        "fieldCode": "selectField_xxx",
+        "aliasName": "项目值",
+        "dataType": "STRING"
+      },
+      "labelField": {
+        "fieldCode": "selectField_xxx",
+        "aliasName": "项目名称",
+        "dataType": "STRING"
+      },
+      "linkTo": [0, 1]
+    }
+  ],
+  "charts": [
+    {
+      "type": "bar",
+      "title": "柱状图",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "name",
+      "yField": "value"
+    }
+  ]
+}
+```
+
+### 筛选器字段说明
+
+| 字段 | 必填 | 说明 |
+|------|------|------|
+| `title` | 是 | 筛选器标题 |
+| `placeholder` | 否 | 占位提示文本 |
+| `cubeCode` | 是 | 数据源表单 ID（如 `FORM_XXXXXX`） |
+| `valueField` | 是 | 值字段定义（包含 `fieldCode`、`aliasName`、`dataType`） |
+| `labelField` | 是 | 显示字段定义（包含 `fieldCode`、`aliasName`、`dataType`） |
+| `linkTo` | 否 | 联动目标图表，数组元素可以是图表索引（数字）或图表标题（字符串）。不指定则联动所有图表 |
+
+<Info>
+  如果未配置 `filters`，系统会自动为图表中的 `selectField` 类型字段生成下拉筛选器。
+</Info>
+
+---
+
+## 图表类型
+
+| 类型 | 说明 | 适用场景 |
+|------|------|----------|
+| **bar** | 柱状图 | 分类比较 |
+| **line** | 折线图 | 时间趋势 |
+| **pie** | 饼图 | 部分与整体关系 |
+| **table** | 数据表格 | 详细数据查看 |
+| **area** | 面积图 | 累积趋势 |
+| **scatter** | 散点图 | 相关性分析 |
+| **indicator** | 指标卡 | 关键指标展示 |
+| **combo** | 柱线混合图 | 双轴对比 |
+| **pivot** | 交叉透视表 | 多维分析 |
+| **gauge** | 仪表盘 | 进度或目标跟踪 |
+| **radar** | 雷达图 | 多维度对比分析 |
+| **funnel** | 漏斗图 | 阶段转化分析 |
+
+---
+
+## 图表布局尺寸
+
+你可以通过 `w` 和 `h` 属性控制报表中每个图表的宽度和高度。报表使用 6 列栅格系统。
+
+- **`w`** — 栅格宽度（1-6 列）。当图表超出当前行剩余空间时，会自动换行。
+- **`h`** — 栅格高度（以栅格单位计）。
+
+`w` 或 `h` 设置为 `0` 是有效的。如果省略，则使用以下默认值。
+
+| 图表类型 | 默认 `w` | 默认 `h` |
+|----------|----------|----------|
+| **indicator** | 6 | 6 |
+| **pie** | 3 | 22 |
+| **bar** | 3 | 22 |
+| **line** | 3 | 22 |
+| **combo** | 6 | 22 |
+| **table** | 6 | 38 |
+| **pivot** | 6 | 30 |
+| **gauge** | 2 | 18 |
+| 其他类型 | 3 | 22 |
+
+---
+
+## 图表定义格式
+
+### 柱状图
+
+```json
+{
+  "type": "bar",
+  "title": "Sales by Region",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "region",
+  "yField": "amount",
+  "aggregation": "sum",
+  "w": 6,
+  "h": 22
+}
+```
+
+### 折线图
+
+```json
+{
+  "type": "line",
+  "title": "Traffic Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "date",
+  "yField": "visitors",
+  "aggregation": "sum"
+}
+```
+
+### 饼图
+
+```json
+{
+  "type": "pie",
+  "title": "Market Share",
+  "cubeCode": "FORM_XXXXXX",
+  "categoryField": "product",
+  "valueField": "share"
+}
+```
+
+### 数据表格
+
+```json
+{
+  "type": "table",
+  "title": "Detail View",
+  "cubeCode": "FORM_XXXXXX",
+  "columns": [
+    { "field": "name", "title": "Name" },
+    { "field": "amount", "title": "Amount" },
+    { "field": "date", "title": "Date" }
+  ]
+}
+```
+
+---
+
+## cubeCode 格式
+
+图表定义中的 `cubeCode` 是报表引擎的数据源标识。它基于表单的 `formUuid`，但使用**下划线**分隔而非连字符。
+
+```
+formUuid: FORM-AB4ACB9D-D12C-470D-8204-7E05CDC19166
+cubeCode: FORM_AB4ACB9D_D12C_470D_8204_7E05CDC19166
+```
+
+<Tip>
+  你可以使用 `openyida get-schema` 获取表单的 `formUuid`，然后将连字符替换为下划线作为 `cubeCode`。系统也会自动转换连字符格式。
+</Tip>
+
+---
+
+## 聚合函数
+
+| 函数 | 说明 |
+|----------|-------------|
+| **sum** | 求和 |
+| **avg** | 平均值 |
+| **count** | 计数 |
+| **max** | 最大值 |
+| **min** | 最小值 |
+
+---
+
+## 完整配置示例
+
+### sales-report-charts.json
+
+```json
+{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_MONTHLY_SALES",
+      "xField": "month",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "pie",
+      "title": "Product Categories",
+      "cubeCode": "FORM_SALES",
+      "categoryField": "product_category",
+      "valueField": "sales_amount"
+    },
+    {
+      "type": "line",
+      "title": "Sales Trend",
+      "cubeCode": "FORM_DAILY_SALES",
+      "xField": "date",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "table",
+      "title": "Sales Detail",
+      "cubeCode": "FORM_SALES",
+      "columns": [
+        { "field": "order_no", "title": "Order No.", "width": 150 },
+        { "field": "customer_name", "title": "Customer", "width": 200 },
+        { "field": "product_name", "title": "Product", "width": 200 },
+        { "field": "amount", "title": "Amount", "width": 120 },
+        { "field": "sales_date", "title": "Date", "width": 150 }
+      ],
+      "pageSize": 10
+    }
+  ]
+}
+```
+
+创建报表：
+
+```bash
+openyida create-report APP_XXXXXX "Sales Analysis Report" ./sales-report-charts.json
+```
+
+---
+
+## 最佳实践
+
+1. **合理选择图表类型** - 趋势用折线图、对比用柱状图、占比用饼图
+2. **控制图表数量** - 单个报表建议不超过 6 个图表
+3. **使用数据表格** - 配合图表展示详细数据，方便查看原始值
+4. **设置合适的分页** - 数据表格建议每页 10-20 条

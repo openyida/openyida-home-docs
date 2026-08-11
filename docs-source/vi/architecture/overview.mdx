@@ -1,0 +1,211 @@
+---
+title: Tổng Quan Kiến Trúc
+description: Mô tả thiết kế kiến trúc tổng thể và lựa chọn công nghệ của OpenYida
+icon: "sitemap"
+---
+
+# Tổng Quan Kiến Trúc
+
+OpenYida là một công cụ CLI dựa trên Node.js áp dụng thiết kế kiến trúc phân lớp, tích hợp hữu cơ khả năng AI, tích hợp nền tảng Yida và trải nghiệm nhà phát triển.
+
+## Quy Trình Làm Việc Tổng Thể
+
+![Quy trình làm việc của OpenYida](/images/architecture-workflow.png)
+
+Quy trình làm việc của OpenYida được chia thành 6 giai đoạn:
+
+1. **User Requirement** - Người dùng mô tả yêu cầu bằng ngôn ngữ tự nhiên
+2. **AI Understanding** - AI hiểu và phân tích yêu cầu của người dùng
+3. **PRD Document** - Tạo tài liệu yêu cầu sản phẩm
+4. **CLI Execution** - Thực thi lệnh CLI để tạo ứng dụng
+5. **Yida Platform** - Xây dựng ứng dụng trên nền tảng Yida
+6. **Online Access** - Ứng dụng được xuất bản và có thể truy cập
+
+## Kiến Trúc Hệ Thống
+
+```
+┌─────────────────────────────────────────────────────┐│                      CLI Interface                          │
+│         (Command Parser + Interactive Prompts)              │
+└─────────────────────────────────────────────────────┘                              │
+                              ▼
+┌─────────────────────────────────────────────────────┐│                    Command Layer                            │
+│   create-app │ create-form │ publish │ data │ doctor ...   │
+└─────────────────────────────────────────────────────┘                              │
+                              ▼
+┌─────────────────────────────────────────────────────┐│                    Core Services                            │
+│ ┌──────┐┌──────┐┌──────┐ │
+│  │   AI Service │  │  Yida API    │  │   Config     │      │
+│  │  (Multi-LLM) │  │  (Open API)  │  │   Manager    │      │
+│ └──────┘└──────┘└──────┘ │
+│ ┌──────┐┌──────┐┌──────┐ │
+│  │  Auth        │  │  Skill       │  │   Template   │      │
+│  │  (OAuth 2.0) │  │  System      │  │   Engine     │      │
+│ └──────┘└──────┘└──────┘ │
+└─────────────────────────────────────────────────────┘                              │
+             ┌───────┴───────┐              ▼                               ▼
+┌─────────────────┐┌─────────────────────┐│    AI Providers         │    │    Yida Platform            │
+│ ┌─────────┐ │    │                             │
+│  │ OpenAI (GPT-4)  │    │    │  ┌─────────────┐ │
+│  │ Claude (3.5)    │    │    │   │   Application       │   │
+│  │ 通义千问        │    │    │   │   Engine            │   │
+│  │ DeepSeek        │    │    │   │   Form Builder      │   │
+│ └─────────┘ │    │   │   Page Designer     │   │
+│                         │    │   │   Data Management   │   │
+│                         │    │   │   Connector Hub     │   │
+│                         │    │   │   Report Center     │   │
+└─────────────────┘└─────────────────────┘```
+
+## Quy Trình Xác Thực
+
+![Quy trình xác thực](/images/architecture-auth.png)
+
+Quy trình xác thực của OpenYida:
+
+1. **config.json** - Lưu trữ thông tin cấu hình
+2. **Login Session** - Thiết lập phiên đăng nhập
+3. **Cookie Cache** - Lưu cache thông tin xác thực
+4. **API Request** - Gửi yêu cầu API
+5. **Yida Backend** - Backend của Yida xử lý
+6. **Page/Form Output** - Đầu ra trang/biểu mẫu
+
+## Kiến Trúc CLI
+
+![Kiến trúc CLI](/images/architecture-cli.png)
+
+Tương tác của OpenYida CLI với nền tảng Yida:
+
+- **AI Coding Tool** → **OpenYida CLI**
+  - Login（Đăng nhập）
+  - Create App（Tạo ứng dụng）
+  - Create Page（Tạo trang）
+  - Publish（Xuất bản）
+  - Get Schema（Lấy cấu trúc）
+- **Yida Low-Code Platform**
+  - App Management（Quản lý ứng dụng）
+  - Form Pages（Trang biểu mẫu）
+  - Custom Pages（Trang tùy chỉnh）
+
+## Hệ Thống Skills
+
+![Hệ thống skills](/images/architecture-skills.png)
+
+Skills của OpenYida được chia thành ba loại:
+
+### Login Skills（Skills đăng nhập）
+- `login` - Đăng nhập vào nền tảng Yida
+- `logout` - Đăng xuất
+
+### Create Skills（Skills tạo）
+- `create-app` - Tạo ứng dụng
+- `create-page` - Tạo trang
+- `create-form` - Tạo biểu mẫu
+- `get-schema` - Lấy cấu trúc dữ liệu
+
+### Publish Skills（Skills xuất bản）
+- `publish` - Xuất bản ứng dụng
+
+## Nguyên Tắc Thiết Kế Trung Tâm
+
+### 1. Thiết Kế Mô-đun
+
+Mỗi mô-đun chức năng được đóng gói độc lập, tương tác thông qua giao diện rõ ràng:
+
+- **Lớp lệnh**: Xử lý đầu vào CLI, gọi dịch vụ trung tâm
+- **Lớp dịch vụ**: Đóng gói logic nghiệp vụ, cung cấp API thống nhất bên ngoài
+- **Lớp thích ứng**: Kết nối hệ thống bên ngoài（AI, nền tảng Yida）
+
+### 2. Mở Rộng Bằng Plugin
+
+Hệ thống Skill hỗ trợ tải động và mở rộng:
+
+```typescript
+// Định nghĩa giao diện Skill
+interface Skill {
+  name: string;
+  version: string;
+  activate(context: SkillContext): void;
+  deactivate(): void;
+}
+```
+
+### 3. Điều Khiển Bởi Cấu Hình
+
+Hỗ trợ cấu hình đa môi trường, chuyển đổi linh hoạt:
+
+- Cấu hình toàn cục cục bộ（~/.openyida/）
+- Cấu hình cấp dự án（.openyidarc.json）
+- Ghi đè bằng biến môi trường
+
+### 4. An Toàn Kiểu
+
+Hỗ trợ kiểu TypeScript toàn chuỗi, giảm lỗi thời gian chạy.
+
+## Luồng Dữ Liệu
+
+### Luồng Tạo Ứng Dụng
+
+```
+User Input → AI Service → Code Generation → Yida API → Application
+                ↑                              ↓
+           PRD Analysis                  Validation
+                ↑                              ↓
+           Template Selection           Deployment
+```
+
+### Luồng Thao Tác Dữ Liệu
+
+```
+User Command → Config Load → Auth Check → Yida API → Data Response
+                                              ↓
+                                         Cache/Store
+```
+
+## Stack Công Nghệ
+
+| Cấp | Công Nghệ |
+|------|------|
+| Runtime | Node.js 18+ |
+| Ngôn Ngữ | TypeScript 5.x |
+| Framework CLI | Commander.js |
+| Client HTTP | Axios |
+| SDK AI | OpenAI SDK, Anthropic SDK |
+| Quản Lý Cấu Hình | Cosmiconfig |
+| Logging | Winston |
+| Testing | Jest |
+
+## Thiết Kế Bảo Mật
+
+### Bảo Mật Xác Thực
+
+- Quy trình chuẩn OAuth 2.0
+- Cơ chế làm mới Token tự động
+- Lưu trữ mã hóa cục bộ thông tin nhạy cảm
+
+### Truyền Dữ Liệu
+
+- HTTPS toàn chuỗi
+- Xác minh chữ ký API
+- Kiểm soát thử lại và thời gian chờ yêu cầu
+
+## Tối Ưu Hiệu Suất
+
+- **Pool Kết Nối**: Tái sử dụng kết nối HTTP
+- **Cache Thông Minh**: Cache cục bộ cấu hình và siêu dữ liệu
+- **Cập Nhật Tăng Dần**: Chỉ truyền nội dung thay đổi
+- **Kiểm Soát Đồng Thời**: Giới hạn cuộc gọi API đồng thời
+
+## Điểm Mở Rộng
+
+Nhà phát triển có thể mở rộng ở các cấp sau:
+
+1. **Lệnh Mới**: Thêm lệnh CLI tùy chỉnh
+2. **Skills Mới**: Mở rộng khả năng AI
+3. **Mẫu Mới**: Mẫu tạo mã tùy chỉnh
+4. **AI Provider Mới**: Tích hợp mô hình lớn khác
+
+## Tương Thích Phiên Bản
+
+| Phiên Bản OpenYida | Node.js Hỗ Trợ | Phiên Bản API Yida |
+|--------------|----------------|--------------|
+| 1.x | >= 18.0.0 | v1 |
+| 2.x | >= 20.0.0 | v2 |

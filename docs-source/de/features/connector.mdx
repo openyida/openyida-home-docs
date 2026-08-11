@@ -1,0 +1,309 @@
+---
+title: "Konnektoren (HTTP-Integration)"
+description: "Integrieren Sie Yida-Anwendungen mit externen APIs über HTTP-Konnektoren."
+icon: "plug"
+---
+
+OpenYida bietet leistungsstarke HTTP-Konnektor-Verwaltungsfunktionen, die intelligente Erstellung von Konnektoren aus curl-Befehlen unterstützen und eine nahtlose Integration zwischen Yida und externen Systemen ermöglichen.
+
+---
+
+## Funktionsübersicht
+
+<CardGroup cols={2}>
+  <Card title="Intelligente Erstellung" icon="wand-magic-sparkles">
+    Analysieren und erstellen Sie automatisch Konnektoren aus curl-Befehlen, mit Unterstützung für Authentifizierungsinformationsextraktion.
+  </Card>
+  <Card title="API-Verwaltung" icon="code">
+    Vollständige Lebenszyklusverwaltung von Konnektoren: Erstellung, Aktualisierung, Test, Löschung.
+  </Card>
+  <Card title="Authentifizierungsunterstützung" icon="key">
+    Unterstützt mehrere Authentifizierungsmethoden: Bearer Token, API Key, OAuth2, etc.
+  </Card>
+  <Card title="Aktionsverwaltung" icon="play">
+    Hinzufügen, Testen und Verwalten von Konnektor-Ausführungsaktionen.
+  </Card>
+</CardGroup>
+
+---
+
+## Intelligente Konnektor-Erstellung
+
+Erstellen Sie einen Konnektor in einem einzigen Befehl aus curl:
+
+```bash
+openyida connector smart-create \
+  --curl "curl 'https://api.example.com/v1/users' -H 'Authorization: Bearer xxx'" \
+  --name "Benutzerverwaltungskonnektor" \
+  --desc "HTTP-Konnektor zur Verwaltung von Benutzerdaten"
+```
+
+Intelligenter Erstellungsprozess:
+
+1. **API-Informationen analysieren** - Protokoll, Host, Methode, Pfad, Authentifizierungstyp extrahieren
+2. **Mit vorhandenen Konnektoren abgleichen** - Vorhandene Konnektoren mit gleichem Host und Authentifizierung suchen
+3. **Konnektorkonfiguration generieren** - Konnektordefinition im OpenAPI-Format automatisch erstellen
+4. **Erstellen oder Aktualisieren** - Neuen Konnektor erstellen oder Aktion zu vorhandenem Konnektor hinzufügen
+
+---
+
+## Konnektor-Verwaltungsbefehle
+
+### Konnektoren auflisten
+
+```bash
+openyida connector list
+openyida connector list --page 1 --size 20
+```
+
+### Konnektor erstellen
+
+```bash
+openyida connector create "Konnektorname" "api.example.com" \
+  --operations ./operations.json \
+  --protocol https \
+  --desc "Konnektorbeschreibung"
+```
+
+<Note>
+Das Feld `method` in der Operations-JSON-Datei wird automatisch in Kleinbuchstaben normalisiert (z. B. wird `"POST"` zu `"post"`). Wenn `method` nicht angegeben wird, ist der Standardwert `"get"`.
+</Note>
+
+### Konnektordetails anzeigen
+
+```bash
+openyida connector detail <connector-id>
+```
+
+### Konnektor löschen
+
+```bash
+openyida connector delete <connector-id> --force
+```
+
+---
+
+## Aktionsverwaltung
+
+### Ausführungsaktion hinzufügen
+
+```bash
+openyida connector add-action \
+  --connector-id <id> \
+  --operations ./new-action.json \
+  --confirm
+```
+
+<Note>
+Das Feld `method` in der Operations-Konfiguration wird automatisch in Kleinbuchstaben normalisiert (z. B. wird `"POST"` zu `"post"`). Sie können Groß- oder Kleinschreibung verwenden. Wenn nicht angegeben, ist der Standardwert `"get"`.
+</Note>
+
+### Vorhandene Aktionen auflisten
+
+```bash
+openyida connector list-actions <connector-id>
+```
+
+### Aktion testen
+
+```bash
+openyida connector test \
+  --connector-id <id> \
+  --action <actionId> \
+  --params '{"key": "value"}'
+```
+
+### Aktion löschen
+
+```bash
+openyida connector delete-action <connector-id> <operation-id> --force
+```
+
+---
+
+## Operations-JSON-Format
+
+Das `--operations`-Flag akzeptiert eine JSON-Datei, die die Aktionskonfiguration definiert. Jede Aktion im Array enthält `inputs`, die Anfrageparameter nach Standort gruppiert beschreiben.
+
+### Eingabegruppen
+
+| Gruppenname | `paramLocation`-Wert | Beschreibung |
+|---|---|---|
+| `Headers` | `header` | HTTP-Anfrage-Header |
+| `Body` | `body` | Anfragekörper-Felder (POST/PUT) |
+| `Query` | `query` | URL-Abfrageparameter |
+
+### Das Feld `paramLocation`
+
+Jede Eingabegruppe und jedes Element in ihrer `childList` muss ein `paramLocation`-Feld enthalten, das angibt, wo der Parameter in der HTTP-Anfrage gesendet wird. Gültige Werte sind `"header"`, `"body"` und `"query"`.
+
+### Beispiel Operations-JSON
+
+```json
+[
+  {
+    "operationId": "queryUsers",
+    "summary": "Benutzer abfragen",
+    "description": "Benutzerdaten mit Paginierung abfragen",
+    "url": "v1/users",
+    "method": "post",
+    "inputs": [
+      {
+        "name": "Headers",
+        "paramType": "Object",
+        "desc": "Anfrage-Header",
+        "required": false,
+        "paramLocation": "header",
+        "childList": [
+          {
+            "name": "Content-Type",
+            "paramType": "String",
+            "desc": "Content-Type",
+            "required": false,
+            "defaultValue": "application/json",
+            "paramLocation": "header"
+          }
+        ]
+      },
+      {
+        "name": "Body",
+        "paramType": "Object",
+        "desc": "Anfragekörper",
+        "required": false,
+        "paramLocation": "body",
+        "childList": [
+          {
+            "name": "pageSize",
+            "paramType": "Number",
+            "desc": "pageSize",
+            "required": false,
+            "paramLocation": "body"
+          }
+        ]
+      },
+      {
+        "name": "Query",
+        "paramType": "Object",
+        "desc": "Abfrageparameter",
+        "required": false,
+        "paramLocation": "query",
+        "childList": [
+          {
+            "name": "appType",
+            "paramType": "String",
+            "desc": "appType",
+            "required": false,
+            "paramLocation": "query"
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "header": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": { "default": "{\"pageSize\": 20}" },
+      "query": [{ "name": "appType", "value": "" }]
+    },
+    "responses": { "type": "object", "properties": {} },
+    "outputs": [
+      {
+        "name": "Response",
+        "paramType": "Object",
+        "desc": "Antwortkörper-Struktur",
+        "required": false,
+        "childList": []
+      }
+    ]
+  }
+]
+```
+
+<Warning>
+Das Feld `paramLocation` ist sowohl für die Eingabegruppe (z. B. `Headers`, `Body`, `Query`) als auch für jedes Element in ihrer `childList` erforderlich. Das Auslassen kann dazu führen, dass der Konnektor-Aktionseditor nicht gerendert wird oder der Konnektor-Aufruf fehlschlägt.
+</Warning>
+
+---
+
+## Authentifizierungskontoverwaltung
+
+### Authentifizierungskonten auflisten
+
+```bash
+openyida connector list-connections <connector-id>
+```
+
+### Authentifizierungskonto erstellen
+
+```bash
+openyida connector create-connection <connector-id> "Produktionskonto" \
+  --token "Bearer xxx" \
+  --type bearer
+```
+
+---
+
+## Hilfswerkzeuge
+
+### API-Informationen analysieren
+
+```bash
+openyida connector parse-api --curl "curl-Befehl" --output ./api-info.json
+```
+
+### API-Dokumentationsvorlage generieren
+
+```bash
+openyida connector gen-template ./my-api-template.json
+```
+
+---
+
+## Best Practices
+
+### 1. Umgebungsvariablen zur Verwaltung sensibler Informationen verwenden
+
+```bash
+export API_TOKEN="your-secret-token"
+openyida connector smart-create --curl "curl -H 'Authorization: Bearer $API_TOKEN' ..."
+```
+
+### 2. Komplexe Konnektoren schrittweise erstellen
+
+```bash
+# Erster Schritt: Basiskonnektor erstellen
+openyida connector create "DingTalk API" "oapi.dingtalk.com"
+
+# Zweiter Schritt: Aktionen einzeln hinzufügen
+openyida connector add-action --connector-id <id> --operations ./action1.json
+openyida connector add-action --connector-id <id> --operations ./action2.json
+```
+
+### 3. Vor der Aktivierung testen
+
+```bash
+# Erstellen ohne Bestätigung
+openyida connector add-action --connector-id <id> --operations ./action.json
+
+# Aktion testen
+openyida connector test --connector-id <id> --action <actionId>
+
+# Aktivierung bestätigen
+# Endgültige Bestätigung im Yida-Backend abschließen
+```
+
+---
+
+## Häufige Fragen
+
+<AccordionGroup>
+  <Accordion title="Was tun, wenn die Analyse des curl-Befehls fehlschlägt?">
+    Stellen Sie sicher, dass das Format des curl-Befehls korrekt ist und die vollständige URL und die erforderlichen Header enthält. Wenn es Sonderzeichen enthält, wird empfohlen, es in Anführungszeichen zu setzen.
+  </Accordion>
+
+  <Accordion title="Wie aktualisiere ich Aktionen eines vorhandenen Konnektors?">
+    Verwenden Sie den Befehl `connector add-action`. Wenn die Aktions-ID bereits vorhanden ist, fragt das System, ob aktualisiert werden soll.
+  </Accordion>
+
+  <Accordion title="Welche Authentifizierungsmethoden werden unterstützt?">
+    Derzeit werden Bearer Token, API Key, Basic Auth, OAuth2 unterstützt. Authentifizierungsinformationen im curl-Befehl werden automatisch erkannt.
+  </Accordion>
+</AccordionGroup>

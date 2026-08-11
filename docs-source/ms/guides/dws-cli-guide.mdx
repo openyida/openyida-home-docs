@@ -1,0 +1,74 @@
+---
+title: "Panduan integrasi DingTalk CLI"
+description: "Dokumen ini menerangkan Panduan integrasi DingTalk CLI dalam OpenYida, termasuk aliran penggunaan, arahan dan perkara yang perlu diberi perhatian."
+icon: book-open
+---
+
+# Panduan integrasi DingTalk CLI
+
+Halaman ini menerangkan Panduan integrasi DingTalk CLI dalam OpenYida, termasuk tujuan, aliran penggunaan dan perkara penting semasa membina aplikasi Yida dengan AI.
+
+## Gambaran keseluruhan
+
+Dokumen ini menerangkan Panduan integrasi DingTalk CLI dalam OpenYida, termasuk aliran penggunaan, arahan dan perkara yang perlu diberi perhatian.
+
+## Perkara penting
+
+- Gunakan halaman ini untuk memahami konteks utama sebelum menggunakannya dalam projek sebenar.
+- Nama arahan, parameter, kod dan beberapa nama produk dikekalkan dalam bahasa Inggeris supaya mudah dicari dan disalin dengan tepat.
+- Apabila bekerja dengan宜搭, semak kebenaran, organisasi dan persekitaran sebelum penerbitan.
+
+## Penggunaan
+
+Ikuti langkah dalam dokumen ini bersama OpenYida CLI dan konfigurasi organisasi. Jika terdapat contoh kod di bawah, contoh tersebut boleh disalin dan disesuaikan mengikut keperluan.
+
+## Arahan dan contoh
+
+Contoh berikut mengekalkan arahan dan kod asal untuk memastikan ketepatan teknikal.
+
+```bash
+openyida dws install
+```
+
+```bash
+    curl -fsSL https://raw.githubusercontent.com/DingTalk-Real-AI/dingtalk-workspace-cli/main/scripts/install.sh | sh
+    ```
+
+```bash
+    irm https://raw.githubusercontent.com/DingTalk-Real-AI/dingtalk-workspace-cli/main/scripts/install.ps1 | iex
+    ```
+
+```bash
+    export DWS_CLIENT_ID="<your-app-key>"
+    export DWS_CLIENT_SECRET="<your-app-secret>"
+    ```
+
+```bash
+    openyida dws auth login --client-id <your-app-key> --client-secret <your-app-secret>
+    ```
+
+```bash
+    openyida dws auth login
+    ```
+
+```bash
+# Search contacts
+openyida dws contact user search --keyword "张三"
+
+# List departments
+openyida dws contact department list
+
+# Get user details
+openyida dws contact user get --userid <userId>
+```
+
+```bash
+# List calendar events
+openyida dws calendar event list
+
+# Create an event
+openyida dws calendar event create --title "团队会议" --start-time "2026-03-29T10:00:00Z"
+
+# Query free/busy status
+openyida dws calendar free-busy query --userids <userId1>,<userId2>
+```

@@ -1,0 +1,97 @@
+---
+title: "Veri yönetimi"
+description: "Bu belge OpenYida içinde Veri yönetimi konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar."
+icon: database
+---
+
+# Veri yönetimi
+
+Bu sayfa OpenYida içinde Veri yönetimi konusunu açıklar; amaç, kullanım akışı ve AI ile Yida uygulaması geliştirirken dikkat edilmesi gereken noktaları kapsar.
+
+## Genel bakış
+
+Bu belge OpenYida içinde Veri yönetimi konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar.
+
+## Önemli noktalar
+
+- Gerçek bir projeye uygulamadan önce ana bağlamı anlamak için bu sayfayı kullanın.
+- Komut adları, parametreler, kod ve bazı ürün adları doğru arama ve kopyalama için İngilizce bırakılmıştır.
+- 宜搭 ile çalışırken yayımlamadan önce izinleri, organizasyonu ve ortamı kontrol edin.
+
+## Kullanım
+
+Bu dokümandaki adımları OpenYida CLI ve organizasyon ayarlarıyla birlikte izleyin. Aşağıdaki kod örnekleri doğrudan kopyalanıp ihtiyaca göre uyarlanabilir.
+
+## Komutlar ve örnekler
+
+Aşağıdaki örnekler teknik doğruluğu korumak için özgün komut ve kodu saklar.
+
+```bash
+openyida data <action> <resource> [args]
+```
+
+```bash
+# Basic query
+openyida data query form <appType> <formUuid>
+
+# Paginated query
+openyida data query form <appType> <formUuid> --page 1 --size 50
+
+# Conditional query
+openyida data query form <appType> <formUuid> \
+  --search-json '[{"key":"field_xxx","value":"value","type":"TEXT","operator":"eq","componentName":"TextField"}]'
+
+# Query a specific instance
+openyida data query form <appType> <formUuid> --inst-id <formInstId>
+
+# Return only instance IDs
+openyida data query form <appType> <formUuid> --ids-only
+
+# Filter by originator and date range
+openyida data query form <appType> <formUuid> \
+  --originator-id <userId> \
+  --create-from "2026-01-01" --create-to "2026-12-31"
+```
+
+```javascript
+  var data = (res && res.data) || (res && res.content && res.content.data) || [];
+  var total = (res && res.totalCount) || (res && res.content && res.content.totalCount) || 0;
+  ```
+
+```bash
+openyida data get form <appType> --inst-id <formInstId>
+```
+
+```bash
+openyida data create form <appType> <formUuid> \
+  --data-json '{"field_xxx": "value", "field_yyy": 123}' \
+  --dept-id <departmentId>
+```
+
+```bash
+openyida data update form <appType> \
+  --inst-id <formInstId> \
+  --data-json '{"field_xxx": "new value"}' \
+  --use-latest-version y
+```
+
+```bash
+# Query process list
+openyida data query process <appType> <formUuid> \
+  --page 1 --size 20 \
+  --instance-status RUNNING
+
+# Status options: RUNNING (in progress), COMPLETED, TERMINATED
+
+# Return only instance IDs
+openyida data query process <appType> <formUuid> --ids-only
+
+# Filter by task and approval result
+openyida data query process <appType> <formUuid> \
+  --task-id <taskId> \
+  --approved-result AGREE
+```
+
+```bash
+openyida data get process <appType> --process-inst-id <processInstanceId>
+```

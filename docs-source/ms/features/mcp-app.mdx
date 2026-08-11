@@ -1,0 +1,61 @@
+---
+title: "MCP App Server"
+description: "Dokumen ini menerangkan MCP App Server dalam OpenYida, termasuk aliran penggunaan, arahan dan perkara yang perlu diberi perhatian."
+icon: puzzle-piece
+---
+
+# MCP App Server
+
+Halaman ini menerangkan MCP App Server dalam OpenYida, termasuk tujuan, aliran penggunaan dan perkara penting semasa membina aplikasi Yida dengan AI.
+
+## Gambaran keseluruhan
+
+Dokumen ini menerangkan MCP App Server dalam OpenYida, termasuk aliran penggunaan, arahan dan perkara yang perlu diberi perhatian.
+
+## Perkara penting
+
+- Gunakan halaman ini untuk memahami konteks utama sebelum menggunakannya dalam projek sebenar.
+- Nama arahan, parameter, kod dan beberapa nama produk dikekalkan dalam bahasa Inggeris supaya mudah dicari dan disalin dengan tepat.
+- Apabila bekerja dengan宜搭, semak kebenaran, organisasi dan persekitaran sebelum penerbitan.
+
+## Penggunaan
+
+Ikuti langkah dalam dokumen ini bersama OpenYida CLI dan konfigurasi organisasi. Jika terdapat contoh kod di bawah, contoh tersebut boleh disalin dan disesuaikan mengikut keperluan.
+
+## Arahan dan contoh
+
+Contoh berikut mengekalkan arahan dan kod asal untuk memastikan ketepatan teknikal.
+
+```json
+{
+  "mcpServers": {
+    "openyida": {
+      "command": "npx",
+      "args": ["-y", "@openyida/mcp-app", "--stdio"]
+    }
+  }
+}
+```
+
+```bash
+npx @openyida/mcp-app
+# Server listening on http://localhost:3001/mcp
+```
+
+```bash
+PORT=8080 npx @openyida/mcp-app
+```
+
+```json
+[
+  { "type": "TextField", "label": "Name", "required": true },
+  { "type": "NumberField", "label": "Age", "required": false }
+]
+```
+
+```json
+{
+  "type": "text",
+  "text": "Error: <error message>"
+}
+```

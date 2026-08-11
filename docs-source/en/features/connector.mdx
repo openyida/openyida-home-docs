@@ -1,0 +1,312 @@
+---
+title: "Connectors (HTTP integration)"
+description: "Integrate Yida applications with external APIs through HTTP connectors."
+icon: "plug"
+---
+
+OpenYida provides HTTP connector management, supporting intelligent connector creation from curl commands for integration between Yida and external systems.
+
+---
+
+## Feature overview
+
+<CardGroup cols={2}>
+  <Card title="Smart creation" icon="wand-magic-sparkles">
+    Automatically parse and create connectors from curl commands, with auth extraction.
+  </Card>
+  <Card title="API management" icon="code">
+    Full connector lifecycle: create, test, delete.
+  </Card>
+  <Card title="Auth support" icon="key">
+    Supports Bearer Token, API Key, OAuth2, and more.
+  </Card>
+  <Card title="Action management" icon="play">
+    Add, test, and manage connector execution actions.
+  </Card>
+</CardGroup>
+
+---
+
+## Smart connector creation
+
+Create connectors from curl commands with one click:
+
+```bash
+openyida connector smart-create \
+  --curl "curl 'https://api.example.com/v1/users' -H 'Authorization: Bearer xxx'" \
+  --name "User Management Connector" \
+  --desc "HTTP connector for managing user data"
+```
+
+Smart creation process:
+
+1. **Parse API info** - Extract protocol, host, method, path, auth type
+2. **Match existing** - Find existing connectors with same host and auth
+3. **Generate config** - Auto-build OpenAPI format connector definition
+4. **Create or update** - Create new connector or add actions to existing
+
+---
+
+## Connector management commands
+
+### List connectors
+
+```bash
+# List all connectors
+openyida connector list
+
+# Filter by keyword
+openyida connector list --keyword "user"
+
+# Filter by type (mine or manager)
+openyida connector list --type mine
+
+# Filter by date range
+openyida connector list --start-date 2024-01-01 --end-date 2024-12-31
+
+# Set page size
+openyida connector list --page-size 50
+```
+
+### Create a connector
+
+```bash
+openyida connector create "Connector Name" "api.example.com" \
+  --operations ./operations.json \
+  --desc "Connector description"
+```
+
+<Note>
+The `method` field in the operations JSON file is automatically normalized to lowercase (e.g., `"POST"` becomes `"post"`). If omitted, it defaults to `"get"`.
+</Note>
+
+### Get connector details
+
+```bash
+openyida connector detail <connector-id>
+```
+
+### Delete a connector
+
+```bash
+openyida connector delete <connector-id> --force
+```
+
+---
+
+## Action management
+
+### Add an action
+
+```bash
+openyida connector add-action \
+  --connector-id <id> \
+  --operations ./new-action.json \
+  --confirm
+```
+
+<Note>
+The `method` field in the operations config is automatically normalized to lowercase. You can use any case. If omitted, it defaults to `"get"`.
+</Note>
+
+### List actions
+
+```bash
+openyida connector list-actions <connector-id>
+```
+
+### Test an action
+
+```bash
+openyida connector test \
+  --connector-id <id> \
+  --action <actionId> \
+  --params '{"key": "value"}'
+```
+
+### Delete an action
+
+```bash
+openyida connector delete-action <connector-id> <operation-id> --force
+```
+
+---
+
+## Operations JSON format
+
+The `--operations` flag accepts a JSON file defining the action configuration. Each action in the array includes `inputs` that describe request parameters grouped by location.
+
+### Input groups
+
+| Group name | `paramLocation` value | Description |
+|---|---|---|
+| `Headers` | `header` | HTTP request headers |
+| `Body` | `body` | Request body fields (POST/PUT) |
+| `Query` | `query` | URL query parameters |
+
+### The `paramLocation` field
+
+Each input group and its `childList` items must include a `paramLocation` field that indicates where the parameter is sent in the HTTP request. Valid values are `"header"`, `"body"`, and `"query"`.
+
+### Example operations JSON
+
+```json
+[
+  {
+    "operationId": "queryUsers",
+    "summary": "Query users",
+    "description": "Query user data with pagination",
+    "url": "v1/users",
+    "method": "post",
+    "inputs": [
+      {
+        "name": "Headers",
+        "paramType": "Object",
+        "desc": "Request headers",
+        "required": false,
+        "paramLocation": "header",
+        "childList": [
+          {
+            "name": "Content-Type",
+            "paramType": "String",
+            "desc": "Content-Type",
+            "required": false,
+            "defaultValue": "application/json",
+            "paramLocation": "header"
+          }
+        ]
+      },
+      {
+        "name": "Body",
+        "paramType": "Object",
+        "desc": "Request body",
+        "required": false,
+        "paramLocation": "body",
+        "childList": [
+          {
+            "name": "pageSize",
+            "paramType": "Number",
+            "desc": "pageSize",
+            "required": false,
+            "paramLocation": "body"
+          }
+        ]
+      },
+      {
+        "name": "Query",
+        "paramType": "Object",
+        "desc": "Query parameters",
+        "required": false,
+        "paramLocation": "query",
+        "childList": [
+          {
+            "name": "appType",
+            "paramType": "String",
+            "desc": "appType",
+            "required": false,
+            "paramLocation": "query"
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "header": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": { "default": "{\"pageSize\": 20}" },
+      "query": [{ "name": "appType", "value": "" }]
+    },
+    "responses": { "type": "object", "properties": {} },
+    "outputs": [
+      {
+        "name": "Response",
+        "paramType": "Object",
+        "desc": "Response body",
+        "required": false,
+        "childList": []
+      }
+    ]
+  }
+]
+```
+
+<Warning>
+The `paramLocation` field is required on both the input group (e.g., `Headers`, `Body`, `Query`) and each item in its `childList`. Omitting it may cause the connector action editor to fail to render or the connector invocation to fail.
+</Warning>
+
+---
+
+## Auth account management
+
+### List auth accounts
+
+```bash
+openyida connector list-connections <connector-id>
+```
+
+### Create an auth account
+
+```bash
+openyida connector create-connection <connector-id> "Production Account" \
+  --api-key "your-api-key"
+```
+
+---
+
+## Auxiliary tools
+
+### Parse API info
+
+```bash
+openyida connector parse-api --curl "curl command" --output ./api-info.json
+```
+
+### Generate API document template
+
+```bash
+openyida connector gen-template ./my-api-template.md
+```
+
+---
+
+## Authentication types
+
+| Type | Description | Use case |
+|------|-------------|----------|
+| **None** | No authentication | Public APIs |
+| **Bearer Token** | Token in Authorization header | JWT-based APIs |
+| **API Key** | Key in header or query param | Simple API access |
+| **OAuth2** | OAuth2 flow | Third-party integrations |
+| **Basic Auth** | Username/password | Legacy systems |
+
+---
+
+## Common use cases
+
+### REST API integration
+
+```bash
+# Create connector for REST API
+openyida connector smart-create \
+  --curl "curl https://api.example.com/items -H 'Authorization: Bearer token'" \
+  --name "Item Service"
+```
+
+### Step-by-step connector creation
+
+```bash
+# Step 1: Create the base connector
+openyida connector create "DingTalk API" "oapi.dingtalk.com"
+
+# Step 2: Add actions one by one
+openyida connector add-action --connector-id <id> --operations ./action1.json
+openyida connector add-action --connector-id <id> --operations ./action2.json
+```
+
+---
+
+## Best practices
+
+1. **Reuse connectors** - Use same connector for same host/auth combination
+2. **Naming convention** - Use descriptive names: `{Service}-{Purpose}`
+3. **Documentation** - Add clear descriptions for each action
+4. **Testing** - Always test connectors before production use
+5. **Security** - Never commit credentials; use environment variables

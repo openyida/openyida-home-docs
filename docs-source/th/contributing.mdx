@@ -1,0 +1,55 @@
+---
+title: "คู่มือการมีส่วนร่วม"
+description: "เอกสารนี้อธิบาย คู่มือการมีส่วนร่วม ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง"
+icon: handshake
+---
+
+# คู่มือการมีส่วนร่วม
+
+หน้านี้อธิบาย คู่มือการมีส่วนร่วม ของ OpenYida โดยสรุปเป้าหมาย ขั้นตอนการใช้งาน และข้อควรระวังที่เกี่ยวข้องสำหรับการสร้างแอป Yida ด้วย AI
+
+## ภาพรวม
+
+เอกสารนี้อธิบาย คู่มือการมีส่วนร่วม ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง
+
+## ประเด็นสำคัญ
+
+- ใช้หน้านี้เพื่อทำความเข้าใจบริบทหลักก่อนเริ่มลงมือในโครงการจริง
+- ชื่อคำสั่ง พารามิเตอร์ โค้ด และชื่อผลิตภัณฑ์บางส่วนคงไว้เป็นภาษาอังกฤษเพื่อให้ค้นหาและคัดลอกได้ถูกต้อง
+- เมื่อใช้งานกับ宜搭จริง ให้ตรวจสอบสิทธิ์ องค์กร และสภาพแวดล้อมก่อนเผยแพร่
+
+## การใช้งาน
+
+ปฏิบัติตามขั้นตอนในเอกสารนี้ร่วมกับคำสั่ง OpenYida CLI และการตั้งค่าขององค์กร หากมีตัวอย่างโค้ดด้านล่าง สามารถคัดลอกไปปรับใช้ได้โดยตรง
+
+## คำสั่งและตัวอย่าง
+
+ตัวอย่างต่อไปนี้คงคำสั่งและโค้ดต้นฉบับไว้เพื่อความถูกต้องทางเทคนิค
+
+```bash
+# 1. Fork and clone the repo
+git clone git@github.com:your-username/openyida.git
+cd openyida
+
+# 2. Install dependencies
+npm install
+
+# 3. Link globally for local debugging
+npm link
+
+# 4. Run tests
+npm test
+```
+
+```bash
+  node --check bin/yida.js && for f in lib/*.js lib/locales/*.js; do node --check "$f"; done
+  ```
+
+```
+feat: add export-app command
+fix: fix get-page-config path error
+docs: update CLI command reference
+refactor: refactor login module
+test: add utils unit tests
+chore: upgrade dependencies
+```

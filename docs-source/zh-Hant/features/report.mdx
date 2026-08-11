@@ -1,0 +1,327 @@
+---
+title: "報表與圖表"
+description: "使用 OpenYida 創建宜搭報表並添加數據可視化圖表，支持柱狀圖、折線圖、餅圖、表格等多種圖表類型。"
+icon: "chart-column"
+---
+
+OpenYida 支持使用 `create-report` 和 `append-chart` 命令創建宜搭報表並添加圖表，實現數據可視化。
+
+---
+
+## 功能概述
+
+<CardGroup cols={2}>
+  <Card title="報表創建" icon="file-plus">
+    通過自定義圖表配置創建宜搭報表。
+  </Card>
+  <Card title="圖表追加" icon="chart-pie">
+    向現有報表追加多種類型的圖表。
+  </Card>
+  <Card title="數據綁定" icon="link">
+    自動綁定表單數據源，實時展示數據。
+  </Card>
+  <Card title="圖表類型" icon="shapes">
+    支持柱狀圖、折線圖、餅圖、表格等多種圖表。
+  </Card>
+</CardGroup>
+
+---
+
+## 創建報表
+
+### 基本用法
+
+```bash
+openyida create-report <appType> "報表名稱" '<圖表定義JSON或檔案路徑>'
+```
+
+第三個參數可以是內聯 JSON 字串或 JSON 檔案路徑。
+
+### 示例：創建銷售報表
+
+```bash
+openyida create-report APP_XXXXXX "Sales Dashboard" '{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "month",
+      "yField": "amount"
+    }
+  ]
+}'
+```
+
+### 從檔案載入圖表定義
+
+```bash
+openyida create-report APP_XXXXXX "Annual Report" ./charts-config.json
+```
+
+---
+
+## 向報表追加圖表
+
+```bash
+openyida append-chart <appType> <reportId> '<圖表定義JSON或檔案路徑>'
+```
+
+### 示例
+
+```bash
+openyida append-chart APP_XXXXXX REPORT_XXXXX '{
+  "type": "line",
+  "title": "Growth Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "month",
+  "yField": "growth_rate"
+}'
+```
+
+---
+
+## 篩選器設定
+
+報表支援新增篩選器，實現與圖表的聯動過濾。你可以在圖表定義 JSON 中使用 `filters` 陣列來設定篩選器。
+
+### 帶篩選器的完整設定
+
+```json
+{
+  "filters": [
+    {
+      "title": "專案篩選",
+      "placeholder": "請選擇專案",
+      "cubeCode": "FORM_XXXXXX",
+      "valueField": {
+        "fieldCode": "selectField_xxx",
+        "aliasName": "專案值",
+        "dataType": "STRING"
+      },
+      "labelField": {
+        "fieldCode": "selectField_xxx",
+        "aliasName": "專案名稱",
+        "dataType": "STRING"
+      },
+      "linkTo": [0, 1]
+    }
+  ],
+  "charts": [
+    {
+      "type": "bar",
+      "title": "柱狀圖",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "name",
+      "yField": "value"
+    }
+  ]
+}
+```
+
+### 篩選器欄位說明
+
+| 欄位 | 必填 | 說明 |
+|------|------|------|
+| `title` | 是 | 篩選器標題 |
+| `placeholder` | 否 | 佔位提示文字 |
+| `cubeCode` | 是 | 資料來源表單 ID（如 `FORM_XXXXXX`） |
+| `valueField` | 是 | 值欄位定義（包含 `fieldCode`、`aliasName`、`dataType`） |
+| `labelField` | 是 | 顯示欄位定義（包含 `fieldCode`、`aliasName`、`dataType`） |
+| `linkTo` | 否 | 聯動目標圖表，陣列元素可以是圖表索引（數字）或圖表標題（字串）。未指定則聯動所有圖表 |
+
+<Info>
+  如果未設定 `filters`，系統會自動為圖表中的 `selectField` 類型欄位產生下拉篩選器。
+</Info>
+
+---
+
+## 圖表類型
+
+| 類型 | 說明 | 適用場景 |
+|------|------|----------|
+| **bar** | 柱狀圖 | 分類比較 |
+| **line** | 折線圖 | 時間趨勢 |
+| **pie** | 餅圖 | 部分與整體關係 |
+| **table** | 數據表格 | 詳細數據查看 |
+| **area** | 面積圖 | 累積趨勢 |
+| **scatter** | 散點圖 | 相關性分析 |
+| **indicator** | 指標卡 | 關鍵指標展示 |
+| **combo** | 柱線混合圖 | 雙軸對比 |
+| **pivot** | 交叉透視表 | 多維分析 |
+| **gauge** | 儀表盤 | 進度或目標追蹤 |
+| **radar** | 雷達圖 | 多維度對比分析 |
+| **funnel** | 漏斗圖 | 階段轉化分析 |
+
+---
+
+## 圖表佈局尺寸
+
+你可以透過 `w` 和 `h` 屬性控制報表中每個圖表的寬度和高度。報表使用 6 欄柵格系統。
+
+- **`w`** — 柵格寬度（1-6 欄）。當圖表超出當前行剩餘空間時，會自動換行。
+- **`h`** — 柵格高度（以柵格單位計）。
+
+`w` 或 `h` 設置為 `0` 是有效的。如果省略，則使用以下預設值。
+
+| 圖表類型 | 預設 `w` | 預設 `h` |
+|----------|----------|----------|
+| **indicator** | 6 | 6 |
+| **pie** | 3 | 22 |
+| **bar** | 3 | 22 |
+| **line** | 3 | 22 |
+| **combo** | 6 | 22 |
+| **table** | 6 | 38 |
+| **pivot** | 6 | 30 |
+| **gauge** | 2 | 18 |
+| 其他類型 | 3 | 22 |
+
+---
+
+## 圖表定義格式
+
+### 柱狀圖
+
+```json
+{
+  "type": "bar",
+  "title": "Sales by Region",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "region",
+  "yField": "amount",
+  "aggregation": "sum",
+  "w": 6,
+  "h": 22
+}
+```
+
+### 折線圖
+
+```json
+{
+  "type": "line",
+  "title": "Traffic Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "date",
+  "yField": "visitors",
+  "aggregation": "sum"
+}
+```
+
+### 餅圖
+
+```json
+{
+  "type": "pie",
+  "title": "Market Share",
+  "cubeCode": "FORM_XXXXXX",
+  "categoryField": "product",
+  "valueField": "share"
+}
+```
+
+### 數據表格
+
+```json
+{
+  "type": "table",
+  "title": "Detail View",
+  "cubeCode": "FORM_XXXXXX",
+  "columns": [
+    { "field": "name", "title": "Name" },
+    { "field": "amount", "title": "Amount" },
+    { "field": "date", "title": "Date" }
+  ]
+}
+```
+
+---
+
+## cubeCode 格式
+
+圖表定義中的 `cubeCode` 是報表引擎的資料來源識別碼。它基於表單的 `formUuid`，但使用**底線**分隔而非連字號。
+
+```
+formUuid: FORM-AB4ACB9D-D12C-470D-8204-7E05CDC19166
+cubeCode: FORM_AB4ACB9D_D12C_470D_8204_7E05CDC19166
+```
+
+<Tip>
+  你可以使用 `openyida get-schema` 取得表單的 `formUuid`，然後將連字號替換為底線作為 `cubeCode`。系統也會自動轉換連字號格式。
+</Tip>
+
+---
+
+## 聚合函數
+
+| 函數 | 說明 |
+|----------|-------------|
+| **sum** | 求和 |
+| **avg** | 平均值 |
+| **count** | 計數 |
+| **max** | 最大值 |
+| **min** | 最小值 |
+
+---
+
+## 完整配置示例
+
+### sales-report-charts.json
+
+```json
+{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_MONTHLY_SALES",
+      "xField": "month",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "pie",
+      "title": "Product Categories",
+      "cubeCode": "FORM_SALES",
+      "categoryField": "product_category",
+      "valueField": "sales_amount"
+    },
+    {
+      "type": "line",
+      "title": "Sales Trend",
+      "cubeCode": "FORM_DAILY_SALES",
+      "xField": "date",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "table",
+      "title": "Sales Detail",
+      "cubeCode": "FORM_SALES",
+      "columns": [
+        { "field": "order_no", "title": "Order No.", "width": 150 },
+        { "field": "customer_name", "title": "Customer", "width": 200 },
+        { "field": "product_name", "title": "Product", "width": 200 },
+        { "field": "amount", "title": "Amount", "width": 120 },
+        { "field": "sales_date", "title": "Date", "width": 150 }
+      ],
+      "pageSize": 10
+    }
+  ]
+}
+```
+
+創建報表：
+
+```bash
+openyida create-report APP_XXXXXX "Sales Analysis Report" ./sales-report-charts.json
+```
+
+---
+
+## 最佳實踐
+
+1. **合理選擇圖表類型** - 趨勢用折線圖、對比用柱狀圖、佔比用餅圖
+2. **控制圖表數量** - 單個報表建議不超過 6 個圖表
+3. **使用數據表格** - 配合圖表展示詳細數據，方便查看原始值
+4. **設置合適的分頁** - 數據表格建議每頁 10-20 條

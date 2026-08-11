@@ -1,0 +1,309 @@
+---
+title: "Informes y gráficos"
+description: "Crea informes Yida y agrega gráficos de visualización de datos."
+icon: "chart-column"
+---
+
+OpenYida permite crear informes Yida y agregar gráficos para la visualización de datos usando los comandos `create-report` y `append-chart`.
+
+---
+
+## Descripción general
+
+<CardGroup cols={2}>
+  <Card title="Creación de informes" icon="file-plus">
+    Crea informes Yida con configuración personalizada de gráficos.
+  </Card>
+  <Card title="Agregar gráficos" icon="chart-pie">
+    Agrega múltiples tipos de gráficos a informes existentes.
+  </Card>
+  <Card title="Vinculación de datos" icon="link">
+    Vincula automáticamente fuentes de datos de formularios, muestra datos en tiempo real.
+  </Card>
+  <Card title="Tipos de gráficos" icon="shapes">
+    Soporta gráficos de barras, líneas, circulares, tablas y más.
+  </Card>
+</CardGroup>
+
+---
+
+## Crear informes
+
+### Uso básico
+
+```bash
+openyida create-report <appType> "Nombre del informe" '<JSON-definición-o-archivo>'
+```
+
+El tercer argumento puede ser una cadena JSON en línea o una ruta a un archivo JSON.
+
+### Ejemplo: crear un informe de ventas
+
+```bash
+openyida create-report APP_XXXXXX "Sales Dashboard" '{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "month",
+      "yField": "amount"
+    }
+  ]
+}'
+```
+
+### Cargar definición de gráfico desde archivo
+
+```bash
+openyida create-report APP_XXXXXX "Annual Report" ./charts-config.json
+```
+
+---
+
+## Agregar gráficos a un informe
+
+```bash
+openyida append-chart <appType> <reportId> '<JSON-definición-o-archivo>'
+```
+
+### Ejemplo
+
+```bash
+openyida append-chart APP_XXXXXX REPORT_XXXXX '{
+  "type": "line",
+  "title": "Growth Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "month",
+  "yField": "growth_rate"
+}'
+```
+
+---
+
+## Configuración de filtros
+
+Los informes soportan filtros vinculados a los gráficos, lo que permite a los usuarios filtrar los datos mostrados de forma interactiva. Los filtros se definen en un arreglo `filters` dentro de la configuración del informe.
+
+```json
+{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Sales by Region",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "region",
+      "yField": "amount"
+    }
+  ],
+  "filters": [
+    {
+      "label": "Región",
+      "field": "region",
+      "type": "select",
+      "options": ["Norte", "Sur", "Este", "Oeste"]
+    },
+    {
+      "label": "Fecha de inicio",
+      "field": "start_date",
+      "type": "date"
+    }
+  ]
+}
+```
+
+| Campo | Descripción |
+|-------|-------------|
+| **label** | Etiqueta visible del filtro |
+| **field** | Campo del formulario al que se aplica el filtro |
+| **type** | Tipo de filtro: `select`, `date`, `text`, etc. |
+| **options** | Lista de opciones disponibles (solo para tipo `select`) |
+
+<Info>Cuando se utiliza el tipo `select` sin proporcionar `options`, se genera automáticamente un menú desplegable con los valores únicos del campo vinculado.</Info>
+
+---
+
+## Tipos de gráficos
+
+| Tipo | Descripción | Ideal para |
+|------|-------------|----------|
+| **bar** | Gráfico de barras | Comparar categorías |
+| **line** | Gráfico de líneas | Tendencias en el tiempo |
+| **pie** | Gráfico circular | Relaciones parte-todo |
+| **table** | Tabla de datos | Vista detallada de datos |
+| **area** | Gráfico de área | Tendencias acumulativas |
+| **scatter** | Gráfico de dispersión | Análisis de correlación |
+| **indicator** | Tarjeta de indicador | Visualización de métricas clave |
+| **combo** | Gráfico combinado (barras + líneas) | Comparaciones de doble eje |
+| **pivot** | Tabla dinámica cruzada | Análisis multidimensional |
+| **gauge** | Gráfico de velocímetro | Seguimiento de progreso u objetivos |
+| **radar** | Gráfico de radar | Comparaciones multidimensionales |
+| **funnel** | Gráfico de embudo | Conversión por etapas |
+
+---
+
+## Tamaño del diseño de gráficos
+
+Puedes controlar el ancho y alto de cada gráfico en la cuadrícula del informe usando las propiedades `w` y `h`. El informe usa un sistema de cuadrícula de 6 columnas.
+
+- **`w`** — ancho de cuadrícula (1-6 columnas). Cuando un gráfico excede el espacio restante en la fila actual, se ajusta a la siguiente fila.
+- **`h`** — altura de cuadrícula (en unidades de cuadrícula).
+
+Establecer `w` o `h` en `0` es válido y será respetado. Si se omite, se usan los valores predeterminados a continuación.
+
+| Tipo de gráfico | `w` predeterminado | `h` predeterminado |
+|-----------------|--------------------|--------------------|
+| **indicator** | 6 | 6 |
+| **pie** | 3 | 22 |
+| **bar** | 3 | 22 |
+| **line** | 3 | 22 |
+| **combo** | 6 | 22 |
+| **table** | 6 | 38 |
+| **pivot** | 6 | 30 |
+| **gauge** | 2 | 18 |
+| Otros tipos | 3 | 22 |
+
+---
+
+## Formato de definición de gráfico
+
+### Gráfico de barras
+
+```json
+{
+  "type": "bar",
+  "title": "Sales by Region",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "region",
+  "yField": "amount",
+  "aggregation": "sum",
+  "w": 6,
+  "h": 22
+}
+```
+
+### Gráfico de líneas
+
+```json
+{
+  "type": "line",
+  "title": "Traffic Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "date",
+  "yField": "visitors",
+  "aggregation": "sum"
+}
+```
+
+### Gráfico circular
+
+```json
+{
+  "type": "pie",
+  "title": "Market Share",
+  "cubeCode": "FORM_XXXXXX",
+  "categoryField": "product",
+  "valueField": "share"
+}
+```
+
+### Tabla de datos
+
+```json
+{
+  "type": "table",
+  "title": "Detail View",
+  "cubeCode": "FORM_XXXXXX",
+  "columns": [
+    { "field": "name", "title": "Name" },
+    { "field": "amount", "title": "Amount" },
+    { "field": "date", "title": "Date" }
+  ]
+}
+```
+
+---
+
+## Formato de cubeCode
+
+El campo `cubeCode` identifica la fuente de datos del formulario vinculado al gráfico. Debe seguir el formato en mayúsculas con el prefijo `FORM_`, seguido de un identificador único del formulario.
+
+- **Formato**: `FORM_<IDENTIFICADOR>` (por ejemplo, `FORM_MONTHLY_SALES`, `FORM_DAILY_SALES`)
+- **Uso genérico**: Cuando el formulario específico no es relevante, puede usarse el valor de marcador de posición `FORM_XXXXXX`.
+- El `cubeCode` se obtiene a partir de la configuración del formulario en la plataforma Yida.
+
+---
+
+## Funciones de agregación
+
+| Función | Descripción |
+|----------|-------------|
+| **sum** | Suma de valores |
+| **avg** | Valor promedio |
+| **count** | Conteo de registros |
+| **max** | Valor máximo |
+| **min** | Valor mínimo |
+
+---
+
+## Ejemplo de configuración completa
+
+### sales-report-charts.json
+
+```json
+{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_MONTHLY_SALES",
+      "xField": "month",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "pie",
+      "title": "Product Categories",
+      "cubeCode": "FORM_SALES",
+      "categoryField": "product_category",
+      "valueField": "sales_amount"
+    },
+    {
+      "type": "line",
+      "title": "Sales Trend",
+      "cubeCode": "FORM_DAILY_SALES",
+      "xField": "date",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "table",
+      "title": "Sales Detail",
+      "cubeCode": "FORM_SALES",
+      "columns": [
+        { "field": "order_no", "title": "Order No.", "width": 150 },
+        { "field": "customer_name", "title": "Customer", "width": 200 },
+        { "field": "product_name", "title": "Product", "width": 200 },
+        { "field": "amount", "title": "Amount", "width": 120 },
+        { "field": "sales_date", "title": "Date", "width": 150 }
+      ],
+      "pageSize": 10
+    }
+  ]
+}
+```
+
+Crear el informe:
+
+```bash
+openyida create-report APP_XXXXXX "Sales Analysis Report" ./sales-report-charts.json
+```
+
+---
+
+## Mejores prácticas
+
+1. **Elige el tipo de gráfico apropiado** - Gráficos de líneas para tendencias, de barras para comparaciones, circulares para proporciones
+2. **Limita la cantidad de gráficos** - Mantén los informes con 6 gráficos o menos
+3. **Incluye tablas de datos** - Complementa los gráficos con tablas para inspección detallada
+4. **Configura tamaños de página razonables** - Para tablas de datos, usa 10-20 filas por página

@@ -1,0 +1,148 @@
+---
+title: "快速开始"
+description: "按照分步指南安装 OpenYida、登录宜搭平台并在 2 分钟内使用 AI 驱动的自然语言提示构建您的第一个宜搭应用。"
+icon: "bolt"
+---
+
+## 环境要求
+
+在开始之前，请确保已安装以下依赖：
+
+| 依赖 | 版本 | 检查命令 |
+|------|------|----------|
+| [Node.js](https://nodejs.org) | ≥ 18 | `node --version` |
+
+<Tip>
+  这就是全部所需。OpenYida 是纯 Node.js 实现 — 无需 Python、无需 Playwright、无需构建步骤。
+</Tip>
+
+---
+
+## 第 1 步 — 安装
+
+```bash
+npm install -g openyida
+```
+
+验证安装：
+
+```bash
+openyida --version
+openyida commands --json
+```
+
+`commands --json` 会输出机器可读的命令清单，AI 代理和文档检查都可以用它确认当前 CLI 能力。
+
+---
+
+## 第 2 步 — 登录宜搭
+
+```bash
+openyida login
+```
+
+OpenYida 将打开浏览器窗口（或显示二维码）供您使用宜搭/阿里巴巴账号进行身份验证。凭证会缓存在本地 — 只需执行一次。
+
+<Info>
+  在 Codex、Claude Code、Cursor、Qoder、千问办公等 AI 工具中，OpenYida 会自动检测当前环境。需要明确登录方式时，可以使用 `--browser`、`--qr` 或 `--agent-qr`。
+</Info>
+
+---
+
+## 第 3 步 — 检查环境
+
+```bash
+openyida env --json
+openyida login --check-only --json
+```
+
+这会检测当前激活的 AI 编程工具、工作区根目录、环境配置和登录状态。切换工具或组织时，先运行这两个命令。
+
+---
+
+## 第 4 步 — 初始化项目工作区
+
+```bash
+openyida copy
+```
+
+这将把 `project/` 工作区模板复制到您当前 AI 工具的工作目录中，让 AI 能够访问您的应用配置和页面模板。
+
+---
+
+## 第 5 步 — 开始构建
+
+现在只需与您的 AI 编程助手对话。以下是一些入门提示词：
+
+```
+在宜搭上为我构建一个 IPD 系统，管理完整的芯片生产工作流程
+```
+
+```
+帮我搭建一个包含线索、客户和交易的 CRM 系统
+```
+
+```
+创建一个个人工资计算器应用
+```
+
+```
+在宜搭上生成一个生日祝福小游戏
+```
+
+AI 将使用 OpenYida 的技能包按顺序调用正确的 CLI 命令：`create-app` → `create-form` / `create-page` → `publish` → `save-share-config`。
+
+---
+
+## 第 6 步 — 发布应用
+
+AI 生成应用后，使用以下命令发布：
+
+```bash
+openyida check-page project/pages/src/dashboard.oyd.jsx
+openyida compile project/pages/src/dashboard.oyd.jsx
+openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+```
+
+或者询问 AI：
+```
+发布 [页面名称] 页面
+让页面可以公开访问
+```
+
+---
+
+## 运行诊断
+
+如果感觉有任何问题，运行内置的诊断工具：
+
+```bash
+openyida doctor
+```
+
+它会检查您的 Node.js 版本、登录状态和环境配置，并可以使用 `--fix` 自动修复常见问题。
+
+---
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="常用提示词" icon="comments" href="/zh/features/common-prompts">
+    浏览 OpenYida 支持的自然语言提示词完整列表。
+  </Card>
+  <Card title="CLI 参考" icon="terminal" href="/zh/features/skills">
+    探索所有 CLI 命令和技能模块。
+  </Card>
+  <Card title="演示案例" icon="images" href="/zh/introduction/demo">
+    查看使用 OpenYida 构建的真实应用。
+  </Card>
+  <Card title="最佳实践" icon="star" href="/zh/guides/best-practices">
+    充分利用 AI 驱动应用生成的技巧。
+  </Card>
+  <Card title="自定义页面" icon="window-maximize" href="/zh/guides/custom-pages">
+    学习自定义页面的检查、编译和发布流程。
+  </Card>
+  <Card title="分享与导航" icon="share-nodes" href="/zh/guides/sharing-and-navigation">
+    配置内部短链、公开访问和页面导航显示。
+  </Card>
+</CardGroup>

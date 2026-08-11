@@ -1,0 +1,86 @@
+---
+title: "功能完整列表"
+description: "OpenYida 支援的完整能力清單，依使用場景彙總對應的 CLI 命令。"
+icon: "list-ul"
+---
+
+這份清單面向宜搭使用者和 AI Agent，依業務場景彙總 OpenYida 目前支援的能力，以及通常會使用的 `openyida` 命令。
+
+<Note>
+AI Agent 預設優先使用 `openyida agent-capabilities --summary-json` 做輕量預檢；只有需要完整診斷、命令 Manifest、權限元資料或原始登入失敗原因時，才使用 `openyida agent-capabilities --json`。
+</Note>
+
+## 基礎操作
+
+| 功能 | 執行操作 |
+|---|---|
+| 輕量 Agent 預檢 | `openyida agent-capabilities --summary-json` |
+| 完整 Agent 診斷 | `openyida agent-capabilities --json` |
+| 環境與登入檢查 | `openyida env` / `openyida env --json` |
+| 環境 profile 管理 | `openyida env <setup\|list\|show\|switch\|add\|remove>` |
+| OAuth token 登入 | `openyida login` |
+| 指定入口 URL 登入 | `openyida login <target-url>` |
+| token 狀態與刷新 | `openyida auth <status\|login\|refresh\|logout>` |
+| 組織切換 | `openyida org <list\|switch> [--corp-id <corpId>]` |
+| 命令清單 | `openyida commands --json` |
+
+## 應用與表單
+
+| 功能 | 執行操作 |
+|---|---|
+| 查詢應用 | `openyida app-list [--size N]` |
+| 建立或更新應用 | `openyida create-app ...` / `openyida update-app ...` |
+| 匯入或匯出遷移包 | `openyida export ...` / `openyida import ...` |
+| 建立、更新、patch、校驗或綁定表單 | `openyida create-form <create\|update\|patch\|rule\|validation\|bind-datasource> ...` |
+| 查詢表單與 Schema | `openyida list-forms ...` / `openyida get-schema ...` |
+| 管理應用導航分組 | `openyida nav-group <list\|create\|rename\|delete\|move\|order\|hide\|show> ...` |
+| 管理應用與表單權限 | `openyida app-permission ...` / `openyida get-permission ...` / `openyida save-permission ...` |
+
+## 頁面、資料與流程
+
+| 功能 | 執行操作 |
+|---|---|
+| 建立展示頁面 | `openyida create-page <appType> "<name>"` |
+| 生成、檢查、編譯與發佈頁面程式碼 | `openyida generate-page ...` / `openyida check-page ...` / `openyida compile ...` / `openyida publish ...` |
+| 發佈 Code Canvas 頁面 | `openyida publish <src.canvas.jsx> <appType> <formUuid>` |
+| 查詢或變更表單/流程/任務/子表資料 | `openyida data <action> <resource> ...` |
+| 建立並配置流程表單 | `openyida create-process ...` / `openyida configure-process ...` |
+| 查詢全域任務與代理 | `openyida task-center ...` / `openyida agent-center ...` |
+
+## 整合、報表與工具
+
+| 功能 | 執行操作 |
+|---|---|
+| 報表與看板 | `openyida create-report ...` / `openyida append-chart ...` |
+| HTTP 連接器 | `openyida connector <list\|create\|detail\|add-action\|test\|smart-create> ...` |
+| 整合自動化 | `openyida integration <create\|list\|enable\|disable\|check\|diagnose> ...` |
+| 釘釘文件與 DWS CLI | `openyida read-dingtalk-doc ...` / `openyida dws <command>` |
+| AI、素材、公式與 PRD 轉換 | `openyida ai ...` / `openyida asset ...` / `openyida formula evaluate ...` / `openyida flash-to-prd ...` |
+| 本地初始化、診斷與批次操作 | `openyida copy` / `openyida doctor` / `openyida batch` |
+| MCP、A2A 與本地 bridge | `openyida mcp` / `openyida a2a ...` / `openyida bridge start ...` |
+| 靜默輸出與更新檢查 | `openyida --quiet ...` / `YIDA_QUIET=1` / `OPENYIDA_SKIP_UPDATE_CHECK=1` |
+
+## 自訂頁面、發佈鏈路與多語言
+
+| 功能 | 執行操作 |
+|---|---|
+| 依頁面規格生成業務化 Code Canvas 頁面 | `openyida generate-page <template> --spec <page-spec.json> --output project/pages/src/<name>.canvas.jsx --compile` |
+| 生成時指定頁面視覺主題與作用域 | `openyida generate-page ... --theme-profile <profile> --theme-scope <page\|global>` |
+| 生成 Code Canvas 範例頁面 | `openyida sample yida-canvas-custom-page <sample> --output project/pages/src/<name>.canvas.jsx` |
+| 生成普通自訂頁面範例 | `openyida sample yida-custom-page <sample> --output project/pages/src/<name>.oyd.jsx` |
+| 發佈前檢查並整理頁面程式碼 | `openyida check-page <src>` / `openyida build-page <src> --write` |
+| 發佈前回讀線上頁面配置，避免覆蓋設計器改動 | `openyida get-form-config <appType> <formUuid> --json` / `openyida get-schema <appType> <formUuid>` |
+| 發佈普通自訂頁面 | `openyida publish project/pages/src/<name>.oyd.jsx <appType> <formUuid>` |
+| 發佈 Code Canvas 頁面 | `openyida publish project/pages/src/<name>.canvas.jsx <appType> <formUuid> --canvas` |
+| 發佈後立即健康檢查 | `openyida publish <src> <appType> <formUuid> --health-check` |
+| 發佈後更新頁面或表單配置 | `openyida update-form-config <appType> <formUuid> ...` |
+| 配置公開訪問、隱藏導航與分享入口 | `openyida verify-short-url ...` / `openyida save-share-config ...` / `openyida get-page-config ...` |
+| 上傳頁面靜態資源到 CDN | `openyida cdn-upload <asset-path>` |
+| 查詢 CDN 配置並刷新資源 | `openyida cdn-config` / `openyida cdn-refresh ...` |
+| 檢查並升級 OpenYida CLI 包 | `openyida update` / `npm install -g openyida@latest` |
+| 管理應用多語言資源 | `openyida i18n <overview\|config\|languages\|list\|upsert\|batch-upsert\|bind\|delete\|translate\|translate-all\|upgrade> ...` |
+| 指定 CLI 运行語言包 | `OPENYIDA_LANG=<locale> openyida ...` / `OPENYIDA_LOCALE_DIR=<dir> openyida ...` |
+
+<Warning>
+舊的登入參數如 `--qr`、`--browser`、`--codex`、`--qoder` 已不再支援。請使用 OAuth token 登入；執行環境注入 token 模式只檢查宿主環境注入的 token。
+</Warning>

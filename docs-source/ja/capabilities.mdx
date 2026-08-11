@@ -1,0 +1,86 @@
+---
+title: "完全な機能一覧"
+description: "OpenYida が提供する機能と対応する CLI コマンドをシナリオ別にまとめた一覧です。"
+icon: "list-ul"
+---
+
+この一覧は、Yida ユーザーと AI Agent 向けに、OpenYida の主要機能と通常使用する `openyida` コマンドをシナリオ別にまとめたものです。
+
+<Note>
+既定の軽量プリフライトには `openyida agent-capabilities --summary-json` を使用します。完全な診断、コマンド Manifest、権限メタデータ、またはログイン失敗理由が必要な場合のみ `openyida agent-capabilities --json` を使用してください。
+</Note>
+
+## 基本操作
+
+| 機能 | コマンド |
+|---|---|
+| 軽量 Agent プリフライト | `openyida agent-capabilities --summary-json` |
+| 完全な Agent 診断 | `openyida agent-capabilities --json` |
+| 環境とログイン状態の確認 | `openyida env` / `openyida env --json` |
+| 環境 profile 管理 | `openyida env <setup\|list\|show\|switch\|add\|remove>` |
+| OAuth token ログイン | `openyida login` |
+| 対象 URL でログイン | `openyida login <target-url>` |
+| token 状態と更新 | `openyida auth <status\|login\|refresh\|logout>` |
+| 組織切り替え | `openyida org <list\|switch> [--corp-id <corpId>]` |
+| コマンド Manifest | `openyida commands --json` |
+
+## アプリとフォーム
+
+| 機能 | コマンド |
+|---|---|
+| アプリ一覧 | `openyida app-list [--size N]` |
+| アプリ作成・更新 | `openyida create-app ...` / `openyida update-app ...` |
+| 移行パッケージのインポート・エクスポート | `openyida export ...` / `openyida import ...` |
+| フォーム作成、更新、patch、検証、データソース連携 | `openyida create-form <create\|update\|patch\|rule\|validation\|bind-datasource> ...` |
+| フォームと Schema の取得 | `openyida list-forms ...` / `openyida get-schema ...` |
+| アプリナビゲーション管理 | `openyida nav-group <list\|create\|rename\|delete\|move\|order\|hide\|show> ...` |
+| アプリ・フォーム権限管理 | `openyida app-permission ...` / `openyida get-permission ...` / `openyida save-permission ...` |
+
+## ページ、データ、プロセス
+
+| 機能 | コマンド |
+|---|---|
+| 表示ページ作成 | `openyida create-page <appType> "<name>"` |
+| ページコードの生成、検査、コンパイル、公開 | `openyida generate-page ...` / `openyida check-page ...` / `openyida compile ...` / `openyida publish ...` |
+| Code Canvas ページ公開 | `openyida publish <src.canvas.jsx> <appType> <formUuid>` |
+| フォーム/プロセス/タスク/サブフォームデータ操作 | `openyida data <action> <resource> ...` |
+| プロセスフォーム作成・設定 | `openyida create-process ...` / `openyida configure-process ...` |
+| タスクセンターと代理設定 | `openyida task-center ...` / `openyida agent-center ...` |
+
+## 連携、レポート、ユーティリティ
+
+| 機能 | コマンド |
+|---|---|
+| レポートとダッシュボード | `openyida create-report ...` / `openyida append-chart ...` |
+| HTTP コネクタ | `openyida connector <list\|create\|detail\|add-action\|test\|smart-create> ...` |
+| 連携自動化 | `openyida integration <create\|list\|enable\|disable\|check\|diagnose> ...` |
+| DingTalk ドキュメントと DWS CLI | `openyida read-dingtalk-doc ...` / `openyida dws <command>` |
+| AI、素材、数式、PRD 変換 | `openyida ai ...` / `openyida asset ...` / `openyida formula evaluate ...` / `openyida flash-to-prd ...` |
+| ローカル初期化、診断、バッチ実行 | `openyida copy` / `openyida doctor` / `openyida batch` |
+| MCP、A2A、ローカル bridge | `openyida mcp` / `openyida a2a ...` / `openyida bridge start ...` |
+| 静かな出力と更新チェック | `openyida --quiet ...` / `YIDA_QUIET=1` / `OPENYIDA_SKIP_UPDATE_CHECK=1` |
+
+## カスタムページ、公開チェーン、多言語
+
+| 機能 | コマンド |
+|---|---|
+| ページ仕様から業務向け Code Canvas ページを生成 | `openyida generate-page <template> --spec <page-spec.json> --output project/pages/src/<name>.canvas.jsx --compile` |
+| 生成時にテーマプロファイルと適用範囲を指定 | `openyida generate-page ... --theme-profile <profile> --theme-scope <page\|global>` |
+| Code Canvas サンプルページを作成 | `openyida sample yida-canvas-custom-page <sample> --output project/pages/src/<name>.canvas.jsx` |
+| 従来型カスタムページのサンプルを作成 | `openyida sample yida-custom-page <sample> --output project/pages/src/<name>.oyd.jsx` |
+| 公開前にページコードを検査して正規化 | `openyida check-page <src>` / `openyida build-page <src> --write` |
+| デザイナー変更を上書きする前にオンライン設定を取得 | `openyida get-form-config <appType> <formUuid> --json` / `openyida get-schema <appType> <formUuid>` |
+| 従来型カスタムページを公開 | `openyida publish project/pages/src/<name>.oyd.jsx <appType> <formUuid>` |
+| Code Canvas ページを公開 | `openyida publish project/pages/src/<name>.canvas.jsx <appType> <formUuid> --canvas` |
+| 公開直後にヘルスチェックを実行 | `openyida publish <src> <appType> <formUuid> --health-check` |
+| 公開後にページまたはフォーム設定を更新 | `openyida update-form-config <appType> <formUuid> ...` |
+| 公開アクセス、非表示ナビ、共有入口を設定 | `openyida verify-short-url ...` / `openyida save-share-config ...` / `openyida get-page-config ...` |
+| ページ assets を CDN にアップロード | `openyida cdn-upload <asset-path>` |
+| CDN 設定を確認しリソースを更新 | `openyida cdn-config` / `openyida cdn-refresh ...` |
+| OpenYida CLI パッケージを確認してアップグレード | `openyida update` / `npm install -g openyida@latest` |
+| アプリの言語パックを管理 | `openyida i18n <overview\|config\|languages\|list\|upsert\|batch-upsert\|bind\|delete\|translate\|translate-all\|upgrade> ...` |
+| 選択した言語パックで CLI を実行 | `OPENYIDA_LANG=<locale> openyida ...` / `OPENYIDA_LOCALE_DIR=<dir> openyida ...` |
+
+<Warning>
+`--qr`、`--browser`、`--codex`、`--qoder` などの旧ログインフラグはサポートされません。OAuth token ログインを使用してください。
+</Warning>

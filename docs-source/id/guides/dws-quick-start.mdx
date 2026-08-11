@@ -1,0 +1,78 @@
+---
+title: "Panduan mulai cepat DingTalk CLI"
+description: "Dokumen ini menjelaskan Panduan mulai cepat DingTalk CLI di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan."
+icon: play
+---
+
+# Panduan mulai cepat DingTalk CLI
+
+Halaman ini menjelaskan Panduan mulai cepat DingTalk CLI di OpenYida, termasuk tujuan, alur penggunaan, dan hal penting saat membangun aplikasi Yida dengan AI.
+
+## Ikhtisar
+
+Dokumen ini menjelaskan Panduan mulai cepat DingTalk CLI di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan.
+
+## Poin penting
+
+- Gunakan halaman ini untuk memahami konteks utama sebelum menerapkannya di proyek nyata.
+- Nama perintah, parameter, kode, dan beberapa nama produk tetap menggunakan bahasa Inggris agar mudah dicari dan disalin dengan benar.
+- Saat bekerja dengan宜搭, periksa izin, organisasi, dan lingkungan sebelum publikasi.
+
+## Penggunaan
+
+Ikuti langkah dalam dokumen ini bersama OpenYida CLI dan konfigurasi organisasi. Jika ada contoh kode di bawah, contoh tersebut dapat disalin lalu disesuaikan dengan kebutuhan.
+
+## Perintah dan contoh
+
+Contoh berikut mempertahankan perintah dan kode asli untuk menjaga akurasi teknis.
+
+```bash
+    openyida dws install
+    ```
+
+```bash
+    curl -fsSL https://raw.githubusercontent.com/DingTalk-Real-AI/dingtalk-workspace-cli/main/scripts/install.sh | sh
+    ```
+
+```bash
+        export DWS_CLIENT_ID="your-client-id"
+        export DWS_CLIENT_SECRET="your-client-secret"
+        ```
+
+```bash
+        openyida dws auth login --client-id your-client-id --client-secret your-client-secret
+        ```
+
+```bash
+    openyida dws auth login
+    ```
+
+```bash
+# Basic search
+openyida dws contact user search --keyword "张三"
+
+# JSON output (suitable for AI Agents)
+openyida dws contact user search --keyword "张三" -f json
+
+# Save to file
+openyida dws contact user search --keyword "张三" -o contacts.json
+```
+
+```bash
+# Create a personal to-do
+openyida dws todo task create --title "准备周报" --executors "your-userid"
+
+# Create a team to-do
+openyida dws todo task create --title "项目评审" --executors "userid1,userid2,userid3"
+
+# List all to-dos
+openyida dws todo task list
+```
+
+```bash
+# Query today's check-in records
+openyida dws attendance record list
+
+# Query a specific user's attendance
+openyida dws attendance record list --userids "your-userid"
+```

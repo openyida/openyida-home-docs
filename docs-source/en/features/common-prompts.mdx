@@ -1,0 +1,265 @@
+---
+title: "Common Prompts"
+description: "Collection of natural language prompts supported by OpenYida."
+icon: "comments"
+---
+
+OpenYida is designed for natural language interaction. The following prompts have been verified and work across all supported AI tools.
+
+---
+
+## App Creation
+
+```
+Help me build a xxx application
+```
+```
+Help me build a CRM
+```
+```
+Help me build a personal salary calculator app
+```
+```
+Help me create an IPD system on Yida to manage the full chip production workflow
+```
+```
+Generate an app based on this requirements document: [paste PRD]
+```
+```
+Create a birthday greeting mini-game on Yida
+```
+```
+Build a Lantern Festival riddle game
+```
+
+---
+
+## Form & Page Operations
+
+### Create Form Page
+
+```
+Help me create a xxx form page
+```
+```
+Create a leave application form with: employee name, department, start date, end date, reason
+```
+
+### Add Form Fields
+
+```
+Add a [field name] field to [page name], type: [TextField/NumberField/DateField/SelectField/...]
+```
+```
+Add a "Department" dropdown field to the employee info form, options: Engineering, Marketing, Sales, HR
+```
+
+<Note>
+Only [supported field types](/en/features/skills#supported-field-types) are accepted. Unsupported types (e.g. `MobileField`, `EmailField`) will be rejected.
+</Note>
+
+### Modify Field Properties
+
+```
+Make [field name] field in [page name] required
+```
+```
+Make [field name] field in [page name] read-only
+```
+```
+Change [field name] field label in [page name] to [new label]
+```
+
+### Custom Display Pages
+
+```
+Create a custom display page for [page name]
+```
+```
+Generate a landing page for an enterprise collaboration product
+```
+
+---
+
+## Publish & Share
+
+```
+Publish [page name] page
+```
+```
+Make [page name] page publicly accessible
+```
+```
+Configure public access for [page name] — anyone with link can access
+```
+
+---
+
+## Flash Note to PRD
+
+```
+Convert DingTalk flash notes to PRD documents
+```
+
+```
+Generate a PRD from this meeting transcript: [paste notes]
+```
+
+```
+Create a project requirements document from the attached flash note
+```
+
+```
+Convert meeting notes into a structured product requirements document
+```
+
+<Note>
+Requires login. The command reads meeting transcripts and uses AI to generate structured PRD documents. Output is saved to the `prd/` directory.
+</Note>
+
+---
+
+## Data Management
+
+```
+Query all records from [form name]
+```
+```
+Export [form name] data to Excel
+```
+```
+Delete all test data from [form name]
+```
+
+---
+
+## Integration & Automation
+
+### Create Integration Flow
+
+```
+Create an integration flow that sends notifications when new records are submitted
+```
+
+```
+Set up an automation on [form name] to notify [team/user] on new submissions
+```
+
+```
+Create a [form name] workflow that triggers email notifications to [recipients]
+```
+
+### Add Automated Actions
+
+```
+Add a data lookup action to the [flow name] integration
+```
+
+```
+Add a record creation action to automatically create entries in [target form]
+```
+
+<Note>
+Integration flows trigger on form events (insert, update, delete) and can execute notifications, data lookups, and record creation. Use the CLI to create and configure flows.
+</Note>
+
+---
+
+## Connectors (HTTP Integration)
+
+```
+Create an HTTP connector for [API name], base URL: [url]
+```
+```
+Add a POST action to [connector name] for creating records
+```
+```
+Smart create connector from this curl command: [paste curl]
+```
+
+---
+
+## Reports & Charts
+
+```
+Create a Yida report for [app name] with a bar chart showing monthly submissions
+```
+```
+Add a pie chart to [report name] showing status distribution
+```
+
+---
+
+## Account & Environment
+
+```
+Relogin / Logout
+```
+```
+Switch to [org name] organization
+```
+```
+Check current login status
+```
+```
+Run environment diagnostics
+```
+
+---
+
+## DingTalk Integration
+
+### Search & Query
+
+```
+Search for a contact named [name]
+```
+
+```
+List all calendar events
+```
+
+```
+Query my approval requests
+```
+
+### Create & Manage
+
+```
+Create a todo task: [task description]
+```
+
+```
+Send a message: [message content]
+```
+
+### Query Attendance
+
+```
+List attendance records
+```
+
+```
+Check my attendance status
+```
+
+<Info>
+The `dws` command requires DingTalk CLI to be installed separately. Run `openyida dws install` if not already installed. Output defaults to table format; add `-f json` for JSON output.
+</Info>
+
+---
+
+## CDN & Assets
+
+```
+Configure CDN image upload for [app name]
+```
+```
+Upload [image file] to CDN
+```
+
+---
+
+<Tip>
+**Tip:** The more context you provide, the better the results. Instead of "create a form", say "Create a leave approval form with employee name, department, leave type (dropdown: annual/sick/personal), start/end dates, reason — make employee name and dates required".
+</Tip>

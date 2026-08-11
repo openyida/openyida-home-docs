@@ -1,0 +1,132 @@
+---
+title: "Tumpukan teknologi"
+description: "Dokumen ini menjelaskan Tumpukan teknologi di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan."
+icon: layer-group
+---
+
+# Tumpukan teknologi
+
+Halaman ini menjelaskan Tumpukan teknologi di OpenYida, termasuk tujuan, alur penggunaan, dan hal penting saat membangun aplikasi Yida dengan AI.
+
+## Ikhtisar
+
+Dokumen ini menjelaskan Tumpukan teknologi di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan.
+
+## Poin penting
+
+- Gunakan halaman ini untuk memahami konteks utama sebelum menerapkannya di proyek nyata.
+- Nama perintah, parameter, kode, dan beberapa nama produk tetap menggunakan bahasa Inggris agar mudah dicari dan disalin dengan benar.
+- Saat bekerja dengan宜搭, periksa izin, organisasi, dan lingkungan sebelum publikasi.
+
+## Penggunaan
+
+Ikuti langkah dalam dokumen ini bersama OpenYida CLI dan konfigurasi organisasi. Jika ada contoh kode di bawah, contoh tersebut dapat disalin lalu disesuaikan dengan kebutuhan.
+
+## Perintah dan contoh
+
+Contoh berikut mempertahankan perintah dan kode asli untuk menjaga akurasi teknis.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CLI Entry Layer (bin/)                   │
+│                    yida.js - Command Routing                │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Core Modules (lib/core/)                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │   i18n   │ │   env    │ │  utils   │ │  doctor  │       │
+│  │  i18n    │ │env check │ │ utilities│ │diagnostic│       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │  check   │ │   copy   │ │  babel   │ │  locales │       │
+│  │update chk│ │dir copy  │ │ compiler │ │ locales  │       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Functional Modules (lib/)                │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │   auth   │ │   app    │ │   data   │ │  report  │       │
+│  │   auth   │ │  app mgmt│ │data mgmt │ │ reports  │       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │ connector│ │  process │ │permission│ │   cdn    │       │
+│  │connector │ │ process  │ │permission│ │  cdn     │       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 Yida Platform API (aliwork.com)             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+```javascript
+#!/usr/bin/env node
+import { program } from 'commander';
+import { createApp } from '../lib/app.js';
+
+program
+  .name('openyida')
+  .description('AI-powered Yida CLI')
+  .version('1.0.0');
+
+program
+  .command('create-app <name>')
+  .description('Create a new Yida app')
+  .action(createApp);
+
+program.parse();
+```
+
+```
+User Input
+    ↓
+CLI Parser (commander)
+    ↓
+Parameter Validation
+    ↓
+Auth Check
+    ↓
+Business Logic
+    ↓
+Yida API Call
+    ↓
+Result Processing
+    ↓
+Output Display
+```
+
+```
+Error Occurs
+    ↓
+Catch at Boundary
+    ↓
+Error Classification
+    ↓
+User-Friendly Message
+    ↓
+Suggested Solution
+    ↓
+Exit with Code
+```
+
+```typescript
+class AppService {
+  constructor(
+    private api: YidaAPI,
+    private config: ConfigService
+  ) {}
+}
+```
+
+```typescript
+async function createApp(name: string): Promise<void> {
+  const config = await loadConfig();
+  await validateName(name);
+  await api.createApp({ name, config });
+}
+```

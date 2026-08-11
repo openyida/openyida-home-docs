@@ -1,0 +1,70 @@
+---
+title: "Amalan terbaik"
+description: "Dokumen ini menerangkan Amalan terbaik dalam OpenYida, termasuk aliran penggunaan, arahan dan perkara yang perlu diberi perhatian."
+icon: star
+---
+
+# Amalan terbaik
+
+Halaman ini menerangkan Amalan terbaik dalam OpenYida, termasuk tujuan, aliran penggunaan dan perkara penting semasa membina aplikasi Yida dengan AI.
+
+## Gambaran keseluruhan
+
+Dokumen ini menerangkan Amalan terbaik dalam OpenYida, termasuk aliran penggunaan, arahan dan perkara yang perlu diberi perhatian.
+
+## Perkara penting
+
+- Gunakan halaman ini untuk memahami konteks utama sebelum menggunakannya dalam projek sebenar.
+- Nama arahan, parameter, kod dan beberapa nama produk dikekalkan dalam bahasa Inggeris supaya mudah dicari dan disalin dengan tepat.
+- Apabila bekerja dengan宜搭, semak kebenaran, organisasi dan persekitaran sebelum penerbitan.
+
+## Penggunaan
+
+Ikuti langkah dalam dokumen ini bersama OpenYida CLI dan konfigurasi organisasi. Jika terdapat contoh kod di bawah, contoh tersebut boleh disalin dan disesuaikan mengikut keperluan.
+
+## Arahan dan contoh
+
+Contoh berikut mengekalkan arahan dan kod asal untuk memastikan ketepatan teknikal.
+
+```text Vague (Avoid)
+Create a CRM
+```
+
+```text Detailed (Recommended)
+Create a CRM with three related forms:
+1. Lead Form — Fields: Name, Company, Phone, Email, Source (Dropdown: Referral/Website/Event/Cold Call), Status (Dropdown: New Lead/Contacted/Qualified/Disqualified), Assigned To (Member Selector)
+2. Customer Form — Converted from leads, Fields: Company Name, Industry, Annual Revenue, Key Contact, Account Manager
+3. Opportunity Form — Linked to customers, Fields: Opportunity Name, Amount, Stage (Dropdown: Proposal/Negotiation/Won/Lost), Expected Close Date, Notes
+```
+
+```
+Generate a Yida app based on the following requirements document:
+
+[Paste PRD — field names, types, validation rules, workflows, etc.]
+```
+
+```
+Step 1: Create a basic employee information form
+Step 2: Add a leave request form linked to employees
+Step 3: Configure the leave approval workflow
+Step 4: Add a manager dashboard showing pending approvals
+Step 5: Publish the dashboard as a public page
+```
+
+```bash
+openyida get-schema <appType> <formUuid>
+```
+
+```bash
+openyida data query form <appType> <formUuid> --size 1
+```
+
+```
+Show the current Schema of the [Form Name] form
+Check if the [Page Name] page is published and accessible
+```
+
+```bash
+openyida env --json
+openyida login --check-only --json
+```

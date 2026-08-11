@@ -1,0 +1,66 @@
+---
+title: "Mimari genel bakışı"
+description: "Bu belge OpenYida içinde Mimari genel bakışı konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar."
+icon: sitemap
+---
+
+# Mimari genel bakışı
+
+Bu sayfa OpenYida içinde Mimari genel bakışı konusunu açıklar; amaç, kullanım akışı ve AI ile Yida uygulaması geliştirirken dikkat edilmesi gereken noktaları kapsar.
+
+## Genel bakış
+
+Bu belge OpenYida içinde Mimari genel bakışı konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar.
+
+## Önemli noktalar
+
+- Gerçek bir projeye uygulamadan önce ana bağlamı anlamak için bu sayfayı kullanın.
+- Komut adları, parametreler, kod ve bazı ürün adları doğru arama ve kopyalama için İngilizce bırakılmıştır.
+- 宜搭 ile çalışırken yayımlamadan önce izinleri, organizasyonu ve ortamı kontrol edin.
+
+## Kullanım
+
+Bu dokümandaki adımları OpenYida CLI ve organizasyon ayarlarıyla birlikte izleyin. Aşağıdaki kod örnekleri doğrudan kopyalanıp ihtiyaca göre uyarlanabilir.
+
+## Komutlar ve örnekler
+
+Aşağıdaki örnekler teknik doğruluğu korumak için özgün komut ve kodu saklar.
+
+```
+AI coding agent
+  -> openyida CLI
+  -> local project workspace
+  -> Yida web APIs with cached login cookies
+  -> Yida low-code app, form, page, report, or data result
+```
+
+```text
+project/
+  config.json
+  pages/
+    src/
+    build/
+    dist/
+  .cache/
+```
+
+```bash
+openyida create-page <appType> "Dashboard"
+openyida check-page project/pages/src/dashboard.oyd.jsx
+openyida compile project/pages/src/dashboard.oyd.jsx
+openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+```
+
+```bash
+openyida env --json
+openyida login --check-only --json
+openyida env <setup|list|show|switch|add|remove>
+```
+
+```bash
+openyida get-schema <appType> <formUuid>
+```
+
+```bash
+openyida commands --json
+```

@@ -1,0 +1,150 @@
+---
+title: "Démarrage Rapide"
+description: "Installez OpenYida et créez votre première application Yida en 2 minutes."
+icon: "bolt"
+---
+
+## Prérequis
+
+Avant de commencer, assurez-vous d'avoir installé les dépendances suivantes :
+
+| Dépendance | Version | Commande de vérification |
+|------|------|----------|
+| [Node.js](https://nodejs.org) | ≥ 18 | `node --version` |
+
+<Tip>
+  C'est tout ce dont vous avez besoin. OpenYida est une implémentation pure Node.js — pas de Python, pas de Playwright, pas d'étapes de build.
+</Tip>
+
+---
+
+## Étape 1 — Installation
+
+```bash
+npm install -g openyida
+```
+
+Vérifiez l'installation :
+
+```bash
+openyida --version
+```
+
+---
+
+## Étape 2 — Connexion à Yida
+
+```bash
+openyida login
+```
+
+OpenYida ouvrira une fenêtre de navigateur (ou affichera un code QR) pour vous authentifier avec votre compte Yida/Alibaba. Les identifiants sont mis en cache localement — vous n'avez besoin de le faire qu'une seule fois.
+
+<Info>
+  OpenYida detects QwenWork automatically. If QR login is needed, use `openyida login --qr` or `openyida login --agent-qr`.
+</Info>
+
+---
+
+## Étape 3 — Vérifier l'environnement
+
+```bash
+openyida env
+```
+
+Cela détecte l'outil de codage IA actuellement actif (Claude Code, Cursor, QwenWork, etc.) et affiche votre état de connexion actuel. Exécutez cette commande chaque fois que vous changez d'environnement.
+
+---
+
+## Étape 4 — Initialiser l'espace de travail du projet
+
+```bash
+openyida copy
+```
+
+Cela copie le modèle d'espace de travail `project/` dans le répertoire de travail de votre outil IA actuel, permettant à l'IA d'accéder à la configuration de votre application et aux modèles de page.
+
+---
+
+## Étape 5 — Commencer à construire
+
+Maintenant, parlez simplement à votre assistant de codage IA. Voici quelques invites de démarrage :
+
+```
+Construisez-moi un système IPD sur Yida pour gérer le flux de travail complet de production de puces
+```
+
+```
+Aidez-moi à construire un système CRM avec des prospects, des contacts et des affaires
+```
+
+```
+Créez une application de calculatrice de salaire personnel
+```
+
+```
+Générez un mini-jeu de vœux d'anniversaire sur Yida
+```
+
+L'IA utilisera le pack de compétences OpenYida pour appeler les commandes CLI correctes dans l'ordre : `create-app` → `create-form` / `create-page` → `publish` → `save-share-config`.
+
+---
+
+## Étape 6 — Publier l'application
+
+Après que l'IA a généré l'application, utilisez la commande suivante pour publier :
+
+```bash
+openyida check-page project/pages/src/dashboard.oyd.jsx
+openyida compile project/pages/src/dashboard.oyd.jsx
+openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+```
+
+Ou demandez à l'IA :
+```
+Publiez la page [nom de la page]
+Rendez la page accessible publiquement
+```
+
+---
+
+## Exécuter les diagnostics
+
+Si quelque chose ne va pas, exécutez l'outil de diagnostic intégré :
+
+```bash
+openyida doctor
+```
+
+Il vérifie votre version de Node.js, l'état de connexion et la configuration de l'environnement, et peut corriger automatiquement les problèmes courants avec `--fix`.
+
+---
+
+## Intégration OpenClaw
+
+Si vous utilisez OpenClaw, installez directement le pack de compétences OpenYida :
+
+```bash
+npx clawhub@latest install nicky1108/yida-app
+```
+
+Ensuite, utilisez-le via [yida-app sur ClawhHub](https://clawhub.ai/nicky1108/yida-app).
+
+---
+
+## Étapes suivantes
+
+<CardGroup cols={2}>
+  <Card title="Invites courantes" icon="comments" href="/fr/features/common-prompts">
+    Parcourez la liste complète des invites en langage naturel prises en charge par OpenYida.
+  </Card>
+  <Card title="Référence CLI" icon="terminal" href="/fr/features/skills">
+    Explorez toutes les commandes CLI et modules de compétences.
+  </Card>
+  <Card title="Cas de démo" icon="images" href="/fr/introduction/demo">
+    Consultez les applications réelles construites avec OpenYida.
+  </Card>
+  <Card title="Meilleures pratiques" icon="star" href="/fr/guides/best-practices">
+    Conseils pour tirer le meilleur parti de la génération d'applications pilotée par l'IA.
+  </Card>
+</CardGroup>

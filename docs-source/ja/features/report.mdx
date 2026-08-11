@@ -1,0 +1,327 @@
+---
+title: "レポートとチャート"
+description: "OpenYidaでYidaレポートを作成しデータ可視化チャートを追加します。棒グラフ、折れ線グラフ、円グラフ、テーブルなどに対応しています。"
+icon: "chart-column"
+---
+
+OpenYidaは`create-report`と`append-chart`コマンドを使用して、Yidaレポートの作成とデータ可視化用チャートの追加をサポートします。
+
+---
+
+## 機能概要
+
+<CardGroup cols={2}>
+  <Card title="レポート作成" icon="file-plus">
+    カスタムチャート設定でYidaレポートを作成します。
+  </Card>
+  <Card title="チャート追加" icon="chart-pie">
+    既存のレポートに複数タイプのチャートを追加します。
+  </Card>
+  <Card title="データバインディング" icon="link">
+    フォームデータソースを自動的にバインドし、データをリアルタイムで表示します。
+  </Card>
+  <Card title="チャートタイプ" icon="shapes">
+    棒グラフ、折れ線グラフ、円グラフ、テーブルなど、複数のチャートタイプをサポートします。
+  </Card>
+</CardGroup>
+
+---
+
+## レポートの作成
+
+### 基本的な使用法
+
+```bash
+openyida create-report <appType> "レポート名" '<チャート定義JSONまたはファイル>'
+```
+
+3番目の引数は、インラインJSON文字列またはJSONファイルのパスのいずれかを指定できます。
+
+### 例：販売レポートの作成
+
+```bash
+openyida create-report APP_XXXXXX "Sales Dashboard" '{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "month",
+      "yField": "amount"
+    }
+  ]
+}'
+```
+
+### ファイルからチャート定義を読み込む
+
+```bash
+openyida create-report APP_XXXXXX "Annual Report" ./charts-config.json
+```
+
+---
+
+## レポートへのチャート追加
+
+```bash
+openyida append-chart <appType> <reportId> '<チャート定義JSONまたはファイル>'
+```
+
+### 例
+
+```bash
+openyida append-chart APP_XXXXXX REPORT_XXXXX '{
+  "type": "line",
+  "title": "Growth Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "month",
+  "yField": "growth_rate"
+}'
+```
+
+---
+
+## フィルター設定
+
+レポートではフィルターを使用して、チャートとの連動フィルタリングを実現できます。チャート定義JSONの `filters` 配列でフィルターを設定できます。
+
+### フィルター付きの完全設定
+
+```json
+{
+  "filters": [
+    {
+      "title": "プロジェクトフィルター",
+      "placeholder": "プロジェクトを選択",
+      "cubeCode": "FORM_XXXXXX",
+      "valueField": {
+        "fieldCode": "selectField_xxx",
+        "aliasName": "プロジェクト値",
+        "dataType": "STRING"
+      },
+      "labelField": {
+        "fieldCode": "selectField_xxx",
+        "aliasName": "プロジェクト名",
+        "dataType": "STRING"
+      },
+      "linkTo": [0, 1]
+    }
+  ],
+  "charts": [
+    {
+      "type": "bar",
+      "title": "棒グラフ",
+      "cubeCode": "FORM_XXXXXX",
+      "xField": "name",
+      "yField": "value"
+    }
+  ]
+}
+```
+
+### フィルターフィールドの説明
+
+| フィールド | 必須 | 説明 |
+|------------|------|------|
+| `title` | はい | フィルタータイトル |
+| `placeholder` | いいえ | プレースホルダーテキスト |
+| `cubeCode` | はい | データソースフォームID（例：`FORM_XXXXXX`） |
+| `valueField` | はい | 値フィールド定義（`fieldCode`、`aliasName`、`dataType`を含む） |
+| `labelField` | はい | 表示フィールド定義（`fieldCode`、`aliasName`、`dataType`を含む） |
+| `linkTo` | いいえ | 連動対象チャート。配列要素はチャートインデックス（数値）またはチャートタイトル（文字列）。未指定の場合、すべてのチャートに連動 |
+
+<Info>
+  `filters` を設定しない場合、チャート内の `selectField` タイプのフィールドに対して自動的にドロップダウンフィルターが生成されます。
+</Info>
+
+---
+
+## チャートタイプ
+
+| タイプ | 説明 | 適用場面 |
+|------|-------------|----------|
+| **bar** | 棒グラフ | カテゴリの比較 |
+| **line** | 折れ線グラフ | 時間経過のトレンド |
+| **pie** | 円グラフ | 部分と全体の関係 |
+| **table** | データテーブル | 詳細データの表示 |
+| **area** | 面グラフ | 累積トレンド |
+| **scatter** | 散布図 | 相関分析 |
+| **indicator** | インジケーターカード | 主要指標の表示 |
+| **combo** | コンボチャート（棒+折れ線） | 二軸比較 |
+| **pivot** | クロスピボットテーブル | 多次元分析 |
+| **gauge** | ゲージチャート | 進捗や目標の追跡 |
+| **radar** | レーダーチャート | 多次元比較分析 |
+| **funnel** | ファネルチャート | 段階別のコンバージョン |
+
+---
+
+## チャートレイアウトサイズ
+
+`w` と `h` プロパティを使用して、レポートグリッド内の各チャートの幅と高さを制御できます。レポートは6列グリッドシステムを使用します。
+
+- **`w`** — グリッド幅（1-6列）。チャートが現在の行の残りスペースを超える場合、次の行に折り返されます。
+- **`h`** — グリッド高さ（グリッド単位）。
+
+`w` または `h` を `0` に設定することは有効です。省略した場合、以下のデフォルト値が使用されます。
+
+| チャートタイプ | デフォルト `w` | デフォルト `h` |
+|---------------|---------------|---------------|
+| **indicator** | 6 | 6 |
+| **pie** | 3 | 22 |
+| **bar** | 3 | 22 |
+| **line** | 3 | 22 |
+| **combo** | 6 | 22 |
+| **table** | 6 | 38 |
+| **pivot** | 6 | 30 |
+| **gauge** | 2 | 18 |
+| その他のタイプ | 3 | 22 |
+
+---
+
+## チャート定義形式
+
+### 棒グラフ
+
+```json
+{
+  "type": "bar",
+  "title": "Sales by Region",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "region",
+  "yField": "amount",
+  "aggregation": "sum",
+  "w": 6,
+  "h": 22
+}
+```
+
+### 折れ線グラフ
+
+```json
+{
+  "type": "line",
+  "title": "Traffic Trend",
+  "cubeCode": "FORM_XXXXXX",
+  "xField": "date",
+  "yField": "visitors",
+  "aggregation": "sum"
+}
+```
+
+### 円グラフ
+
+```json
+{
+  "type": "pie",
+  "title": "Market Share",
+  "cubeCode": "FORM_XXXXXX",
+  "categoryField": "product",
+  "valueField": "share"
+}
+```
+
+### データテーブル
+
+```json
+{
+  "type": "table",
+  "title": "Detail View",
+  "cubeCode": "FORM_XXXXXX",
+  "columns": [
+    { "field": "name", "title": "Name" },
+    { "field": "amount", "title": "Amount" },
+    { "field": "date", "title": "Date" }
+  ]
+}
+```
+
+---
+
+## cubeCode フォーマット
+
+チャート定義の `cubeCode` はレポートエンジンのデータソース識別子です。フォームの `formUuid` をベースに、ハイフンを**アンダースコア**に置き換えます。
+
+```
+formUuid: FORM-AB4ACB9D-D12C-470D-8204-7E05CDC19166
+cubeCode: FORM_AB4ACB9D_D12C_470D_8204_7E05CDC19166
+```
+
+<Tip>
+  `openyida get-schema` でフォームの `formUuid` を取得し、ハイフンをアンダースコアに置き換えて `cubeCode` にします。ハイフン形式も自動変換されます。
+</Tip>
+
+---
+
+## 集計関数
+
+| 関数 | 説明 |
+|----------|-------------|
+| **sum** | 値の合計 |
+| **avg** | 平均値 |
+| **count** | レコード数 |
+| **max** | 最大値 |
+| **min** | 最小値 |
+
+---
+
+## 完全な設定例
+
+### sales-report-charts.json
+
+```json
+{
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Monthly Sales",
+      "cubeCode": "FORM_MONTHLY_SALES",
+      "xField": "month",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "pie",
+      "title": "Product Categories",
+      "cubeCode": "FORM_SALES",
+      "categoryField": "product_category",
+      "valueField": "sales_amount"
+    },
+    {
+      "type": "line",
+      "title": "Sales Trend",
+      "cubeCode": "FORM_DAILY_SALES",
+      "xField": "date",
+      "yField": "sales_amount",
+      "aggregation": "sum"
+    },
+    {
+      "type": "table",
+      "title": "Sales Detail",
+      "cubeCode": "FORM_SALES",
+      "columns": [
+        { "field": "order_no", "title": "Order No.", "width": 150 },
+        { "field": "customer_name", "title": "Customer", "width": 200 },
+        { "field": "product_name", "title": "Product", "width": 200 },
+        { "field": "amount", "title": "Amount", "width": 120 },
+        { "field": "sales_date", "title": "Date", "width": 150 }
+      ],
+      "pageSize": 10
+    }
+  ]
+}
+```
+
+レポート作成：
+
+```bash
+openyida create-report APP_XXXXXX "Sales Analysis Report" ./sales-report-charts.json
+```
+
+---
+
+## ベストプラクティス
+
+1. **適切なチャートタイプを選択** - トレンドは折れ線グラフ、比較は棒グラフ、比率は円グラフ
+2. **チャート数を制限** - レポートあたり6つ以下のチャートに抑える
+3. **データテーブルを含める** - 詳細なデータ検査のためにチャートとテーブルを組み合わせる
+4. **適切なページサイズを設定** - データテーブルは1ページあたり10-20行を推奨

@@ -1,0 +1,849 @@
+---
+title: "Tham Khảo CLI"
+description: "Tài liệu tham khảo đầy đủ về tất cả lệnh CLI của OpenYida, bao gồm tạo ứng dụng, quản lý biểu mẫu, thao tác dữ liệu, kết nối và báo cáo."
+icon: "file-lines"
+---
+
+OpenYida cung cấp các lệnh CLI phong phú, hỗ trợ quản lý toàn bộ vòng đời ứng dụng.
+
+---
+
+## Môi trường và xác thực
+
+```bash
+# Phát hiện môi trường
+openyida env
+
+# Quản lý đa môi trường
+openyida env list                  # Liệt kê tất cả môi trường, đánh dấu môi trường đang hoạt động
+openyida env add <name>            # Thêm môi trường triển khai riêng tư bằng tương tác
+openyida env switch <name>         # Chuyển đổi môi trường hoạt động
+openyida env remove <name>         # Xóa môi trường (không thể xóa "public")
+openyida env show [name]           # Hiển thị cấu hình chi tiết của môi trường
+
+# Đăng nhập
+openyida login [--qr]              # --qr sử dụng mã QR trong terminal
+openyida login --agent-qr         # Agent QR handoff
+
+# Đăng xuất
+openyida logout
+
+# Quản lý phiên đăng nhập
+openyida auth status               # Xem trạng thái đăng nhập
+openyida auth login                # Thực hiện đăng nhập
+openyida auth refresh              # Làm mới phiên
+openyida auth logout               # Đăng xuất
+
+# Quản lý tổ chức
+openyida org list                  # Liệt kê các tổ chức có thể truy cập
+openyida org switch --corp-id <id> # Chuyển tổ chức
+
+# Khởi tạo thư mục làm việc
+openyida copy [--force]            # Sao chép thư mục project (trải nội dung vào thư mục trống)
+openyida copy -skills              # Sao chép yida-skills vào thư mục skills của công cụ AI
+
+# Công cụ chẩn đoán
+openyida doctor [--fix]            # Chẩn đoán môi trường
+openyida doctor --monitor          # Giám sát sức khỏe
+openyida doctor --report <format>  # Tạo báo cáo (json|markdown|html)
+
+# Tự cập nhật
+openyida update                    # Kiểm tra và cài đặt phiên bản mới nhất
+```
+
+---
+
+## Quản lý ứng dụng
+
+```bash
+# Tạo ứng dụng
+openyida create-app "<tên>" [desc] [icon] [color] [themeColor]
+
+# Xuất ứng dụng
+openyida export <appType> [output] # Tạo gói di chuyển
+
+# Nhập ứng dụng
+openyida import <file> [name]      # Tái tạo ứng dụng từ gói
+
+# Cập nhật thông tin ứng dụng
+openyida update-app <appType> --name "<tên>" [--desc "<mô tả>"] [--icon "<biểu tượng>"] [--icon-color "<màu>"]
+```
+
+| Tùy chọn | Viết tắt | Mô tả |
+|-----------|----------|-------|
+| `--name` | `-n` | Tên ứng dụng (cần ít nhất một trường cập nhật) |
+| `--desc` | `-d` | Mô tả ứng dụng |
+| `--icon` | | Tên biểu tượng (ví dụ: `xian-yingyong`) |
+| `--icon-color` | | Màu biểu tượng (mặc định: `#0089FF`) |
+
+---
+
+## Quản lý biểu mẫu
+
+```bash
+# Tạo biểu mẫu
+openyida create-form create <appType> "<tên>" <trườngJSON> \
+  [--layout <bố_cục>] \
+  [--theme <chủ_đề>] \
+  [--label-align <căn_chỉnh>]
+
+# Cập nhật biểu mẫu
+openyida create-form update <appType> <formUuid> <sửa_đổiJSON> [--force]
+
+# Lấy Schema biểu mẫu
+openyida get-schema <appType> <formUuid>  # Bắt buộc trước mọi thao tác sử dụng field ID
+
+# Cập nhật cấu hình biểu mẫu
+openyida update-form-config <appType> <formUuid> <isRenderNav> <tiêu_đề>
+
+# Liệt kê các trang biểu mẫu trong ứng dụng
+openyida list-forms <appType> [--keyword <văn_bản>]
+```
+
+
+<Warning>
+  Field ID trong Yida được tạo ngẫu nhiên bởi nền tảng (ví dụ: `textField_eftt1aa5m`, `selectField_fix024y92`) và không thể suy ra từ tên trường. Trước mọi thao tác sử dụng field ID (tạo/cập nhật dữ liệu, cấu hình điều kiện truy vấn, viết trang tùy chỉnh), bạn **phải** chạy `openyida get-schema` để lấy field ID thực tế.
+</Warning>
+
+<Info>
+  Khi cập nhật biểu mẫu đã có dữ liệu, CLI sẽ thực hiện kiểm tra an toàn trước khi áp dụng thay đổi. Nếu phát hiện bản ghi hiện có và `--force` chưa được đặt, lệnh sẽ xuất phản hồi JSON với `requiresConfirmation: true` và thoát mà không thực hiện thay đổi. Truyền `--force` để bỏ qua xác nhận và tiếp tục cập nhật.
+
+  Phản hồi xác nhận bao gồm:
+
+  | Trường | Kiểu | Mô tả |
+  |--------|------|-------|
+  | `success` | `boolean` | Luôn là `false` khi cần xác nhận |
+  | `requiresConfirmation` | `boolean` | Luôn là `true` |
+  | `formUuid` | `string` | UUID biểu mẫu đang được cập nhật |
+  | `appType` | `string` | ID ứng dụng |
+  | `existingDataCount` | `number` | Số bản ghi hiện có trong biểu mẫu |
+  | `message` | `string` | Thông báo xác nhận dễ đọc |
+  | `hint` | `string` | Gợi ý sử dụng hiển thị cú pháp cờ `--force` |
+</Info>
+
+### Liệt kê trang biểu mẫu
+
+Truy xuất tất cả các trang biểu mẫu trong một ứng dụng, có thể lọc theo từ khóa. Lệnh xuất mảng JSON ra stdout.
+
+```bash
+openyida list-forms <appType> [--keyword <văn_bản>]
+```
+
+| Tham số | Mô tả |
+|---------|-------|
+| `<appType>` | ID ứng dụng (ví dụ: `APP_XXXXX`) |
+
+| Tùy chọn | Mô tả | Mặc định |
+|-----------|-------|----------|
+| `--keyword <văn_bản>` | Lọc theo tên, UUID, loại hoặc đường dẫn biểu mẫu (không phân biệt hoa thường) | — |
+
+#### Đầu ra
+
+Lệnh xuất mảng JSON ra stdout. Mỗi mục có các trường sau:
+
+| Trường | Kiểu | Mô tả |
+|--------|------|-------|
+| `formUuid` | `string` | Mã định danh duy nhất của biểu mẫu |
+| `formName` | `string` | Tên biểu mẫu đã bản địa hóa |
+| `formType` | `string` | Loại biểu mẫu (ví dụ: `display`, `process`) |
+| `pathName` | `string` | Tên đường dẫn URL của biểu mẫu |
+
+**Ví dụ đầu ra:**
+
+```json
+[
+  {
+    "formUuid": "FORM-AAA",
+    "formName": "Thông tin khách hàng",
+    "formType": "display",
+    "pathName": "customer-info"
+  },
+  {
+    "formUuid": "FORM-BBB",
+    "formName": "Hoàn chi phí",
+    "formType": "process",
+    "pathName": "expense"
+  }
+]
+```
+
+**Ví dụ sử dụng:**
+
+```bash
+# Liệt kê tất cả biểu mẫu trong ứng dụng
+openyida list-forms APP_XXXXX
+
+# Lọc theo từ khóa
+openyida list-forms APP_XXXXX --keyword "khách hàng"
+```
+
+<Info>
+  Các mục điều hướng hệ thống (ví dụ: chế độ xem tác vụ tích hợp) được tự động loại trừ. Chỉ các trang biểu mẫu do người dùng tạo mới được trả về.
+</Info>
+
+<Info>
+  Bạn phải đăng nhập trước khi chạy lệnh này. Chạy `openyida login` nếu bạn chưa xác thực.
+</Info>
+
+### Các loại trường được hỗ trợ
+
+Lệnh `create-form` chỉ chấp nhận các loại trường sau. Sử dụng loại không được hỗ trợ sẽ trả về lỗi.
+
+#### Trường cơ bản
+
+Trường tích hợp sẵn, không cần cài đặt plugin.
+
+| Loại | Mô tả |
+|------|-------|
+| `TextField` | Văn bản một dòng |
+| `TextareaField` | Văn bản nhiều dòng |
+| `NumberField` | Số |
+| `RateField` | Đánh giá |
+| `DateField` | Ngày |
+| `RadioField` | Nút radio |
+| `SelectField` | Danh sách thả xuống (chọn một) |
+| `CheckboxField` | Hộp kiểm |
+| `MultiSelectField` | Danh sách thả xuống (chọn nhiều) |
+| `CascadeSelectField` | Chọn dạng chuỗi |
+| `CascadeDateField` | Ngày dạng chuỗi |
+| `EmployeeField` | Bộ chọn thành viên |
+| `DepartmentSelectField` | Bộ chọn phòng ban |
+| `AssociationFormField` | Biểu mẫu liên kết |
+| `AssociationQuery` | Truy vấn liên kết |
+| `AttachmentField` | Tệp đính kèm |
+| `ImageField` | Hình ảnh |
+| `AddressField` | Địa chỉ |
+| `CountrySelectField` | Bộ chọn quốc gia/vùng |
+| `TableField` | Biểu mẫu con / chi tiết |
+| `SerialNumberField` | Số thứ tự |
+
+#### Trường nâng cao
+
+Trường tích hợp sẵn với chức năng mở rộng. Một số tính năng có thể cần kích hoạt.
+
+| Loại | Mô tả |
+|------|-------|
+| `EditorField` | Trình soạn thảo văn bản phong phú |
+| `DigitalSignatureField` | Chữ ký số |
+| `LocationField` | Vị trí GPS |
+
+#### Trường plugin
+
+Các trường này yêu cầu cài đặt plugin tương ứng từ trung tâm plugin trước khi sử dụng.
+
+| Loại | Plugin cần thiết |
+|------|------------------|
+| `TimeZoneDateField` | Thành phần múi giờ quốc tế |
+| `CC_AIButtonField` | Thành phần AI |
+| `CC_PG_ESignField` | Thành phần tài chính thông minh |
+| `CC_TeambitionProjectLinksField` | Plugin Teambition |
+| `CC_TeambitionTaskLinksField` | Plugin Teambition |
+| `CC_MoneyField` | Thành phần tài chính thông minh |
+| `CC_PhoneNumberField` | Thành phần mở rộng |
+| `CC_ChineseIdField` | Thành phần mở rộng |
+| `YidaDingtalkAgentField` | Plugin đại lý DingTalk |
+
+<Warning>
+Trường plugin sẽ thất bại nếu plugin cần thiết chưa được cài đặt trong tổ chức của bạn. Cài đặt plugin từ trung tâm plugin trước khi sử dụng các loại trường này.
+</Warning>
+
+<Warning>
+Các loại trường như `MobileField` và `EmailField` không được hỗ trợ và sẽ bị từ chối. Chỉ sử dụng các loại được liệt kê ở trên.
+</Warning>
+
+---
+
+## Quản lý trang
+
+```bash
+# Tạo trang tùy chỉnh
+openyida create-page <appType> "<tên>" [--mode dashboard] [--open|--no-open]
+
+# Biên dịch và xuất bản trang
+openyida publish <đường_dẫn_tệp_nguồn> <appType> <formUuid> [--health-check] [--force] [--open|--no-open]
+
+# Cấu hình chia sẻ trang
+openyida save-share-config <appType> <formUuid> <url> <isOpen> [openAuth]
+openyida get-page-config <appType> <formUuid>
+openyida verify-short-url <appType> <formUuid> <url>
+```
+
+---
+
+## Quản lý dữ liệu
+
+<Warning>
+  Trước khi tạo hoặc cập nhật dữ liệu, bạn **phải** chạy `openyida get-schema` để lấy field ID thực tế. Sau khi ghi dữ liệu, kiểm tra bằng `openyida data query form <appType> <formUuid> --size 1` để xác nhận các trường trong `formData` có giá trị thực. Nếu tất cả đều trống, field ID không chính xác và cần lấy lại qua `get-schema`.
+</Warning>
+
+```bash
+# Quản lý dữ liệu thống nhất
+openyida data <hành_động> <tài_nguyên> [args]
+
+# Dữ liệu biểu mẫu
+openyida data query form <appType> <formUuid> [--page N] [--size N] [--search-json JSON]
+openyida data get form <appType> --inst-id <id>
+openyida data create form <appType> <formUuid> --data-json <JSON>  # Khóa JSON có thể là ID trường hoặc nhãn trường
+openyida data update form <appType> --inst-id <id> --data-json <JSON>
+
+# Dữ liệu quy trình
+openyida data query process <appType> <formUuid> [--instance-status TRẠNG_THÁI]
+openyida data get process <appType> --process-inst-id <id>
+openyida data create process <appType> <formUuid> --process-code <mã> --data-json <JSON>
+
+# Quản lý tác vụ
+openyida data query tasks <appType> --type <todo|done|submitted|cc>
+openyida data execute task <appType> --task-id <id> --process-inst-id <id> --out-result <AGREE|DISAGREE>
+
+# Biểu mẫu con
+openyida data query subform <appType> <formUuid> --inst-id <id> --table-field-id <fieldId>
+```
+
+---
+
+## Trung tâm tác vụ toàn cục
+
+Truy vấn dữ liệu trung tâm tác vụ toàn cục của người dùng hiện tại mà không cần chỉ định `appType`.
+
+```bash
+# Tác vụ cần làm
+openyida task-center todo [--page N] [--size N] [--keyword TEXT]
+
+# Do tôi tạo
+openyida task-center created [--page N] [--size N] [--keyword TEXT] [--no-detail]
+
+# Đã xử lý
+openyida task-center done [--page N] [--size N] [--keyword TEXT]
+
+# Được CC
+openyida task-center cc [--page N] [--size N] [--keyword TEXT]
+
+# Gửi thay
+openyida task-center proxy [--page N] [--size N] [--keyword TEXT]
+```
+
+### Loại tác vụ
+
+| Loại | Mô tả | Endpoint API |
+|------|-------|-------------|
+| `todo` | Tác vụ đang chờ xử lý | `getTodoTasksInCorp` |
+| `created` | Quy trình bạn đã khởi tạo | `getMyCreateInCorp` |
+| `done` | Tác vụ đã xử lý | `getDoneTasksInCorp` |
+| `cc` | Tác vụ được CC | `getNotifyMeInCorp` |
+| `proxy` | Quy trình gửi thay | `getSubmitAgentInCorp` |
+
+### Tham số tùy chọn
+
+| Tham số | Mô tả | Mặc định |
+|---------|-------|----------|
+| `--page N` | Số trang | `1` |
+| `--size N` | Số mục mỗi trang (tối đa 100) | `20` |
+| `--keyword TEXT` | Từ khóa tìm kiếm | — |
+| `--no-detail` | Bỏ qua chi tiết (chỉ hỗ trợ loại `created`) | — |
+
+<Info>
+  Khác với `openyida data query tasks`, lệnh `task-center` truy vấn dữ liệu trung tâm tác vụ toàn cục và không yêu cầu tham số `appType`.
+</Info>
+
+---
+
+## Quản lý quy trình
+
+```bash
+# Tạo biểu mẫu quy trình (tích hợp) - Biểu mẫu mới với quy trình
+openyida create-process <appType> <formTitle> <fieldsJsonFile> <processDefinitionFile>
+
+# Tái sử dụng biểu mẫu hiện có để tạo quy trình
+openyida create-process <appType> --formUuid <formUuid> <processDefinitionFile>
+
+# Cấu hình và xuất bản quy trình
+openyida configure-process <appType> <formUuid> <processDefinitionFile> [processCode]
+
+# Xem trước phiên bản quy trình (sơ đồ luồng trực quan)
+openyida process preview <appType> <processInstanceId> [--output <path>]
+```
+
+### Xem trước phiên bản quy trình
+
+Tạo sơ đồ luồng HTML tương tác cho một phiên bản quy trình đang chạy hoặc đã hoàn thành. Sơ đồ đánh dấu trạng thái các nút — hoàn thành (xanh lá), nút hiện tại (xung xanh dương), chờ xử lý (xám), bỏ qua (đường nét đứt) — và hiển thị chi tiết người phê duyệt và dấu thời gian khi di chuột qua.
+
+```bash
+openyida process preview <appType> <processInstanceId> [--output <path>]
+```
+
+| Đối số | Mô tả |
+|--------|-------|
+| `<appType>` | ID ứng dụng (ví dụ: `APP_XXXXX`) |
+| `<processInstanceId>` | ID phiên bản quy trình cần trực quan hóa |
+
+| Tùy chọn | Viết tắt | Mô tả | Mặc định |
+|-----------|----------|-------|----------|
+| `--output` | `-o` | Đường dẫn xuất file HTML được tạo | Tự động tạo trong thư mục hiện tại |
+
+Lệnh này lấy chi tiết phiên bản quy trình và bản ghi hoạt động phê duyệt, sau đó tạo file HTML dựa trên SVG và mở trong trình duyệt mặc định.
+
+**Ví dụ:**
+
+```bash
+openyida process preview APP_XXXXX proc-inst-id-xxx
+openyida process preview APP_XXXXX proc-inst-id-xxx --output flowchart.html
+```
+
+<Info>
+  Bạn phải đăng nhập trước khi chạy lệnh này. Chạy `openyida login` trước nếu bạn chưa xác thực.
+</Info>
+
+### Thuộc tính URL trang chi tiết trong định nghĩa quy trình
+
+Tệp JSON định nghĩa quy trình hỗ trợ các thuộc tính tùy chọn sau để tùy chỉnh URL trang chi tiết khi người dùng xem một phiên bản quy trình.
+
+| Thuộc tính | Kiểu | Mô tả |
+|------------|------|-------|
+| `processDetailUrl` | `string` | URL tùy chỉnh cho trang chi tiết quy trình trên web/PC. Ghi đè tất cả các cài đặt URL chi tiết khác cho web. |
+| `processMobileDetailUrl` | `string` | URL tùy chỉnh cho trang chi tiết quy trình trên di động. Ghi đè tất cả các cài đặt URL chi tiết khác cho di động. |
+| `customDetailPageUrl` | `string` | Một URL trang tùy chỉnh dùng cho cả web và di động. Trên di động, `?procInsId=` được tự động thêm vào. |
+| `detailUrls` | `object` | Đối tượng chứa URL chi tiết theo nền tảng. Hỗ trợ các khóa `web` (hoặc `pc`) và `mobile`. |
+
+Thứ tự ưu tiên cho **URL chi tiết web**:
+
+1. `processDetailUrl`
+2. `detailUrls.web` hoặc `detailUrls.pc`
+3. `customDetailPageUrl`
+4. Giá trị mặc định của nền tảng
+
+Thứ tự ưu tiên cho **URL chi tiết di động**:
+
+1. `processMobileDetailUrl`
+2. `detailUrls.mobile`
+3. `customDetailPageUrl` (tự động thêm `?procInsId=`)
+4. Giá trị mặc định của nền tảng
+
+**Ví dụ** sử dụng `detailUrls`:
+
+```json
+{
+  "detailUrls": {
+    "web": "https://example.com/process/detail",
+    "mobile": "https://m.example.com/process/detail"
+  }
+}
+```
+
+**Ví dụ** sử dụng `customDetailPageUrl` (cùng URL cho cả hai nền tảng):
+
+```json
+{
+  "customDetailPageUrl": "https://example.com/custom-detail"
+}
+```
+
+### Xử lý lỗi và thử lại
+
+Nếu cấu hình quy trình thất bại nhưng biểu mẫu đã được tạo, lệnh sẽ hiển thị gợi ý thử lại với cờ `--formUuid` để bạn có thể tái sử dụng biểu mẫu mà không cần tạo lại:
+
+```bash
+openyida create-process <appType> --formUuid <formUuid> <processDefinitionFile>
+```
+
+Hữu ích khi:
+- Tệp định nghĩa quy trình có lỗi cần sửa trước khi thử lại.
+- Lỗi mạng hoặc API tạm thời làm gián đoạn bước cấu hình.
+
+Lệnh xuất kết quả JSON ra `stdout`. Khi thành công:
+
+```json
+{
+  "success": true,
+  "formUuid": "FORM-XXXXX",
+  "formTitle": "Order Form",
+  "appType": "APP_XXXXX",
+  "fieldCount": 5,
+  "processCode": "TPROC-XXXXX",
+  "url": "https://www.aliwork.com/APP_XXXXX/workbench/FORM-XXXXX"
+}
+```
+
+Khi thất bại (ví dụ: cấu hình quy trình thất bại):
+
+```json
+{
+  "success": false,
+  "formUuid": "FORM-XXXXX",
+  "formTitle": "Order Form",
+  "appType": "APP_XXXXX",
+  "fieldCount": 5,
+  "error": "Failed to configure process: <error details>"
+}
+```
+
+<Tip>
+  Khi bạn thấy thông báo lỗi có chứa `formUuid` trong đầu ra, hãy sử dụng cờ `--formUuid` để thử lại mà không cần tạo lại biểu mẫu.
+</Tip>
+
+---
+
+## Tích hợp và tự động hóa
+
+Tạo và quản lý luồng logic (tích hợp và tự động hóa) với trình kích hoạt sự kiện biểu mẫu, thông báo và thao tác dữ liệu.
+
+```bash
+# Tạo luồng logic
+openyida integration create <appType> <formUuid> <flowName> [tùy chọn]
+```
+
+### Tham số
+
+| Tham số | Bắt buộc | Mô tả |
+|---------|----------|-------|
+| `appType` | Có | ID ứng dụng (VD: `APP_XXXX`) |
+| `formUuid` | Có | UUID biểu mẫu kích hoạt (VD: `FORM-XXXX`) |
+| `flowName` | Có | Tên luồng logic |
+
+### Tùy chọn
+
+| Tùy chọn | Mặc định | Mô tả |
+|----------|----------|-------|
+| `--process-code <code>` | Tự động tạo | processCode hiện có (`LPROC-xxx`) |
+| `--receivers <userId,...>` | Trống | ID người dùng nhận thông báo DingTalk (phân cách bằng dấu phẩy) |
+| `--title <title>` | Giống flowName | Tiêu đề thông báo, hỗ trợ `#{fieldId-ComponentType}#` |
+| `--content <content>` | `"Bản ghi mới đã được gửi"` | Nội dung thông báo |
+| `--events <insert,update>` | `insert` | Sự kiện kích hoạt: `insert`/`update`/`delete`/`comment` |
+| `--add-data-form-uuid <formUuid>` | — | UUID biểu mẫu đích cho nút thêm dữ liệu |
+| `--add-data-assignment <targetFieldId:valueType:value>` | — | Gán trường (có thể chỉ định nhiều lần). `valueType`: `processVar`/`literal`/`column` |
+| `--publish` | Không xuất bản | Xuất bản ngay sau khi lưu |
+
+### Đầu ra
+
+```json
+{
+  "success": true,
+  "published": false,
+  "processCode": "LPROC-XXXX",
+  "flowName": "Thông báo bản ghi mới",
+  "appType": "APP_XXX",
+  "formUuid": "FORM-XXX",
+  "formEventTypes": ["insert"]
+}
+```
+
+<Info>
+  Bạn phải đăng nhập trước khi chạy lệnh này. Với `--publish`, `published` sẽ là `true`; nếu thất bại, `published` sẽ là `false` kèm trường `warning`.
+</Info>
+
+---
+
+## Quản lý quyền hạn
+
+```bash
+# Truy vấn quyền biểu mẫu
+openyida get-permission <appType> <formUuid>
+
+# Lưu quyền biểu mẫu
+openyida save-permission <appType> <formUuid> \
+  [--data-permission <json>] \
+  [--action-permission <json>]
+```
+
+---
+
+## Quản lý connector
+
+```bash
+# Liệt kê connector
+openyida connector list [--page N] [--size N]
+
+# Tạo connector
+openyida connector create "<tên>" "<miền>" --operations <tệp> [tùy_chọn]
+
+# Xem chi tiết connector
+openyida connector detail <connector-id>
+
+# Xóa connector
+openyida connector delete <connector-id> [--force]
+
+# Quản lý action
+openyida connector add-action --connector-id <id> --operations <tệp> [--confirm]
+openyida connector list-actions <connector-id>
+openyida connector delete-action <connector-id> <operation-id> [--force]
+openyida connector test --connector-id <id> --action <actionId> [tùy_chọn]
+
+# Quản lý tài khoản xác thực
+openyida connector list-connections <connector-id>
+openyida connector create-connection <connector-id> "<tên>" [tùy_chọn]
+
+# Tạo thông minh
+openyida connector smart-create --curl "<lệnh_curl>" [--name <tên>] [--desc <mô_tả>]
+
+# Công cụ hỗ trợ
+openyida connector parse-api --curl "<lệnh_curl>" --output <tệp>
+openyida connector gen-template [đường_dẫn_xuất]
+```
+
+---
+
+## Quản lý báo cáo
+
+```bash
+# Tạo báo cáo
+openyida create-report <appType> "<tên>" <định_nghĩa_biểu_đồ_JSON_hoặc_đường_dẫn>
+
+# Thêm biểu đồ
+openyida append-chart <appType> <reportId> <định_nghĩa_biểu_đồ_JSON_hoặc_đường_dẫn>
+```
+
+---
+
+## Quản lý CDN
+
+```bash
+# Cấu hình CDN
+openyida cdn-config
+
+# Tải ảnh lên
+openyida cdn-upload <đường_dẫn_tệp>
+
+# Làm mới bộ nhớ đệm
+openyida cdn-refresh <đường_dẫn>
+```
+
+---
+
+## Ghi chú nhanh sang PRD
+
+Chuyển đổi ghi chú nhanh DingTalk (bản ghi cuộc họp) thành tài liệu PRD có cấu trúc bằng AI.
+
+```bash
+# Từ tệp
+openyida flash-to-prd --file <đường_dẫn> [--name <tên dự án>] [--max-tokens <số>]
+
+# Từ đầu vào tiêu chuẩn
+cat meeting.txt | openyida flash-to-prd --name <tên dự án> [--max-tokens <số>]
+```
+
+### Tham số
+
+| Tham số | Viết tắt | Mô tả | Mặc định |
+|---------|----------|-------|----------|
+| `--file` | `-f` | Đường dẫn đến tệp ghi chú nhanh | — |
+| `--name` | `-n` | Tên dự án (tự động phát hiện nếu bỏ qua) | — |
+| `--max-tokens` | — | Số token tối đa cho phản hồi AI | `8000` |
+
+Lệnh đọc nội dung ghi chú nhanh từ tệp được chỉ định hoặc từ đầu vào tiêu chuẩn, tiền xử lý văn bản (bao gồm trích xuất siêu dữ liệu cuộc họp và nhận dạng người nói), sau đó gọi dịch vụ AI Yida để tạo PRD có cấu trúc. Tệp PRD được lưu vào thư mục `prd/` trong dự án của bạn.
+
+### Đầu ra
+
+Lệnh in kết quả JSON ra stdout:
+
+```json
+{
+  "success": true,
+  "projectName": "Dự án của tôi",
+  "prdFile": "/path/to/prd/Dự-án-của-tôi.md",
+  "contentLength": 4096,
+  "meetingRecognition": {
+    "metaFields": 3,
+    "a1Sections": 2,
+    "speakers": 5
+  }
+}
+```
+
+<Info>
+  Bạn cần đăng nhập trước khi chạy lệnh này. Chạy `openyida login` trước nếu bạn chưa xác thực.
+</Info>
+
+---
+
+## Tích hợp và tự động hóa
+
+Tạo các luồng logic tích hợp được kích hoạt bởi sự kiện biểu mẫu và thực hiện các hành động tự động như thông báo, tra cứu dữ liệu và tạo dữ liệu.
+
+```bash
+openyida integration create <appType> <formUuid> "<flowName>" [options]
+```
+
+### Tham số bắt buộc
+
+| Tham số | Mô tả |
+|---------|-------|
+| `<appType>` | ID ứng dụng |
+| `<formUuid>` | UUID biểu mẫu kích hoạt |
+| `<flowName>` | Tên cho luồng tích hợp |
+
+### Tùy chọn
+
+| Tùy chọn | Mô tả | Mặc định |
+|----------|-------|---------|
+| `--process-code <code>` | Mã quy trình hiện có để cập nhật (bỏ qua để tạo mới) | — |
+| `--receivers <id1,id2>` | ID người dùng phân cách bằng dấu phẩy cho người nhận thông báo | — |
+| `--title <text>` | Tiêu đề thông báo | Tên luồng |
+| `--content <text>` | Nội dung thông báo | — |
+| `--events <types>` | Sự kiện kích hoạt phân cách bằng dấu phẩy: `insert`, `update`, `delete` | `insert` |
+| `--data-form-uuid <uuid>` | UUID biểu mẫu cho nút dữ liệu "lấy bản ghi đơn" | — |
+| `--data-condition <mapping>` | Ánh xạ trường cho nút dữ liệu (`bFieldId:bFieldName:aFieldId[:componentType]`). Có thể chỉ định nhiều lần. | — |
+| `--add-data-form-uuid <uuid>` | UUID biểu mẫu cho nút dữ liệu "thêm bản ghi" | — |
+| `--add-data-assignment <mapping>` | Gán trường cho nút thêm dữ liệu (`targetFieldId:valueType:value`). `valueType` có thể là `processVar`, `literal` hoặc `column`. Có thể chỉ định nhiều lần. | — |
+| `--publish` | Xuất bản luồng ngay sau khi tạo | Chỉ bản nháp |
+
+### Ví dụ
+
+```bash
+# Tạo luồng thông báo kích hoạt khi có gửi mới
+openyida integration create APP_XXX FORM-YYY "New Order Alert" \
+  --receivers "user1,user2" \
+  --events insert \
+  --title "New Order" \
+  --content "A new order was submitted"
+
+# Tạo và xuất bản ngay
+openyida integration create APP_XXX FORM-YYY "Auto Notify" \
+  --receivers "user1" \
+  --publish
+```
+
+---
+
+## DingTalk CLI (dws)
+
+Chuyển tiếp lệnh đến DingTalk Workspace CLI cho danh bạ, lịch, việc cần làm, phê duyệt, chấm công và nhiều hơn nữa.
+
+```bash
+openyida dws <command> [args]
+```
+
+<Info>
+  Lệnh `dws` yêu cầu cài đặt riêng DingTalk CLI. Nếu chưa được cài đặt, OpenYida sẽ nhắc bạn cài đặt khi sử dụng lần đầu.
+</Info>
+
+### Lệnh thường dùng
+
+| Lệnh | Mô tả |
+|------|-------|
+| `contact user search --keyword "<name>"` | Tìm kiếm danh bạ |
+| `calendar event list` | Liệt kê sự kiện lịch |
+| `todo task create --title "<title>" --executors "<userId>"` | Tạo việc cần làm |
+| `approval instance list` | Liệt kê phiên phê duyệt |
+| `attendance record list` | Truy vấn bản ghi chấm công |
+| `chat robot send --content "<message>"` | Gửi tin nhắn robot chat |
+
+### Lệnh đặc biệt
+
+```bash
+# Cài đặt DingTalk CLI
+openyida dws install
+
+# Hiển thị trợ giúp
+openyida dws help
+```
+
+### Định dạng đầu ra
+
+Mặc định, đầu ra được định dạng dạng bảng để dễ đọc. Thêm `-f json` để có đầu ra JSON phù hợp cho AI agent.
+
+```bash
+openyida dws contact user search --keyword "name" -f json
+```
+
+---
+
+## Xuất cuộc hội thoại
+
+Xuất bản ghi hội thoại AI từ môi trường công cụ AI hiện tại dưới dạng tài liệu Markdown.
+
+```bash
+openyida export-conversation [options]
+```
+
+### Tùy chọn
+
+| Tùy chọn | Viết tắt | Mô tả | Mặc định |
+|----------|---------|-------|---------|
+| `--output` | `-o` | Đường dẫn tệp đầu ra | Đường dẫn tự động tạo |
+| `--input` | `-i` | Tệp hội thoại đầu vào (JSON/JSONL) | — |
+| `--latest` | — | Chỉ xuất cuộc hội thoại mới nhất | Đã bật |
+| `--list` | — | Liệt kê các bản ghi hội thoại có sẵn | — |
+
+### Ví dụ
+
+```bash
+# Xuất cuộc hội thoại hiện tại
+openyida export-conversation
+
+# Xuất ra tệp cụ thể
+openyida export-conversation -o output.md
+
+# Liệt kê các cuộc hội thoại có sẵn
+openyida export-conversation --list
+
+# Xuất từ tệp đầu vào cụ thể
+openyida export-conversation -i conversation.json -o result.md
+```
+
+---
+
+## Tự cập nhật
+
+Kiểm tra phiên bản mới hơn của OpenYida trên npm và cài đặt toàn cục.
+
+```bash
+openyida update
+```
+
+Lệnh này truy vấn npm registry để lấy phiên bản mới nhất đã xuất bản. Nếu có phiên bản mới hơn, nó sẽ chạy `npm install -g openyida@latest` để nâng cấp. Nếu bạn đã ở phiên bản mới nhất, nó sẽ in thông báo xác nhận và thoát.
+
+<Info>
+  OpenYida cũng tự động kiểm tra cập nhật trong nền mỗi khi bạn chạy lệnh. Lệnh `update` cho phép bạn kích hoạt kiểm tra này và cài đặt thủ công.
+</Info>
+
+---
+
+## Tùy chọn toàn cục
+
+| Tùy chọn | Mô tả |
+|------|------|
+| `--help`, `-h` | Hiển thị thông tin trợ giúp |
+| `--version`, `-v` | Hiển thị số phiên bản |
+| `--qr` | Sử dụng mã QR trong terminal để đăng nhập |
+| `--force` | Buộc thực hiện, bỏ qua xác nhận |
+| `--health-check` | Run a health check after publishing a custom page |
+
+---
+
+## Biến môi trường
+
+| Biến | Mô tả | Ví dụ |
+|------|------|------|
+| `OPENYIDA_LANG` | Cài đặt ngôn ngữ | `zh`, `en`, `ja` |
+| `LANG` / `LC_ALL` | Ngôn ngữ hệ thống | `zh_CN.UTF-8` |
+| `OPENYIDA_ENDPOINT` | Buộc chỉ định endpoint dịch vụ Yida (ưu tiên cao nhất) | `https://yida.example.com` |
+| `OPENYIDA_LOGIN_URL` | Buộc chỉ định URL trang đăng nhập | `https://yida.example.com/login` |
+| `OPENYIDA_ENV` | Chuyển đổi môi trường mà không sửa file cấu hình (phù hợp cho CI/CD) | `my-private-env` |
+| `OPENYIDA_DWS_ENDPOINT` | Endpoint cổng OpenAPI DingTalk riêng tư | `https://oapi.example.com` |
+
+### Ưu tiên phân giải endpoint
+
+Khi xác định endpoint dịch vụ Yida, thứ tự sau được áp dụng:
+
+1. Biến môi trường `OPENYIDA_ENDPOINT`
+2. Cấu hình môi trường đang hoạt động (đặt qua `openyida env switch`)
+3. `base_url` được lưu trong cache cookie
+4. URL đám mây công cộng mặc định (`https://www.aliwork.com`)
+
+Thứ tự phân giải URL đăng nhập:
+
+1. Biến môi trường `OPENYIDA_LOGIN_URL`
+2. Cấu hình môi trường đang hoạt động
+3. URL đăng nhập mặc định (`https://www.aliwork.com/workPlatform`)
+
+---
+
+## Mã thoát
+
+| Mã | Ý nghĩa |
+|----|------|
+| 0 | Thành công |
+| 1 | Lỗi chung |
+| 2 | Lỗi tham số |
+| 3 | Lỗi đăng nhập / Chưa đăng nhập |
+| 4 | Lỗi mạng |
+| 5 | Lỗi API |

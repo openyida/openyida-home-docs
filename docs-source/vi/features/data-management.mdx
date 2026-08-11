@@ -1,0 +1,371 @@
+---
+title: "Quản lý dữ liệu"
+description: "Giao diện quản lý dữ liệu thống nhất, hỗ trợ thao tác dữ liệu biểu mẫu, quy trình, tác vụ, biểu mẫu con, v.v."
+icon: "database"
+---
+
+OpenYida cung cấp CLI quản lý dữ liệu thống nhất, hỗ trợ thao tác hoàn chỉnh cho dữ liệu biểu mẫu, phiên bản quy trình, tác vụ, biểu mẫu con, v.v.
+
+---
+
+## Tổng quan
+
+<CardGroup cols={2}>
+  <Card title="Dữ liệu biểu mẫu" icon="table">
+    Truy vấn, tạo, cập nhật dữ liệu phiên bản biểu mẫu.
+  </Card>
+  <Card title="Dữ liệu quy trình" icon="diagram-project">
+    Quản lý phiên bản quy trình, bản ghi phê duyệt, trạng thái quy trình.
+  </Card>
+  <Card title="Quản lý tác vụ" icon="check-circle">
+    Truy vấn tác vụ đang chờ, đã hoàn thành, do tôi gửi, CC cho tôi.
+  </Card>
+  <Card title="Biểu mẫu con" icon="list">
+    Truy vấn và quản lý dữ liệu biểu mẫu con độc lập.
+  </Card>
+</CardGroup>
+
+---
+
+## Định dạng lệnh
+
+```bash
+openyida data <action> <resource> [args]
+```
+
+- **action**: `query` | `get` | `create` | `update` | `execute`
+- **resource**: `form` | `process` | `task` | `subform` | `operation-records`
+
+---
+
+<Warning>
+  Field ID trong Yida được tạo ngẫu nhiên bởi nền tảng (ví dụ: `textField_eftt1aa5m`) và không thể đoán được. Trước khi tạo hoặc cập nhật bản ghi, bạn **phải** chạy `openyida get-schema <appType> <formUuid>` và ghi lại ánh xạ tên→ID vào `.cache/<tên-dự-án>-schema.json`. Sau khi ghi dữ liệu, truy vấn ít nhất 1 bản ghi (`--size 1`) để xác nhận các trường `formData` có giá trị thực. Giá trị trống cho thấy field ID không chính xác.
+</Warning>
+
+## Quản lý dữ liệu biểu mẫu
+
+### Truy vấn dữ liệu biểu mẫu
+
+```bash
+# Truy vấn cơ bản
+openyida data query form <appType> <formUuid>
+
+# Truy vấn phân trang
+openyida data query form <appType> <formUuid> --page 1 --size 50
+
+# Truy vấn có điều kiện
+openyida data query form <appType> <formUuid> \
+  --search-json '[{"key":"field_xxx","value":"value","type":"TEXT","operator":"eq","componentName":"TextField"}]'
+
+# Truy vấn phiên bản cụ thể
+openyida data query form <appType> <formUuid> --inst-id <formInstId>
+
+# Chỉ trả về ID
+openyida data query form <appType> <formUuid> --ids-only
+
+# Lọc theo người tạo và khoảng ngày
+openyida data query form <appType> <formUuid> \
+  --originator-id <userId> \
+  --create-from "2026-01-01" --create-to "2026-12-31"
+```
+
+#### Tham số tùy chọn
+
+| Tham số | Mô tả |
+|---------|-------|
+| `--page N` | Số trang (mặc định `1`) |
+| `--size N` | Số mục mỗi trang (mặc định `20`, tối đa `100`). Giá trị trên `100` gây ra lỗi HTTP 500 từ API; CLI tự động điều chỉnh giá trị và hiển thị cảnh báo |
+| `--search-json JSON` | Điều kiện tìm kiếm (phải là JSON hợp lệ) |
+| `--inst-id ID` | Truy vấn bản ghi theo ID thực thể |
+| `--ids-only` | Chỉ trả về ID thực thể |
+| `--originator-id ID` | Lọc theo người tạo |
+| `--create-from DATE` / `--create-to DATE` | Lọc theo ngày tạo |
+| `--modified-from DATE` / `--modified-to DATE` | Lọc theo ngày sửa đổi |
+| `--dynamic-order FIELD` | Sắp xếp theo trường |
+
+<Note>
+  **Tham số appType:** Khi gọi `this.utils.yida.searchFormDatas` từ bên trong trang tùy chỉnh Yida, bạn không cần truyền `appType` — SDK tự động lấy từ ngữ cảnh trang. Khi gọi qua CLI (`openyida data query form`) hoặc yêu cầu HTTP bên ngoài, `appType` là bắt buộc (định dạng: `APP_XXXXXXXX`).
+</Note>
+
+<Warning>
+  **Cấu trúc phản hồi searchFormDatas không nhất quán:** API Yida có thể trả về hai cấu trúc phản hồi khác nhau tùy theo tình huống:
+  - **Cấu trúc trực tiếp** (phổ biến): `{ data: [...], totalCount, currentPage }`
+  - **Cấu trúc lồng nhau** (một số tình huống): `{ content: { data: [...], totalCount, currentPage } }`
+
+  Nếu bạn gọi JS API trực tiếp, hãy sử dụng mẫu phòng thủ để đọc dữ liệu:
+  ```javascript
+  var data = (res && res.data) || (res && res.content && res.content.data) || [];
+  var total = (res && res.totalCount) || (res && res.content && res.content.totalCount) || 0;
+  ```
+  Khi sử dụng lệnh CLI `openyida data query form`, vấn đề này được xử lý tự động — CLI chuẩn hóa phản hồi về cấu trúc trực tiếp.
+</Warning>
+
+### Lấy một bản ghi
+
+```bash
+openyida data get form <appType> --inst-id <formInstId>
+```
+
+### Tạo dữ liệu
+
+```bash
+openyida data create form <appType> <formUuid> \
+  --data-json '{"field_xxx": "value", "field_yyy": 123}' \
+  --dept-id <departmentId>
+```
+
+### Cập nhật dữ liệu
+
+```bash
+openyida data update form <appType> \
+  --inst-id <formInstId> \
+  --data-json '{"field_xxx": "new value"}' \
+  --use-latest-version y
+```
+
+---
+
+## Quản lý dữ liệu quy trình
+
+### Truy vấn phiên bản quy trình
+
+```bash
+# Truy vấn danh sách quy trình
+openyida data query process <appType> <formUuid> \
+  --page 1 --size 20 \
+  --instance-status RUNNING
+
+# Trạng thái khả dụng: RUNNING (đang chạy), COMPLETED (đã hoàn thành), TERMINATED (đã chấm dứt)
+
+# Chỉ trả về ID
+openyida data query process <appType> <formUuid> --ids-only
+
+# Lọc theo người tạo và trạng thái
+openyida data query process <appType> <formUuid> \
+  --originator-id <userId> \
+  --instance-status COMPLETED \
+  --create-from "2026-01-01" --create-to "2026-06-30"
+```
+
+#### Tham số tùy chọn
+
+| Tham số | Mô tả |
+|---------|-------|
+| `--page N` | Số trang (mặc định `1`) |
+| `--size N` | Số mục mỗi trang (mặc định `20`, tối đa `100`) |
+| `--search-json JSON` | Điều kiện tìm kiếm (phải là JSON hợp lệ) |
+| `--instance-status STATUS` | Trạng thái quy trình: `RUNNING`, `COMPLETED`, `TERMINATED` |
+| `--task-id ID` | Lọc theo ID tác vụ |
+| `--approved-result RESULT` | Lọc theo kết quả phê duyệt |
+| `--ids-only` | Chỉ trả về ID thực thể |
+| `--originator-id ID` | Lọc theo người tạo |
+| `--create-from DATE` / `--create-to DATE` | Lọc theo ngày tạo |
+| `--modified-from DATE` / `--modified-to DATE` | Lọc theo ngày sửa đổi |
+
+### Lấy chi tiết quy trình
+
+```bash
+openyida data get process <appType> --process-inst-id <processInstanceId>
+```
+
+### Tạo phiên bản quy trình
+
+```bash
+openyida data create process <appType> <formUuid> \
+  --process-code <processCode> \
+  --data-json '{"field_xxx": "value"}' \
+  --dept-id <departmentId>
+```
+
+### Cập nhật phiên bản quy trình
+
+```bash
+openyida data update process <appType> \
+  --process-inst-id <processInstanceId> \
+  --data-json '{"field_xxx": "updated value"}'
+```
+
+### Truy vấn bản ghi phê duyệt
+
+```bash
+openyida data query operation-records <appType> \
+  --process-inst-id <processInstanceId>
+```
+
+---
+
+## Quản lý tác vụ
+
+<Tip>
+  Để truy vấn dữ liệu trung tâm tác vụ toàn cục mà không cần chỉ định `appType`, hãy sử dụng lệnh `openyida task-center`. Xem [tham chiếu CLI](/vi/features/skills#trung-tâm-tác-vụ-toàn-cục).
+</Tip>
+
+### Truy vấn danh sách tác vụ
+
+```bash
+# Tác vụ đang chờ
+openyida data query tasks <appType> --type todo
+
+# Tác vụ đã hoàn thành
+openyida data query tasks <appType> --type done
+
+# Do tôi gửi
+openyida data query tasks <appType> --type submitted
+
+# CC cho tôi
+openyida data query tasks <appType> --type cc
+
+# Tìm kiếm theo từ khóa
+openyida data query tasks <appType> --type todo --keyword "phê duyệt"
+```
+
+#### Tham số tùy chọn
+
+| Tham số | Mô tả |
+|---------|-------|
+| `--type TYPE` | **(bắt buộc)** Loại tác vụ: `todo`, `done`, `submitted`, `cc` |
+| `--page N` | Số trang (mặc định `1`) |
+| `--size N` | Số mục mỗi trang (mặc định `20`, tối đa `100`) |
+| `--keyword TEXT` | Tìm kiếm theo từ khóa |
+| `--process-codes CODES` | Lọc theo mã quy trình |
+| `--instance-status STATUS` | Trạng thái quy trình: `RUNNING`, `COMPLETED`, `TERMINATED` |
+
+### Thực thi tác vụ
+
+```bash
+openyida data execute task <appType> \
+  --task-id <taskId> \
+  --process-inst-id <processInstanceId> \
+  --out-result AGREE \
+  --remark "Đã đồng ý, vui lòng tiếp tục" \
+  --data-json '{"comment": "Phê duyệt đã thông qua"}'
+```
+
+#### Tham số tùy chọn
+
+| Tham số | Mô tả |
+|---------|-------|
+| `--task-id ID` | **(bắt buộc)** ID tác vụ cần thực thi |
+| `--process-inst-id ID` | **(bắt buộc)** ID phiên bản quy trình |
+| `--out-result RESULT` | **(bắt buộc)** Kết quả thực thi: `AGREE` (đồng ý), `DISAGREE` (không đồng ý) |
+| `--remark TEXT` | **(bắt buộc)** Ghi chú cho tác vụ |
+| `--data-json JSON` | Dữ liệu bổ sung (phải là JSON hợp lệ) |
+| `--no-execute-expressions y` | Bỏ qua thực thi biểu thức sau khi hoàn thành tác vụ |
+
+---
+
+## Quản lý biểu mẫu con
+
+### Truy vấn dữ liệu biểu mẫu con
+
+```bash
+openyida data query subform <appType> <formUuid> \
+  --inst-id <formInstId> \
+  --table-field-id <fieldId> \
+  --page 1 --size 20
+```
+
+---
+
+## Sử dụng nâng cao
+
+### Định dạng điều kiện truy vấn
+
+Tham số `--search-json` chấp nhận định dạng truy vấn dựa trên mảng. Mỗi điều kiện là một đối tượng với các trường sau:
+
+<Note>
+  Giá trị của `--search-json` phải là JSON hợp lệ. CLI sẽ xác thực cú pháp JSON trước khi gửi yêu cầu — nếu JSON không hợp lệ, lệnh sẽ báo lỗi ngay lập tức mà không thực hiện truy vấn.
+</Note>
+
+| Trường | Mô tả |
+|--------|-------|
+| `key` | ID trường (vd: `field_xxx`) |
+| `value` | Giá trị để so khớp |
+| `type` | Kiểu dữ liệu: `TEXT`, `NUMBER`, `DATE`, v.v. |
+| `operator` | Toán tử: `eq`, `like`, `gt`, `gte`, `lt`, `lte`, `in`, `range` |
+| `componentName` | Loại component: `TextField`, `NumberField`, `DateField`, v.v. |
+
+Ví dụ:
+
+```bash
+openyida data query form <appType> <formUuid> \
+  --search-json '[
+    {"key":"field_status","value":"approved","type":"TEXT","operator":"eq","componentName":"TextField"},
+    {"key":"field_amount","value":"1000","type":"NUMBER","operator":"gte","componentName":"NumberField"}
+  ]'
+```
+
+### Ví dụ script thao tác hàng loạt
+
+```bash
+#!/bin/bash
+# Xuất dữ liệu biểu mẫu hàng loạt
+
+APP_TYPE="APP_XXXXXXXX"
+FORM_UUID="FORM-XXXX-XXXX"
+PAGE=1
+
+while true; do
+  RESULT=$(openyida data query form $APP_TYPE $FORM_UUID --page $PAGE --size 100)
+  
+  # Xử lý dữ liệu trang hiện tại
+  echo "$RESULT" >> ./export.json
+  
+  # Kiểm tra xem có trang tiếp theo không
+  HAS_MORE=$(echo "$RESULT" | jq '.hasMore')
+  if [ "$HAS_MORE" != "true" ]; then
+    break
+  fi
+  
+  PAGE=$((PAGE + 1))
+done
+```
+
+### Định dạng dữ liệu AttachmentField
+
+Khi tạo hoặc cập nhật dữ liệu biểu mẫu, các trường `AttachmentField` (tệp đính kèm) và `ImageField` (hình ảnh) yêu cầu định dạng mảng đối tượng cụ thể. Bạn không thể truyền trực tiếp đối tượng tệp hoặc chuỗi văn bản thuần.
+
+Mỗi đối tượng tệp đính kèm cần bao gồm các trường sau:
+
+| Trường | Kiểu | Mô tả |
+|--------|------|-------|
+| `name` | String | Tên tệp |
+| `size` | Number | Kích thước tệp (byte) |
+| `fileUuid` | String | Mã định danh duy nhất của tệp (OSS objectName) |
+| `url` | String | URL truy cập tệp |
+| `downloadUrl` | String | URL tải xuống tệp |
+| `previewUrl` | String | URL xem trước tệp |
+
+Ví dụ:
+
+```bash
+openyida data create form <appType> <formUuid> \
+  --data-json '{
+    "attachmentField_xxx": [
+      {
+        "name": "report.pdf",
+        "size": 102400,
+        "fileUuid": "APP_XXX/2026/4-1/1713000000000-report.pdf",
+        "url": "/ossFileHandle?appType=APP_XXX&fileName=report.pdf&type=download",
+        "downloadUrl": "/ossFileHandle?appType=APP_XXX&fileName=report.pdf&type=download",
+        "previewUrl": "/inst/preview?appType=APP_XXX&fileName=report.pdf"
+      }
+    ]
+  }'
+```
+
+<Warning>
+  Giá trị của `AttachmentField` phải là mảng đối tượng — không phải đối tượng đơn lẻ, chuỗi hoặc đối tượng `File`. Truyền định dạng không đúng sẽ gây lỗi như `syntax error, expect [`.
+</Warning>
+
+---
+
+## Lưu ý
+
+<Warning>
+  Thao tác dữ liệu là vĩnh viễn, thao tác cập nhật không thể hoàn tác. Khuyến nghị thực hiện thử nghiệm quy mô nhỏ trước khi thực hiện thao tác hàng loạt.
+</Warning>
+
+<Info>
+  Truy vấn phân trang mặc định 20 bản ghi mỗi trang, tối đa 100. Giá trị `pageSize` trên 100 gây ra lỗi HTTP 500 từ API. CLI tự động điều chỉnh giá trị trên 100 và hiển thị cảnh báo. Để xuất lượng lớn dữ liệu, khuyến nghị sử dụng vòng lặp phân trang.
+</Info>

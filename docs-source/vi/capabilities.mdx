@@ -1,0 +1,86 @@
+---
+title: "Danh sách tính năng đầy đủ"
+description: "Danh sách năng lực OpenYida và các lệnh CLI tương ứng theo từng kịch bản."
+icon: "list-ul"
+---
+
+Danh sách này tóm tắt các năng lực hiện tại của OpenYida cho người dùng Yida và AI Agent, cùng các lệnh `openyida` thường dùng.
+
+<Note>
+Dùng `openyida agent-capabilities --summary-json` làm bước kiểm tra nhẹ mặc định. Chỉ dùng `openyida agent-capabilities --json` khi cần chẩn đoán đầy đủ, command Manifest, metadata quyền hoặc chi tiết lỗi đăng nhập thô.
+</Note>
+
+## Cơ bản
+
+| Tính năng | Lệnh |
+|---|---|
+| Kiểm tra nhẹ cho Agent | `openyida agent-capabilities --summary-json` |
+| Chẩn đoán Agent đầy đủ | `openyida agent-capabilities --json` |
+| Kiểm tra môi trường và đăng nhập | `openyida env` / `openyida env --json` |
+| Quản lý environment profile | `openyida env <setup\|list\|show\|switch\|add\|remove>` |
+| Đăng nhập OAuth token | `openyida login` |
+| Đăng nhập bằng URL đích | `openyida login <target-url>` |
+| Trạng thái và làm mới token | `openyida auth <status\|login\|refresh\|logout>` |
+| Chuyển tổ chức | `openyida org <list\|switch> [--corp-id <corpId>]` |
+| Command Manifest | `openyida commands --json` |
+
+## Ứng dụng và biểu mẫu
+
+| Tính năng | Lệnh |
+|---|---|
+| Liệt kê ứng dụng | `openyida app-list [--size N]` |
+| Tạo hoặc cập nhật ứng dụng | `openyida create-app ...` / `openyida update-app ...` |
+| Nhập hoặc xuất gói di trú | `openyida export ...` / `openyida import ...` |
+| Tạo, cập nhật, patch, xác thực hoặc bind biểu mẫu | `openyida create-form <create\|update\|patch\|rule\|validation\|bind-datasource> ...` |
+| Truy vấn biểu mẫu và Schema | `openyida list-forms ...` / `openyida get-schema ...` |
+| Quản lý nhóm điều hướng | `openyida nav-group <list\|create\|rename\|delete\|move\|order\|hide\|show> ...` |
+| Quản lý quyền | `openyida app-permission ...` / `openyida get-permission ...` / `openyida save-permission ...` |
+
+## Trang, dữ liệu và quy trình
+
+| Tính năng | Lệnh |
+|---|---|
+| Tạo trang hiển thị | `openyida create-page <appType> "<name>"` |
+| Sinh, kiểm tra, biên dịch và xuất bản mã trang | `openyida generate-page ...` / `openyida check-page ...` / `openyida compile ...` / `openyida publish ...` |
+| Xuất bản trang Code Canvas | `openyida publish <src.canvas.jsx> <appType> <formUuid>` |
+| Truy vấn hoặc thay đổi dữ liệu form/process/task/subform | `openyida data <action> <resource> ...` |
+| Tạo và cấu hình quy trình | `openyida create-process ...` / `openyida configure-process ...` |
+| Truy vấn tác vụ và ủy quyền | `openyida task-center ...` / `openyida agent-center ...` |
+
+## Tích hợp, báo cáo và tiện ích
+
+| Tính năng | Lệnh |
+|---|---|
+| Báo cáo và dashboard | `openyida create-report ...` / `openyida append-chart ...` |
+| HTTP connector | `openyida connector <list\|create\|detail\|add-action\|test\|smart-create> ...` |
+| Tự động hóa tích hợp | `openyida integration <create\|list\|enable\|disable\|check\|diagnose> ...` |
+| Tài liệu DingTalk và DWS CLI | `openyida read-dingtalk-doc ...` / `openyida dws <command>` |
+| AI, asset, công thức và chuyển đổi PRD | `openyida ai ...` / `openyida asset ...` / `openyida formula evaluate ...` / `openyida flash-to-prd ...` |
+| Thiết lập local, chẩn đoán và batch | `openyida copy` / `openyida doctor` / `openyida batch` |
+| MCP, A2A và bridge local | `openyida mcp` / `openyida a2a ...` / `openyida bridge start ...` |
+| Output yên lặng và kiểm tra cập nhật | `openyida --quiet ...` / `YIDA_QUIET=1` / `OPENYIDA_SKIP_UPDATE_CHECK=1` |
+
+## Trang tùy chỉnh, chuỗi phát hành và i18n
+
+| Khả năng | Lệnh |
+|---|---|
+| Tạo trang Code Canvas nghiệp vụ từ đặc tả trang | `openyida generate-page <template> --spec <page-spec.json> --output project/pages/src/<name>.canvas.jsx --compile` |
+| Áp dụng hồ sơ giao diện và phạm vi theme khi tạo | `openyida generate-page ... --theme-profile <profile> --theme-scope <page\|global>` |
+| Tạo trang mẫu Code Canvas | `openyida sample yida-canvas-custom-page <sample> --output project/pages/src/<name>.canvas.jsx` |
+| Tạo mẫu trang tùy chỉnh cổ điển | `openyida sample yida-custom-page <sample> --output project/pages/src/<name>.oyd.jsx` |
+| Kiểm tra và chuẩn hóa mã trang trước khi phát hành | `openyida check-page <src>` / `openyida build-page <src> --write` |
+| Đọc cấu hình trực tuyến trước khi ghi đè thay đổi từ designer | `openyida get-form-config <appType> <formUuid> --json` / `openyida get-schema <appType> <formUuid>` |
+| Phát hành trang tùy chỉnh cổ điển | `openyida publish project/pages/src/<name>.oyd.jsx <appType> <formUuid>` |
+| Phát hành trang Code Canvas | `openyida publish project/pages/src/<name>.canvas.jsx <appType> <formUuid> --canvas` |
+| Chạy health check ngay sau khi phát hành | `openyida publish <src> <appType> <formUuid> --health-check` |
+| Cập nhật cấu hình trang hoặc biểu mẫu sau khi phát hành | `openyida update-form-config <appType> <formUuid> ...` |
+| Cấu hình truy cập công khai, ẩn điều hướng và lối vào chia sẻ | `openyida verify-short-url ...` / `openyida save-share-config ...` / `openyida get-page-config ...` |
+| Tải assets của trang lên CDN | `openyida cdn-upload <asset-path>` |
+| Đọc cấu hình CDN và refresh tài nguyên | `openyida cdn-config` / `openyida cdn-refresh ...` |
+| Kiểm tra và nâng cấp gói OpenYida CLI | `openyida update` / `npm install -g openyida@latest` |
+| Quản lý gói ngôn ngữ của ứng dụng | `openyida i18n <overview\|config\|languages\|list\|upsert\|batch-upsert\|bind\|delete\|translate\|translate-all\|upgrade> ...` |
+| Chạy CLI với gói ngôn ngữ được chọn | `OPENYIDA_LANG=<locale> openyida ...` / `OPENYIDA_LOCALE_DIR=<dir> openyida ...` |
+
+<Warning>
+Các flag đăng nhập cũ như `--qr`, `--browser`, `--codex`, `--qoder` không còn được hỗ trợ. Hãy dùng OAuth token login.
+</Warning>
