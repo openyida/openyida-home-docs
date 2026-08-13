@@ -1,0 +1,68 @@
+---
+title: "Tự động hóa tích hợp"
+description: "Tạo tự động hóa tích hợp Yida bằng OpenYida, bao gồm sự kiện biểu mẫu, dữ liệu liên biểu mẫu, thông báo DingTalk và hành động connector."
+icon: "share-nodes"
+---
+
+## Khi nào dùng
+
+Tự động hóa tích hợp nối các sự kiện nghiệp vụ như gửi biểu mẫu, cập nhật hoặc hoàn tất phê duyệt với hành động tiếp theo: thông báo DingTalk, đồng bộ dữ liệu giữa biểu mẫu, quy trình sau đó hoặc gọi HTTP connector.
+
+## Ranh giới với phê duyệt quy trình
+
+Phê duyệt quy trình quản lý biểu mẫu quy trình và quy tắc nút duyệt. Tự động hóa tích hợp xử lý thông báo, đồng bộ dữ liệu, gọi connector và tích hợp hệ thống sau khi sự kiện xảy ra.
+
+## Điểm thiết kế
+
+- Xác nhận biểu mẫu kích hoạt, loại sự kiện và field ID thật trước; không đoán theo nhãn trường.
+- Trước khi xuất bản, yêu cầu AI Agent hiển thị tóm tắt luồng gồm điều kiện kích hoạt, danh sách node, người nhận và mục tiêu ghi.
+- Với tự động hóa trên môi trường thật, lưu nháp hoặc xác nhận phạm vi ảnh hưởng trước khi xuất bản.
+- Tiêu đề, nội dung thông báo và gán dữ liệu có thể tham chiếu biến trường theo định dạng `#{fieldId-ComponentType}#`.
+
+## Prompt thường dùng
+
+```
+Hãy tạo một tự động hóa tích hợp: khi biểu mẫu phản hồi khách hàng có bản ghi mới, gửi thông báo DingTalk cho người phụ trách và đồng bộ tên khách hàng, loại vấn đề, mức khẩn cấp sang biểu mẫu theo dõi. Trước tiên đọc Schema của hai biểu mẫu, liệt kê tóm tắt luồng, rồi tạo và xuất bản sau khi xác nhận.
+```
+
+<Note>
+Tự động hóa tích hợp có thể gửi thông báo thật, ghi dữ liệu thật hoặc gọi API bên ngoài. Trước khi chạy cần xác nhận ứng dụng, biểu mẫu, trường và người nhận.
+</Note>
+
+<!-- rich-content-sync:start -->
+
+## Bảng năng lực
+
+| Kịch bản | Cần xác nhận | Lệnh / năng lực |
+| --- | --- | --- |
+| Kích hoạt sự kiện biểu mẫu | insert, update, delete, processFinish, activityTask | `openyida integration create` |
+| Thông báo DingTalk | Người nhận, tiêu đề, nội dung, biến trường | `--receivers` / `--title` / `--content` |
+| Đọc liên biểu mẫu | Truy vấn một bản ghi từ biểu mẫu liên quan | `--data-form-uuid` / `--data-condition` |
+| Ghi liên biểu mẫu | Tạo hoặc cập nhật dữ liệu biểu mẫu đích | `--add-data-form-uuid` / `--add-data-assignment` / spec |
+| Hành động connector | Gọi HTTP connector hoặc API nghiệp vụ | `--connector-id` / `--action-id` / `--connection-id` |
+| Xuất bản và kiểm tra | Nháp, xuất bản, chẩn đoán, đọc lại | `--publish` / `openyida integration check` |
+
+## Lệnh có thể sao chép
+
+```bash
+openyida integration create --help
+openyida integration check --help
+openyida agent-capabilities --summary-json
+```
+
+## Mẫu prompt AI Agent
+
+```
+Tạo một tự động hóa tích hợp Yida. Trước tiên đọc Schema của biểu mẫu kích hoạt và biểu mẫu đích, sau đó liệt kê sự kiện, điều kiện kích hoạt, thứ tự node, ánh xạ trường, người nhận và trạng thái xuất bản. Sau khi tôi xác nhận, dùng OpenYida tạo luồng và đọc lại kết quả.
+
+Yêu cầu tự động hóa: [mô tả kích hoạt và hành động tiếp theo]
+```
+
+## Danh sách nghiệm thu
+
+- Biểu mẫu kích hoạt, biểu mẫu đích và field ID đã được xác nhận.
+- Các node luồng, người nhận và ánh xạ trường đã được hiển thị và xác nhận.
+- Trạng thái nháp hoặc đã xuất bản rõ ràng.
+- Đã báo cáo flow ID, resource ID quan trọng và kết quả kiểm tra.
+
+<!-- rich-content-sync:end -->

@@ -1,0 +1,59 @@
+---
+title: "應用建立"
+description: "使用 OpenYida 從需求到可存取應用完成宜搭應用建立，覆蓋應用、頁面、表單、流程與發布閉環。"
+icon: "layout-dashboard"
+---
+
+## 定位
+
+使用 OpenYida 從需求到可存取應用完成宜搭應用建立，覆蓋應用、頁面、表單、流程與發布閉環。
+
+## 典型任務
+
+- OpenYida agent-capabilities --summary-json
+- openyida create-app
+- openyida create-form
+- openyida create-process
+- openyida publish
+
+## 使用建議
+
+Start from requirements, confirm the target organization, then create resources and verify the final access link.
+<!-- rich-content-sync:start -->
+
+## 能力速查
+
+| 階段 | 關注點 | 命令 / 能力 |
+| --- | --- | --- |
+| 環境預檢 | 登入態、組織、目標環境 | `openyida agent-capabilities --summary-json` |
+| 應用骨架 | 應用名稱、業務範圍、歸屬組織 | `openyida create-app` |
+| 業務物件 | 表單、頁面、流程和導航規劃 | `openyida create-form`, `openyida create-process` |
+| 發布 | 頁面發布結果和可存取連結 | `openyida publish` |
+| 回讀驗證 | 已建立資源 ID 和最終狀態 | 查詢 / 檢查命令 |
+
+## 可複製命令
+
+```bash
+openyida agent-capabilities --summary-json
+openyida create-app --help
+openyida create-form --help
+openyida create-process --help
+openyida publish --help
+```
+
+## AI Agent 提示詞模板
+
+```
+根據下面這份 PRD 生成一個宜搭應用。請先確認 OpenYida 能力、登入態、組織和目標環境；再拆解業務物件、表單、頁面、流程、導航和發布步驟。完成建立與發布後，回讀資源 ID 並返回可存取連結。
+
+[貼上 PRD]
+```
+
+## 驗收清單
+
+- 已確認目標組織和環境。
+- 表單、頁面、流程和導航符合需求。
+- 已發布頁面返回可存取連結。
+- 已列出關鍵資源 ID，方便後續維護。
+
+<!-- rich-content-sync:end -->

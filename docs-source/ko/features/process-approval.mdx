@@ -1,0 +1,56 @@
+---
+title: "프로세스 승인"
+description: "노드, 승인자, 게시, 회수 검증을 포함한 Yida 승인 프로세스를 만들고 설정합니다."
+icon: "git-branch"
+---
+
+## 위치
+
+노드, 승인자, 게시, 회수 검증을 포함한 Yida 승인 프로세스를 만들고 설정합니다.
+
+## 일반 작업
+
+- openyida create-process
+- openyida process-rule
+- approval node setup
+- publish and read-back verification
+
+## 사용 팁
+
+Describe roles and approval rules clearly before creation, then confirm whether the workflow is published.
+<!-- rich-content-sync:start -->
+
+## 기능 요약표
+
+| 단계 | 확인 사항 | 명령 / 기능 |
+| --- | --- | --- |
+| Process model | Initiator, approvers, archive node, rollback rules | requirement analysis |
+| Workflow form | Fields used for routing and approval decisions | `openyida create-process` |
+| Approval rules | Approver roles, branches, conditions | `openyida process-rule` |
+| Publishing | Whether workflow is published | publish / inspect commands |
+| Verification | Node list and process state | read-back result |
+
+## 복사 가능한 명령
+
+```bash
+openyida create-process --help
+openyida process-rule --help
+openyida agent-capabilities --summary-json
+```
+
+## AI Agent 프롬프트 템플릿
+
+```
+Create a Yida approval process. First list the initiator, form fields, approval nodes, approver rules, branch conditions, archive node, and rollback behavior. Then create the workflow with OpenYida, configure approval rules, verify whether it is published, and report the node list and resource IDs.
+
+Process requirement: [describe process]
+```
+
+## 검수 체크리스트
+
+- Initiator, approvers, and archive node are explicit.
+- Routing fields such as amount, department, type, and status exist on the form.
+- Approval rules are verified after configuration.
+- Published state and key resource IDs are reported.
+
+<!-- rich-content-sync:end -->

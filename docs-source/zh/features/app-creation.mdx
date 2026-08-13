@@ -1,0 +1,65 @@
+---
+title: "应用创建"
+description: "使用 OpenYida 从需求到可访问应用完成宜搭应用创建，覆盖应用、页面、表单、流程和发布闭环。"
+icon: "layout-dashboard"
+---
+
+## 适用场景
+
+当你需要从一句话、PRD、会议纪要或现有业务流程生成一个完整宜搭应用时，可以使用应用创建能力。OpenYida 会帮助 AI Agent 拆解业务对象、页面、表单、流程和发布步骤。
+
+## 典型链路
+
+1. 运行 `openyida agent-capabilities --summary-json` 确认登录态、组织和可用能力。
+2. 创建应用并明确应用名称、目标组织和业务范围。
+3. 按业务对象创建表单、流程和必要页面。
+4. 整理应用导航，让入口页、业务处理、数据管理和报表入口清晰可见。
+5. 发布并回读应用访问地址、页面状态和关键资源 ID。
+
+## 常用提示词
+
+```
+根据下面这份 PRD 生成一个宜搭应用。请先拆解业务对象、页面、表单字段、流程和导航，再使用 OpenYida 创建并发布，最后给我一个可访问链接。
+```
+
+<Note>
+创建真实应用前，请先确认当前登录的组织和环境，避免发布到错误组织。
+</Note>
+<!-- rich-content-sync:start -->
+
+## 能力速查
+
+| 阶段 | 关注点 | 命令 / 能力 |
+| --- | --- | --- |
+| 环境预检 | 登录态、组织、目标环境 | `openyida agent-capabilities --summary-json` |
+| 应用骨架 | 应用名称、业务范围、归属组织 | `openyida create-app` |
+| 业务对象 | 表单、页面、流程和导航规划 | `openyida create-form`, `openyida create-process` |
+| 发布 | 页面发布结果和可访问链接 | `openyida publish` |
+| 回读验证 | 已创建资源 ID 和最终状态 | 查询 / 检查命令 |
+
+## 可复制命令
+
+```bash
+openyida agent-capabilities --summary-json
+openyida create-app --help
+openyida create-form --help
+openyida create-process --help
+openyida publish --help
+```
+
+## AI Agent 提示词模板
+
+```
+根据下面这份 PRD 生成一个宜搭应用。请先确认 OpenYida 能力、登录态、组织和目标环境；再拆解业务对象、表单、页面、流程、导航和发布步骤。完成创建与发布后，回读资源 ID 并返回可访问链接。
+
+[粘贴 PRD]
+```
+
+## 验收清单
+
+- 已确认目标组织和环境。
+- 表单、页面、流程和导航符合需求。
+- 已发布页面返回可访问链接。
+- 已列出关键资源 ID，方便后续维护。
+
+<!-- rich-content-sync:end -->

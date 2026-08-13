@@ -1,0 +1,68 @@
+---
+title: "Automação de integração"
+description: "Crie automações de integração Yida com OpenYida, cobrindo eventos de formulário, dados entre formulários, notificações DingTalk e ações de conector."
+icon: "share-nodes"
+---
+
+## Quando usar
+
+A automação de integração conecta eventos de negócio, como envio de formulário, atualização ou conclusão de aprovação, a ações seguintes: notificação DingTalk, sincronização entre formulários, workflow posterior ou chamada de conector HTTP.
+
+## Limite com aprovação de processo
+
+A aprovação de processo cuida dos formulários de workflow e regras de nós de aprovação. A automação de integração cuida de notificações, sincronização de dados, chamadas de conector e ações entre sistemas após o evento.
+
+## Pontos de design
+
+- Confirme primeiro o formulário de gatilho, o tipo de evento e os field IDs reais; não deduza pelos rótulos.
+- Antes de publicar, peça ao AI Agent para mostrar um resumo do fluxo com condições, nós, destinatários e destinos de escrita.
+- Em automações de produção, salve como rascunho ou confirme o escopo de impacto antes de publicar.
+- Títulos, conteúdos de notificação e assignments podem referenciar variáveis de campo no formato `#{fieldId-ComponentType}#`.
+
+## Exemplo de prompt
+
+```
+Crie uma automação de integração: quando um novo registro for enviado no formulário de feedback do cliente, envie uma notificação DingTalk ao responsável e sincronize nome do cliente, tipo do problema e urgência para o formulário de acompanhamento. Leia os Schemas dos dois formulários primeiro, mostre o resumo do fluxo e depois crie e publique após confirmação.
+```
+
+<Note>
+A automação de integração pode enviar notificações reais, gravar dados reais ou chamar APIs externas. Confirme app, formulários, campos e destinatários antes de executar.
+</Note>
+
+<!-- rich-content-sync:start -->
+
+## Tabela de capacidades
+
+| Cenário | O que confirmar | Comando / capacidade |
+| --- | --- | --- |
+| Gatilho de evento de formulário | insert, update, delete, processFinish, activityTask | `openyida integration create` |
+| Notificação DingTalk | Destinatários, título, conteúdo, variáveis de campo | `--receivers` / `--title` / `--content` |
+| Leitura entre formulários | Consultar um registro relacionado | `--data-form-uuid` / `--data-condition` |
+| Escrita entre formulários | Criar ou atualizar dados no formulário alvo | `--add-data-form-uuid` / `--add-data-assignment` / spec |
+| Ação de conector | Chamar conector HTTP ou API de negócio | `--connector-id` / `--action-id` / `--connection-id` |
+| Publicar e verificar | Rascunho, publicação, diagnóstico, leitura de retorno | `--publish` / `openyida integration check` |
+
+## Comandos copiáveis
+
+```bash
+openyida integration create --help
+openyida integration check --help
+openyida agent-capabilities --summary-json
+```
+
+## Modelo de prompt AI Agent
+
+```
+Crie uma automação de integração Yida. Primeiro leia os Schemas do formulário de gatilho e do formulário alvo; depois liste evento, condições, ordem dos nós, mapeamento de campos, destinatários e estado de publicação. Após minha confirmação, use OpenYida para criar o fluxo e ler o resultado.
+
+Requisito de automação: [descreva gatilho e ações seguintes]
+```
+
+## Checklist de aceite
+
+- Formulário de gatilho, formulário alvo e field IDs confirmados.
+- Nós do fluxo, destinatários e mapeamentos exibidos e confirmados.
+- Estado de rascunho ou publicado está claro.
+- Flow ID, resource IDs principais e resultados de verificação reportados.
+
+<!-- rich-content-sync:end -->

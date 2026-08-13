@@ -1,0 +1,57 @@
+---
+title: "Conception de formulaire"
+description: "Concevez et maintenez les champs, validations, formules et sémantiques métier des formulaires Yida sans deviner les ID."
+icon: "list-checks"
+---
+
+## Positionnement
+
+Concevez et maintenez les champs, validations, formules et sémantiques métier des formulaires Yida sans deviner les ID.
+
+## Tâches typiques
+
+- openyida get-schema
+- openyida create-form
+- openyida create-form validate-fields
+- field update and formula configuration
+
+## Conseils d’utilisation
+
+Read the real Schema before editing fields or writing data. Do not infer field IDs from labels.
+<!-- rich-content-sync:start -->
+
+## Tableau des capacités
+
+| À confirmer | Commande / capacité | Notes |
+| --- | --- | --- |
+| Read current fields | `openyida get-schema` | Do this before every update. |
+| Validate field definitions | `openyida create-form validate-fields` | Use for generated field configs. |
+| Create form page | `openyida create-form` | Confirm form name and page type first. |
+| Update data safely | data query / write commands | Use real field IDs from Schema. |
+| Verify result | read-back query | Check at least one record or Schema diff. |
+
+## Commandes copiables
+
+```bash
+openyida get-schema --help
+openyida create-form --help
+openyida create-form validate-fields --help
+```
+
+## Modèle de prompt AI Agent
+
+```
+Update this Yida form. First read the real Schema with openyida get-schema and list current fields. Then propose field changes with field type, required rule, options, formula, and business meaning. Validate the field definitions before applying them, and read back the Schema after the update.
+
+Form: [form name or formUuid]
+Changes: [describe changes]
+```
+
+## Checklist de validation
+
+- No field ID is guessed from a label.
+- Field type, required state, options, formula, and default value are clear.
+- The generated field definition passes validation.
+- Schema or sample data is read back after the change.
+
+<!-- rich-content-sync:end -->

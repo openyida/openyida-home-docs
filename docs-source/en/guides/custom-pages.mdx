@@ -1,44 +1,74 @@
 ---
 title: "Custom pages"
-description: "Create, validate, compile, and publish Yida custom display pages with OpenYida."
+description: "Create, author, and publish Yida custom display pages with OpenYida."
 icon: "window-maximize"
 ---
 
-Custom display pages are React-style Yida pages compiled and published by OpenYida. They are the right fit for dashboards, portals, visual reports, calculators, and rich interactive pages.
+Custom display pages are the default OpenYida path for dashboards, portals, visual reports, calculators, and rich interactive pages. OpenYida compiles modern React function components into Yida-ready pages and publishes them to the target page container.
 
 ## End-to-end flow
 
 ```bash
+openyida agent-capabilities --summary-json
 openyida create-page <appType> "Dashboard"
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
-openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+# Generate or author page source: project/pages/src/dashboard.canvas.jsx
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
 ```
 
-`create-page` returns the page `formUuid`. Do not invent this value. Save it in your project cache or read it from command output.
+Use `agent-capabilities` to confirm the current environment, login state, and available capabilities. `create-page` returns the page `formUuid`; do not invent this value. Save it in your project cache or read it from command output. Once the page source is ready, use `publish` to update the target page. Publishing runs the required modern-page compilation and writes the page content.
 
-## Runtime rules
+## Page rules
 
-Yida custom pages run inside a React 16 class component runtime. Generated page source must follow these rules:
+New custom pages should use the modern page path. Generated page source should follow these rules:
 
-- Use `export function renderJsx()`.
-- Use `export function didMount()` and `export function didUnmount()` for lifecycle work.
-- Define custom methods as `export function methodName() {}`.
-- Wrap event handlers, for example `onClick={(e) => { this.handleClick(e); }}`.
-- Use arrow callbacks for `.map()` and `.filter()`.
-- Avoid React Hooks such as `useState` and `useEffect`.
-- Avoid `import` and `require` in page source.
-- Use inline style objects for page styling.
-- For input fields, prefer uncontrolled inputs with `defaultValue`.
+- Use React function components for the page entry.
+- Hooks such as `useState`, `useEffect`, and `useMemo` are supported; clean up side effects.
+- Import UI libraries, chart libraries, and icons from the supported resource list.
+- Buttons, filters, search fields, tabs, pagination, and clickable cards must drive real interaction.
+- Prefer real data through the Yida data bridge, connectors, or Open APIs; provide empty, error, and refresh states.
+- Use component tokens, CSS variables, and page-level styles as needed, with a readable mobile layout.
 
-## Validate before publishing
+## Supported native Yida components
+
+Custom pages can bridge native Yida runtime components. Detect components from `window.Deep`, `window.DeepYida`, or `window.YidaNativeComponents` first; if detection fails, render a page-owned fallback so the page does not go blank.
+
+| Component / scenario | Best for | Integration requirement |
+| --- | --- | --- |
+| `PortalTopBanner` / `PortalQuickEntry` | Portal banner and quick entries | Prefer them for portal shells; fall back to page-owned banner and entry cards. |
+| `QuickAccessCard` / `RecentlyUsedCard` | Frequent and recently used app cards | Pass `theme`, such as `row-white` or `column`, and keep local fallback. |
+| `DataManageViews` | Embedded Yida data-management view | Pass the target form `form.appType` and `form.value` / `formUuid`. |
+| `EmployeeField` | Member picker | Record the real `onChange` output first, then normalize member values. |
+| `DepartmentSelectField` | Department picker | Verify search, popover, permission prompts, single select, and multi select. |
+| `AttachmentField` / `ImageField` | Attachment and image upload | Verify upload permission, OSS signature, preview, delete, and failure states. |
+| `DataCard` / `PortalContainer` | Portal data-card and container enhancement | Use only after the target portal context, data config, and style variables are verified. |
+
+Native components are experience enhancements, not prerequisites for page stability. Keep fallback usable and normalize members, departments, and files before submitting.
+
+## Examples and showcase
+
+Use a smoke sample to verify native components and permissions first. To browse more high-quality custom page examples, jump directly to the showcase page. The openyida-home direct showcase path is `/#/en/showcase`.
+
+| Entry | Link |
+| --- | --- |
+| Native component demo | [canvas-native-components](https://demo.aliwork.com/o/openyida/sample/canvas-native-components) |
+| Custom page showcase | [Showcase](/#/en/showcase) |
+| Yida container showcase route | [openyidaRoute=showcase](https://demo.aliwork.com/o/openyida/helpCenter?openyidaLang=en&openyidaRoute=showcase) |
+
+## Copyable examples
 
 ```bash
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
+openyida sample yida-canvas-custom-page native-components-smoke --output project/pages/src/native-components-smoke.canvas.jsx
+openyida sample yida-canvas-custom-page portal-native-components --output project/pages/src/portal-native-components.canvas.jsx
+openyida build-page project/pages/src/native-components-smoke.canvas.jsx --write
 ```
 
-`check-page` catches common Yida runtime mistakes. `compile` produces compatible build output under `project/pages/build/` and `project/pages/dist/`.
+## Publish and confirm
+
+```bash
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
+```
+
+Before publishing, confirm the source includes real interactions, mobile responsiveness, empty/error states, and the required data access logic. `publish` is the online update command and publishes the current source to the target page returned by `create-page`.
 
 ## Hide Yida navigation
 
@@ -57,15 +87,15 @@ openyida update-form-config <appType> <formUuid> true "Dashboard"
 ## When to use `build-page`
 
 ```bash
-openyida build-page project/pages/src/dashboard.oyd.jsx --write
+openyida build-page project/pages/src/dashboard.canvas.jsx --write
 ```
 
-`build-page` converts source to Yida-compatible JSX without publishing. It is useful for review, CI, or debugging compile output.
+`build-page` processes local page source without publishing. It is useful for review, CI, or debugging compile output.
 
 ## Suggested agent prompt
 
 ```text
 Create a Yida custom page from this analysis document.
-Use React 16-compatible export functions, no Hooks, inline styles, mobile responsive layout.
-Run openyida check-page and compile before publishing.
+First understand the business goal and information hierarchy, then build a modern React function-component page with clear visual hierarchy, real interaction states, native Yida component detection, and mobile responsiveness.
+When it is ready, use openyida publish to update the target custom page and tell me whether the page was published successfully.
 ```

@@ -1,0 +1,66 @@
+---
+title: "App Creation"
+description: "Use OpenYida to turn requirements into a usable Yida app across apps, pages, forms, workflows, and publishing."
+icon: "layout-dashboard"
+---
+
+## When to use
+
+Use app creation when an AI Agent needs to turn a short request, PRD, meeting note, or existing business process into a complete Yida app. OpenYida helps decompose business objects, pages, forms, workflows, and publishing steps.
+
+## Typical flow
+
+1. Run `openyida agent-capabilities --summary-json` to confirm login, organization, and available commands.
+2. Create the app with a clear name, target organization, and business scope.
+3. Create forms, processes, and pages around the business objects.
+4. Organize navigation so entry pages, operations, data management, and reports are easy to find.
+5. Publish and read back the app URL, page state, and key resource IDs.
+
+## Prompt example
+
+```
+Generate a Yida app from the following PRD. First break down business objects, pages, form fields, workflows, and navigation, then use OpenYida to create and publish it. Finally, give me an accessible link.
+```
+
+<Note>
+Before creating a real app, confirm the current organization and environment so the app is not published to the wrong place.
+</Note>
+<!-- rich-content-sync:start -->
+
+## Capability Table
+
+| Stage | What to confirm | Command / capability |
+| --- | --- | --- |
+| Preflight | Login state, organization, target environment | `openyida agent-capabilities --summary-json` |
+| App shell | App name, business scope, owner organization | `openyida create-app` |
+| Business objects | Forms, pages, workflows, navigation plan | `openyida create-form`, `openyida create-process` |
+| Publishing | Page publish result and accessible URL | `openyida publish` |
+| Read-back | Created resource IDs and final state | query / inspect commands |
+
+## Copyable Commands
+
+```bash
+openyida agent-capabilities --summary-json
+openyida create-app --help
+openyida create-form --help
+openyida create-process --help
+openyida publish --help
+```
+
+## AI Agent Prompt Template
+
+```
+Create a Yida app from the following PRD. First confirm OpenYida capability, login state, organization, and target environment. Then break down business objects, forms, pages, workflows, navigation, and publishing steps. Create the app with OpenYida, publish the required pages, read back resource IDs, and return the accessible link.
+
+[Paste PRD here]
+```
+
+## Acceptance Checklist
+
+- The target organization and environment are confirmed.
+- Forms, pages, workflows, and navigation match the requirement.
+- Published pages return accessible links.
+- Key resource IDs are listed for later maintenance.
+- The AI Agent reports what was created and what still needs manual confirmation.
+
+<!-- rich-content-sync:end -->

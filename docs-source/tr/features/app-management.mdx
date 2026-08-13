@@ -1,0 +1,67 @@
+---
+title: "Uygulama yönetimi"
+description: "OpenYida ile gezinme, i18n, izinler, yaşam döngüsü durumu ve organizasyon bilgilerini yönetin."
+icon: "settings"
+---
+
+## Overview
+
+OpenYida ile gezinme, i18n, izinler, yaşam döngüsü durumu ve organizasyon bilgilerini yönetin.
+
+## Typical tasks
+
+- Confirm login, organization, and available commands with `openyida agent-capabilities --summary-json`.
+- Let the AI Agent list target resources and planned changes before execution.
+- Execute the matching OpenYida commands and read back key results.
+- For permissions, lifecycle, publishing, or public access changes, confirm the impact scope first.
+
+## Related commands
+
+- `openyida create-app`
+- `openyida create-form`
+- `openyida create-process`
+- `openyida nav-group`
+- `openyida i18n`
+- `openyida app-permission`
+
+<!-- rich-content-sync:start -->
+
+## Yetenek tablosu
+
+| Kontrol noktası | Komut / yetenek | Not |
+| --- | --- | --- |
+| Navigation groups | `openyida nav-group` | List current navigation before changing it. |
+| Multilingual text | `openyida i18n` | Cover page titles, buttons, fields, and messages. |
+| App permissions | `openyida app-permission` | Search users and confirm roles before update. |
+| Lifecycle state | `openyida app-online`, `openyida app-offline` | Explain impact scope first. |
+| Organization basics | `openyida basic-info`, `openyida corp-manager` | Use for capacity, domain, and organization context. |
+
+## Kopyalanabilir komutlar
+
+```bash
+openyida nav-group --help
+openyida i18n --help
+openyida app-permission --help
+openyida app-online --help
+openyida app-offline --help
+openyida basic-info --help
+openyida corp-manager --help
+```
+
+## AI Agent prompt şablonu
+
+```
+Manage this Yida app. First inspect the current navigation, i18n, permissions, lifecycle state, and organization basics. Then propose the exact changes and affected objects. Only apply permission, lifecycle, or public-access changes after confirming the impact scope.
+
+Target app: [app name or appType]
+Management task: [describe task]
+```
+
+## Kabul kontrol listesi
+
+- Current state is listed before changes.
+- Permission and lifecycle changes include impact scope.
+- Navigation and i18n updates are read back after execution.
+- The final result includes changed objects and follow-up risks.
+
+<!-- rich-content-sync:end -->

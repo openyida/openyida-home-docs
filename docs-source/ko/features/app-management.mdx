@@ -1,0 +1,62 @@
+---
+title: "앱 관리"
+description: "OpenYida로 앱 내비게이션, 다국어, 권한, 활성 상태, 조직 기본 정보를 관리합니다."
+icon: "settings"
+---
+
+## 위치
+
+OpenYida로 앱 내비게이션, 다국어, 권한, 활성 상태, 조직 기본 정보를 관리합니다.
+
+## 일반 작업
+
+- openyida nav-group
+- openyida i18n
+- openyida app-permission
+- openyida app-online / app-offline
+- openyida basic-info
+
+## 사용 팁
+
+For permissions, lifecycle, and public access changes, ask the Agent to show the affected objects before applying changes.
+<!-- rich-content-sync:start -->
+
+## 기능 요약표
+
+| 확인 사항 | 명령 / 기능 | 설명 |
+| --- | --- | --- |
+| Navigation groups | `openyida nav-group` | List current navigation before changing it. |
+| Multilingual text | `openyida i18n` | Cover page titles, buttons, fields, and messages. |
+| App permissions | `openyida app-permission` | Search users and confirm roles before update. |
+| Lifecycle state | `openyida app-online`, `openyida app-offline` | Explain impact scope first. |
+| Organization basics | `openyida basic-info`, `openyida corp-manager` | Use for capacity, domain, and organization context. |
+
+## 복사 가능한 명령
+
+```bash
+openyida nav-group --help
+openyida i18n --help
+openyida app-permission --help
+openyida app-online --help
+openyida app-offline --help
+openyida basic-info --help
+openyida corp-manager --help
+```
+
+## AI Agent 프롬프트 템플릿
+
+```
+Manage this Yida app. First inspect the current navigation, i18n, permissions, lifecycle state, and organization basics. Then propose the exact changes and affected objects. Only apply permission, lifecycle, or public-access changes after confirming the impact scope.
+
+Target app: [app name or appType]
+Management task: [describe task]
+```
+
+## 검수 체크리스트
+
+- Current state is listed before changes.
+- Permission and lifecycle changes include impact scope.
+- Navigation and i18n updates are read back after execution.
+- The final result includes changed objects and follow-up risks.
+
+<!-- rich-content-sync:end -->

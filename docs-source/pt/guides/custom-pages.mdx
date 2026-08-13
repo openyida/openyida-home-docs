@@ -1,0 +1,101 @@
+---
+title: "Páginas personalizadas"
+description: "Crie, escreva e publique páginas personalizadas de exibição Yida com OpenYida."
+icon: "window-maximize"
+---
+
+Páginas personalizadas são adequadas para dashboards, portais, relatórios visuais, calculadoras e páginas ricas em interação. O OpenYida compila componentes funcionais React modernos em páginas executáveis no Yida e publica no contêiner de página alvo.
+
+## Fluxo ponta a ponta
+
+```bash
+openyida agent-capabilities --summary-json
+openyida create-page <appType> "Dashboard operacional"
+# Gerar ou escrever o código da página: project/pages/src/dashboard.canvas.jsx
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
+```
+
+Use `agent-capabilities` para verificar o ambiente, login e capacidades disponíveis. `create-page` retorna o `formUuid` da página; não invente esse valor, leia-o da saída do comando ou do cache do projeto. Quando o código estiver pronto, use `publish` para publicar na página alvo.
+
+## Regras da página
+
+Novas páginas devem usar o fluxo moderno de página, e o código deve seguir estas regras:
+
+- Use React function component como entrada da página.
+- Hooks como `useState`, `useEffect` e `useMemo` são suportados; limpe side effects.
+- Faça `import` de UI library, chart library e icons a partir dos recursos suportados.
+- Botões, filtros, busca, Tabs, paginação e cards devem acionar interações reais.
+- Priorize dados reais via Yida data bridge, conectores ou Open API; forneça estados vazio, erro e atualizar.
+- O layout mobile deve ser legível e a área de operação não pode transbordar.
+
+## Componentes nativos Yida suportados
+
+Páginas personalizadas podem conectar componentes runtime nativos do Yida. Detecte primeiro por `window.Deep`, `window.DeepYida` ou `window.YidaNativeComponents`; se falhar, renderize fallback da página para evitar tela branca.
+
+| Componente / cenário | Uso | Requisito de integração |
+| --- | --- | --- |
+| `PortalTopBanner` / `PortalQuickEntry` | Banner de portal e atalhos | Priorize em shells de portal; se faltar, use banner e cards fallback próprios. |
+| `QuickAccessCard` / `RecentlyUsedCard` | Apps frequentes e recentes | Passe `theme`, como `row-white` ou `column`, e mantenha fallback local. |
+| `DataManageViews` | Visão de gestão de dados Yida embutida | Passe `form.appType` e `form.value` / `formUuid` do formulário alvo. |
+| `EmployeeField` | Seletor de membros | Registre o `onChange` real antes de normalizar o valor de membro. |
+| `DepartmentSelectField` | Seletor de departamento | Verifique busca, popover, permissões, seleção única e múltipla. |
+| `AttachmentField` / `ImageField` | Upload de anexos e imagens | Verifique permissão de upload, assinatura OSS, preview, exclusão e falhas. |
+| `DataCard` / `PortalContainer` | Card de dados e contêiner de portal | Use apenas após validar contexto do portal, configuração de dados e variáveis de estilo. |
+
+Componentes nativos melhoram a experiência, mas não são pré-requisitos para estabilidade da página. Mantenha fallback utilizável e normalize membros, departamentos e arquivos antes de enviar.
+
+## Exemplos e casos
+
+Use primeiro um smoke sample para verificar componentes e permissões. O caminho direto do showcase no openyida-home é `/#/pt/showcase`.
+
+| Entrada | Link |
+| --- | --- |
+| Demo de componentes nativos | [canvas-native-components](https://demo.aliwork.com/o/openyida/sample/canvas-native-components) |
+| Showcase de páginas personalizadas | [Casos](/#/pt/showcase) |
+| Rota showcase no container Yida | [openyidaRoute=showcase](https://demo.aliwork.com/o/openyida/helpCenter?openyidaLang=pt&openyidaRoute=showcase) |
+
+## Exemplos copiáveis
+
+```bash
+openyida sample yida-canvas-custom-page native-components-smoke --output project/pages/src/native-components-smoke.canvas.jsx
+openyida sample yida-canvas-custom-page portal-native-components --output project/pages/src/portal-native-components.canvas.jsx
+openyida build-page project/pages/src/native-components-smoke.canvas.jsx --write
+```
+
+## Publicar e confirmar
+
+```bash
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
+```
+
+Antes de publicar, confirme que o código inclui interações reais, adaptação mobile, estados vazio/erro e lógica de dados necessária. `publish` atualiza o código atual para a página alvo retornada por `create-page`.
+
+## Ocultar navegação Yida
+
+Dashboards em tela cheia ou páginas de demo podem ocultar a navegação da plataforma:
+
+```bash
+openyida update-form-config <appType> <formUuid> false "Dashboard operacional"
+```
+
+Mostrar a navegação novamente:
+
+```bash
+openyida update-form-config <appType> <formUuid> true "Dashboard operacional"
+```
+
+## Quando usar `build-page`
+
+```bash
+openyida build-page project/pages/src/dashboard.canvas.jsx --write
+```
+
+`build-page` processa apenas o código local e não publica. É útil para review, CI ou debug da saída de compilação.
+
+## Prompt sugerido
+
+```text
+Transforme este documento de análise em uma página personalizada Yida.
+Primeiro entenda o objetivo de negócio e a hierarquia de informações; depois gere uma página React function component moderna com hierarquia visual clara, estados de interação reais, detecção de componentes nativos Yida e adaptação mobile.
+Quando estiver pronta, use openyida publish para publicar na página personalizada alvo e me diga se a publicação foi concluída com sucesso.
+```

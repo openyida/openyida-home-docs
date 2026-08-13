@@ -1,0 +1,57 @@
+---
+title: "フォーム設計"
+description: "フィールド ID を推測せず、Yida フォームの項目、検証、数式、業務上の意味を設計・保守します。"
+icon: "list-checks"
+---
+
+## 位置づけ
+
+フィールド ID を推測せず、Yida フォームの項目、検証、数式、業務上の意味を設計・保守します。
+
+## 主なタスク
+
+- openyida get-schema
+- openyida create-form
+- openyida create-form validate-fields
+- field update and formula configuration
+
+## 利用のヒント
+
+Read the real Schema before editing fields or writing data. Do not infer field IDs from labels.
+<!-- rich-content-sync:start -->
+
+## 機能早見表
+
+| 確認事項 | コマンド / 機能 | 説明 |
+| --- | --- | --- |
+| Read current fields | `openyida get-schema` | Do this before every update. |
+| Validate field definitions | `openyida create-form validate-fields` | Use for generated field configs. |
+| Create form page | `openyida create-form` | Confirm form name and page type first. |
+| Update data safely | data query / write commands | Use real field IDs from Schema. |
+| Verify result | read-back query | Check at least one record or Schema diff. |
+
+## コピー可能なコマンド
+
+```bash
+openyida get-schema --help
+openyida create-form --help
+openyida create-form validate-fields --help
+```
+
+## AI Agent プロンプトテンプレート
+
+```
+Update this Yida form. First read the real Schema with openyida get-schema and list current fields. Then propose field changes with field type, required rule, options, formula, and business meaning. Validate the field definitions before applying them, and read back the Schema after the update.
+
+Form: [form name or formUuid]
+Changes: [describe changes]
+```
+
+## 受け入れチェックリスト
+
+- No field ID is guessed from a label.
+- Field type, required state, options, formula, and default value are clear.
+- The generated field definition passes validation.
+- Schema or sample data is read back after the change.
+
+<!-- rich-content-sync:end -->

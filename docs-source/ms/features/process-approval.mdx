@@ -1,0 +1,61 @@
+---
+title: "Kelulusan Proses"
+description: "Cipta dan konfigurasi proses kelulusan Yida dengan nod, pelulus, penerbitan dan semakan semula."
+icon: "git-branch"
+---
+
+## Overview
+
+Cipta dan konfigurasi proses kelulusan Yida dengan nod, pelulus, penerbitan dan semakan semula.
+
+## Typical tasks
+
+- Confirm login, organization, and available commands with `openyida agent-capabilities --summary-json`.
+- Let the AI Agent list target resources and planned changes before execution.
+- Execute the matching OpenYida commands and read back key results.
+- For permissions, lifecycle, publishing, or public access changes, confirm the impact scope first.
+
+## Related commands
+
+- `openyida create-app`
+- `openyida create-form`
+- `openyida create-process`
+- `openyida nav-group`
+- `openyida i18n`
+- `openyida app-permission`
+<!-- rich-content-sync:start -->
+
+## Jadual keupayaan
+
+| Peringkat | Perkara disahkan | Perintah / keupayaan |
+| --- | --- | --- |
+| Process model | Initiator, approvers, archive node, rollback rules | requirement analysis |
+| Workflow form | Fields used for routing and approval decisions | `openyida create-process` |
+| Approval rules | Approver roles, branches, conditions | `openyida process-rule` |
+| Publishing | Whether workflow is published | publish / inspect commands |
+| Verification | Node list and process state | read-back result |
+
+## Perintah boleh disalin
+
+```bash
+openyida create-process --help
+openyida process-rule --help
+openyida agent-capabilities --summary-json
+```
+
+## Templat prompt AI Agent
+
+```
+Create a Yida approval process. First list the initiator, form fields, approval nodes, approver rules, branch conditions, archive node, and rollback behavior. Then create the workflow with OpenYida, configure approval rules, verify whether it is published, and report the node list and resource IDs.
+
+Process requirement: [describe process]
+```
+
+## Senarai semak penerimaan
+
+- Initiator, approvers, and archive node are explicit.
+- Routing fields such as amount, department, type, and status exist on the form.
+- Approval rules are verified after configuration.
+- Published state and key resource IDs are reported.
+
+<!-- rich-content-sync:end -->

@@ -1,44 +1,74 @@
 ---
 title: "自定义页面"
-description: "使用 OpenYida 创建、检查、编译并发布宜搭自定义展示页面。"
+description: "使用 OpenYida 创建、编写并发布宜搭自定义展示页面。"
 icon: "window-maximize"
 ---
 
-自定义展示页面适合看板、门户、可视化报告、计算器和富交互页面。OpenYida 会把符合宜搭运行时规范的 JSX 编译并发布到对应页面容器。
+自定义展示页面适合看板、门户、可视化报告、计算器和富交互页面。OpenYida 默认使用新版页面链路，把现代 React 函数组件编译为宜搭可运行的页面，并发布到对应页面容器。
 
 ## 端到端流程
 
 ```bash
+openyida agent-capabilities --summary-json
 openyida create-page <appType> "经营看板"
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
-openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+# 生成或编写页面源码：project/pages/src/dashboard.canvas.jsx
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
 ```
 
-`create-page` 会返回页面的 `formUuid`。不要手写或猜测这个值，应保存命令输出，或从项目缓存里读取。
+`agent-capabilities` 用于确认当前环境、登录态和可用能力。`create-page` 会返回页面的 `formUuid`，不要手写或猜测这个值，应保存命令输出，或从项目缓存里读取。页面源码准备完成后，使用 `publish` 发布到目标页面；发布过程会完成新版页面链路所需的编译和写入。
 
-## 运行时规范
+## 页面规范
 
-宜搭自定义页面运行在 React 16 类组件模式下，源码需遵守这些规则：
+新建自定义页面默认使用现代页面链路，页面源码需遵守这些规则：
 
-- 使用 `export function renderJsx()` 输出页面。
-- 使用 `export function didMount()` 和 `export function didUnmount()` 处理生命周期。
-- 自定义方法写成 `export function methodName() {}`。
-- 事件处理要包一层函数，例如 `onClick={(e) => { this.handleClick(e); }}`。
-- `.map()`、`.filter()` 等回调使用箭头函数。
-- 不使用 `useState`、`useEffect` 等 React Hooks。
-- 页面源码中不使用 `import` 和 `require`。
-- 样式使用内联 style 对象。
-- 输入框优先使用 `defaultValue`。
+- 使用 React 函数组件作为页面入口，按组件状态和 props 组织页面。
+- 可以使用 `useState`、`useEffect`、`useMemo` 等 Hooks；副作用需做好清理。
+- 可以从自定义页面支持的前端资源中正常 `import` 组件库、图表库和图标库。
+- 筛选、搜索、Tabs、分页、按钮、卡片等看起来可点击的控件必须绑定真实交互。
+- 真实数据优先通过宜搭数据桥、连接器或开放 API 接入；缺少数据时提供空态、错误态和刷新入口。
+- 样式可以使用组件库 token、CSS 变量和页面级样式，移动端需保证布局可阅读、操作区不溢出。
 
-## 发布前检查
+## 支持的原生宜搭组件
+
+自定义页面可以按运行态桥接方式接入宜搭原生组件。页面应先从 `window.Deep`、`window.DeepYida` 或 `window.YidaNativeComponents` 探测组件；探测失败时使用页面自绘 fallback，避免白屏。
+
+| 组件 / 场景 | 适合用途 | 接入要求 |
+| --- | --- | --- |
+| `PortalTopBanner` / `PortalQuickEntry` | 门户 Banner、快捷入口 | 优先用于门户壳；缺失时使用自绘 Banner 和入口卡片。 |
+| `QuickAccessCard` / `RecentlyUsedCard` | 常用应用、最近使用应用卡片 | 必须传 `theme`，如 `row-white` 或 `column`，并保留局部降级。 |
+| `DataManageViews` | 嵌入宜搭数据管理视图 | 必须传目标表单 `form.appType` 和 `form.value` / `formUuid`。 |
+| `EmployeeField` | 成员选择 | 先记录真实 `onChange` 输出，再归一化为成员值结构。 |
+| `DepartmentSelectField` | 部门选择 | 先验证搜索、弹层、权限提示、单选和多选。 |
+| `AttachmentField` / `ImageField` | 附件上传、图片上传 | 先验证上传权限、OSS 签名、预览、删除和失败提示。 |
+| `DataCard` / `PortalContainer` | 门户数据卡片和容器增强 | 只有目标门户上下文、数据配置和样式变量验证通过后再接入。 |
+
+原生组件是体验增强，不是页面稳定性的前置条件。业务页面应保持 fallback 可用，并把成员、部门、文件等值统一归一化后再提交。
+
+## 示例与优秀案例
+
+需要验证原生组件时，先使用 smoke 示例确认组件和权限；需要浏览更多自定义页面优秀示例时，可以直接切到案例页。openyida-home 的页面案例直达路径是 `/#/zh/showcase`。
+
+| 入口 | 链接 |
+| --- | --- |
+| 原生组件演示 | [canvas-native-components](https://demo.aliwork.com/o/openyida/sample/canvas-native-components) |
+| 自定义页面优秀示例 | [案例展示](/#/zh/showcase) |
+| 宜搭容器直达案例页 | [openyidaRoute=showcase](https://demo.aliwork.com/o/openyida/helpCenter?openyidaLang=zh&openyidaRoute=showcase) |
+
+## 可复制示例
 
 ```bash
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
+openyida sample yida-canvas-custom-page native-components-smoke --output project/pages/src/native-components-smoke.canvas.jsx
+openyida sample yida-canvas-custom-page portal-native-components --output project/pages/src/portal-native-components.canvas.jsx
+openyida build-page project/pages/src/native-components-smoke.canvas.jsx --write
 ```
 
-`check-page` 会检查常见运行时错误。`compile` 会在 `project/pages/build/` 和 `project/pages/dist/` 下生成兼容宜搭的产物。
+## 发布与确认
+
+```bash
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
+```
+
+发布前先确认页面源码已包含真实交互、移动端适配、空态/错误态和必要的数据接入逻辑。`publish` 是更新线上页面的闭环命令，会把当前源码发布到 `create-page` 返回的目标页面。
 
 ## 隐藏宜搭导航
 
@@ -57,15 +87,15 @@ openyida update-form-config <appType> <formUuid> true "经营看板"
 ## 何时使用 `build-page`
 
 ```bash
-openyida build-page project/pages/src/dashboard.oyd.jsx --write
+openyida build-page project/pages/src/dashboard.canvas.jsx --write
 ```
 
-`build-page` 只转换源码，不发布页面。它适合做代码审查、CI 检查或调试编译输出。
+`build-page` 只处理本地页面源码，不发布页面。它适合做代码审查、CI 检查或调试编译输出。
 
 ## 推荐提示词
 
 ```text
 把这份分析文档做成宜搭自定义页面。
-使用 React 16 兼容的 export function 写法，不使用 Hooks，样式内联，适配移动端。
-发布前先运行 openyida check-page 和 compile。
+请先理解业务目标和信息层级，生成现代 React 函数组件页面，包含清晰视觉层次、真实交互状态、原生宜搭组件可用性探测和移动端适配。
+完成后使用 openyida publish 发布到目标自定义页面，并告诉我页面是否已成功发布。
 ```

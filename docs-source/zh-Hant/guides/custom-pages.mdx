@@ -1,0 +1,101 @@
+---
+title: "自訂頁面"
+description: "使用 OpenYida 建立、編寫並發布宜搭自訂展示頁面。"
+icon: "window-maximize"
+---
+
+自訂展示頁面適合看板、門戶、視覺化報告、計算器和富互動頁面。OpenYida 預設使用新版頁面鏈路，把現代 React 函式元件編譯為宜搭可執行的頁面，並發布到對應頁面容器。
+
+## 端到端流程
+
+```bash
+openyida agent-capabilities --summary-json
+openyida create-page <appType> "經營看板"
+# 生成或編寫頁面原始碼：project/pages/src/dashboard.canvas.jsx
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
+```
+
+`agent-capabilities` 用於確認目前環境、登入狀態和可用能力。`create-page` 會返回頁面的 `formUuid`，不要手寫或猜測這個值，應保存命令輸出，或從專案快取讀取。頁面原始碼準備完成後，使用 `publish` 發布到目標頁面；發布過程會完成新版頁面鏈路所需的編譯和寫入。
+
+## 頁面規範
+
+新建自訂頁面預設使用現代頁面鏈路，頁面原始碼需遵守這些規則：
+
+- 使用 React 函式元件作為頁面入口，按元件狀態和 props 組織頁面。
+- 可以使用 `useState`、`useEffect`、`useMemo` 等 Hooks；副作用需做好清理。
+- 可以從自訂頁面支援的前端資源中正常 `import` 元件庫、圖表庫和圖示庫。
+- 篩選、搜尋、Tabs、分頁、按鈕、卡片等看起來可點擊的控制項必須綁定真實互動。
+- 真實資料優先透過宜搭資料橋、連接器或開放 API 接入；缺少資料時提供空態、錯誤態和重新整理入口。
+- 樣式可以使用元件庫 token、CSS 變數和頁面級樣式，行動端需保證版面可閱讀、操作區不溢出。
+
+## 支援的原生宜搭元件
+
+自訂頁面可以按執行態橋接方式接入宜搭原生元件。頁面應先從 `window.Deep`、`window.DeepYida` 或 `window.YidaNativeComponents` 探測元件；探測失敗時使用頁面自繪 fallback，避免白屏。
+
+| 元件 / 場景 | 適合用途 | 接入要求 |
+| --- | --- | --- |
+| `PortalTopBanner` / `PortalQuickEntry` | 門戶 Banner、快捷入口 | 優先用於門戶殼；缺失時使用自繪 Banner 和入口卡片。 |
+| `QuickAccessCard` / `RecentlyUsedCard` | 常用應用、最近使用應用卡片 | 必須傳 `theme`，如 `row-white` 或 `column`，並保留局部降級。 |
+| `DataManageViews` | 嵌入宜搭資料管理視圖 | 必須傳目標表單 `form.appType` 和 `form.value` / `formUuid`。 |
+| `EmployeeField` | 成員選擇 | 先記錄真實 `onChange` 輸出，再歸一化為成員值結構。 |
+| `DepartmentSelectField` | 部門選擇 | 先驗證搜尋、彈層、權限提示、單選和多選。 |
+| `AttachmentField` / `ImageField` | 附件上傳、圖片上傳 | 先驗證上傳權限、OSS 簽名、預覽、刪除和失敗提示。 |
+| `DataCard` / `PortalContainer` | 門戶資料卡片和容器增強 | 只有目標門戶上下文、資料配置和樣式變數驗證通過後再接入。 |
+
+原生元件是體驗增強，不是頁面穩定性的前置條件。業務頁面應保持 fallback 可用，並把成員、部門、檔案等值統一歸一化後再提交。
+
+## 範例與優秀案例
+
+需要驗證原生元件時，先使用 smoke 範例確認元件和權限；需要瀏覽更多自訂頁面優秀案例時，可以直接切到案例頁。openyida-home 的頁面案例直達路徑是 `/#/zh-Hant/showcase`。
+
+| 入口 | 連結 |
+| --- | --- |
+| 原生元件演示 | [canvas-native-components](https://demo.aliwork.com/o/openyida/sample/canvas-native-components) |
+| 自訂頁面優秀案例 | [案例展示](/#/zh-Hant/showcase) |
+| 宜搭容器直達案例頁 | [openyidaRoute=showcase](https://demo.aliwork.com/o/openyida/helpCenter?openyidaLang=zh-Hant&openyidaRoute=showcase) |
+
+## 可複製範例
+
+```bash
+openyida sample yida-canvas-custom-page native-components-smoke --output project/pages/src/native-components-smoke.canvas.jsx
+openyida sample yida-canvas-custom-page portal-native-components --output project/pages/src/portal-native-components.canvas.jsx
+openyida build-page project/pages/src/native-components-smoke.canvas.jsx --write
+```
+
+## 發布與確認
+
+```bash
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
+```
+
+發布前先確認頁面原始碼已包含真實互動、行動端適配、空態/錯誤態和必要的資料接入邏輯。`publish` 是更新線上頁面的閉環命令，會把目前原始碼發布到 `create-page` 返回的目標頁面。
+
+## 隱藏宜搭導覽
+
+全螢幕看板或演示頁通常需要隱藏平台導覽：
+
+```bash
+openyida update-form-config <appType> <formUuid> false "經營看板"
+```
+
+恢復顯示導覽：
+
+```bash
+openyida update-form-config <appType> <formUuid> true "經營看板"
+```
+
+## 何時使用 `build-page`
+
+```bash
+openyida build-page project/pages/src/dashboard.canvas.jsx --write
+```
+
+`build-page` 只處理本地頁面原始碼，不發布頁面。它適合做程式碼審查、CI 檢查或調試編譯輸出。
+
+## 推薦提示詞
+
+```text
+把這份分析文件做成宜搭自訂頁面。
+請先理解業務目標和資訊層級，生成現代 React 函式元件頁面，包含清晰視覺層次、真實互動狀態、原生宜搭元件可用性探測和行動端適配。
+完成後使用 openyida publish 發布到目標自訂頁面，並告訴我頁面是否已成功發布。
+```

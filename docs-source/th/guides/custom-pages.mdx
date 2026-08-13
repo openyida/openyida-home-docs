@@ -1,57 +1,101 @@
 ---
 title: "หน้ากำหนดเอง"
-description: "เอกสารนี้อธิบาย หน้ากำหนดเอง ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง"
-icon: window-maximize
+description: "สร้าง เขียน และเผยแพร่หน้าจอแสดงผลแบบกำหนดเองของ Yida ด้วย OpenYida"
+icon: "window-maximize"
 ---
 
-# หน้ากำหนดเอง
+หน้ากำหนดเองเหมาะกับ dashboard, portal, visual report, calculator และหน้าที่มี interaction สูง OpenYida จะ compile React function component สมัยใหม่ให้เป็นหน้าที่รันได้ใน Yida แล้ว publish ไปยัง container เป้าหมาย
 
-หน้านี้อธิบาย หน้ากำหนดเอง ของ OpenYida โดยสรุปเป้าหมาย ขั้นตอนการใช้งาน และข้อควรระวังที่เกี่ยวข้องสำหรับการสร้างแอป Yida ด้วย AI
-
-## ภาพรวม
-
-เอกสารนี้อธิบาย หน้ากำหนดเอง ใน OpenYida พร้อมแนวทางการใช้งาน คำสั่ง และข้อควรทราบที่เกี่ยวข้อง
-
-## ประเด็นสำคัญ
-
-- ใช้หน้านี้เพื่อทำความเข้าใจบริบทหลักก่อนเริ่มลงมือในโครงการจริง
-- ชื่อคำสั่ง พารามิเตอร์ โค้ด และชื่อผลิตภัณฑ์บางส่วนคงไว้เป็นภาษาอังกฤษเพื่อให้ค้นหาและคัดลอกได้ถูกต้อง
-- เมื่อใช้งานกับ宜搭จริง ให้ตรวจสอบสิทธิ์ องค์กร และสภาพแวดล้อมก่อนเผยแพร่
-
-## การใช้งาน
-
-ปฏิบัติตามขั้นตอนในเอกสารนี้ร่วมกับคำสั่ง OpenYida CLI และการตั้งค่าขององค์กร หากมีตัวอย่างโค้ดด้านล่าง สามารถคัดลอกไปปรับใช้ได้โดยตรง
-
-## คำสั่งและตัวอย่าง
-
-ตัวอย่างต่อไปนี้คงคำสั่งและโค้ดต้นฉบับไว้เพื่อความถูกต้องทางเทคนิค
+## ขั้นตอน end-to-end
 
 ```bash
+openyida agent-capabilities --summary-json
 openyida create-page <appType> "Dashboard"
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
-openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+# สร้างหรือเขียน source ของหน้า: project/pages/src/dashboard.canvas.jsx
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
 ```
 
+ใช้ `agent-capabilities` เพื่อตรวจ environment, login state และ capability ที่ใช้ได้ `create-page` จะคืนค่า `formUuid` ของหน้า อย่าเดาค่านี้ ให้อ่านจาก output หรือ cache ของโปรเจกต์ เมื่อ source พร้อมแล้วใช้ `publish` เพื่อเผยแพร่ไปยังหน้าเป้าหมาย
+
+## กฎของหน้า
+
+หน้าใหม่ควรใช้ page flow สมัยใหม่ และ source ต้องทำตามกฎต่อไปนี้:
+
+- ใช้ React function component เป็น entry ของหน้า
+- ใช้ Hooks เช่น `useState`, `useEffect`, `useMemo` ได้ และต้อง cleanup side effect
+- `import` UI library, chart library และ icon จาก resource ที่รองรับ
+- Button, filter, search, Tabs, pagination และ card ต้องเชื่อม interaction จริง
+- ใช้ข้อมูลจริงผ่าน Yida data bridge, connector หรือ Open API ก่อน และมี empty, error, refresh state
+- layout บน mobile ต้องอ่านง่ายและพื้นที่ใช้งานไม่ล้น
+
+## คอมโพเนนต์ native ของ Yida ที่รองรับ
+
+หน้ากำหนดเองสามารถ bridge component runtime native ของ Yida ได้ ให้ detect จาก `window.Deep`, `window.DeepYida` หรือ `window.YidaNativeComponents` ก่อน หากไม่พบให้ render fallback ของหน้าเพื่อไม่ให้จอขาว
+
+| Component / สถานการณ์ | เหมาะกับ | ข้อกำหนดการเชื่อมต่อ |
+| --- | --- | --- |
+| `PortalTopBanner` / `PortalQuickEntry` | banner ของ portal และทางเข้าด่วน | ใช้กับ portal shell ก่อน ถ้าไม่มีให้ใช้ fallback ที่วาดเอง |
+| `QuickAccessCard` / `RecentlyUsedCard` | การ์ดแอปที่ใช้บ่อยและใช้ล่าสุด | ต้องส่ง `theme` เช่น `row-white` หรือ `column` และคง fallback เฉพาะส่วนไว้ |
+| `DataManageViews` | ฝังมุมมองจัดการข้อมูลของ Yida | ต้องส่ง `form.appType` และ `form.value` / `formUuid` ของฟอร์มเป้าหมาย |
+| `EmployeeField` | เลือกสมาชิก | บันทึกผล `onChange` จริงก่อน แล้ว normalize ค่า member |
+| `DepartmentSelectField` | เลือกแผนก | ตรวจ search, popover, permission, single select และ multi select ก่อน |
+| `AttachmentField` / `ImageField` | อัปโหลดไฟล์และรูปภาพ | ตรวจสิทธิ์ upload, OSS signature, preview, delete และ error state ก่อน |
+| `DataCard` / `PortalContainer` | การ์ดข้อมูลและ container ของ portal | ใช้เมื่อ context, data config และ style variables ของ portal ถูกตรวจแล้วเท่านั้น |
+
+Native component เป็นการเพิ่มประสบการณ์ ไม่ใช่เงื่อนไขก่อนหน้าของความเสถียร ต้องมี fallback และ normalize ค่า member, department, file ก่อน submit
+
+## ตัวอย่างและ showcase
+
+ควรใช้ smoke sample เพื่อตรวจ component และ permission ก่อน path ตรงไปยัง showcase ของ openyida-home คือ `/#/th/showcase`
+
+| ทางเข้า | ลิงก์ |
+| --- | --- |
+| เดโม native component | [canvas-native-components](https://demo.aliwork.com/o/openyida/sample/canvas-native-components) |
+| showcase ของหน้ากำหนดเอง | [Showcase](/#/th/showcase) |
+| route showcase ใน Yida container | [openyidaRoute=showcase](https://demo.aliwork.com/o/openyida/helpCenter?openyidaLang=th&openyidaRoute=showcase) |
+
+## ตัวอย่างที่คัดลอกได้
+
 ```bash
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
+openyida sample yida-canvas-custom-page native-components-smoke --output project/pages/src/native-components-smoke.canvas.jsx
+openyida sample yida-canvas-custom-page portal-native-components --output project/pages/src/portal-native-components.canvas.jsx
+openyida build-page project/pages/src/native-components-smoke.canvas.jsx --write
 ```
+
+## Publish และยืนยัน
+
+```bash
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
+```
+
+ก่อน publish ให้ยืนยันว่า source มี interaction จริง รองรับ mobile มี empty/error state และ logic ดึงข้อมูลที่จำเป็น `publish` จะอัปเดต source ปัจจุบันไปยังหน้าเป้าหมายจาก `create-page`
+
+## ซ่อน navigation ของ Yida
+
+dashboard เต็มหน้าจอหรือหน้า demo สามารถซ่อน navigation ของ platform ได้:
 
 ```bash
 openyida update-form-config <appType> <formUuid> false "Dashboard"
 ```
 
+แสดง navigation อีกครั้ง:
+
 ```bash
 openyida update-form-config <appType> <formUuid> true "Dashboard"
 ```
 
+## เมื่อใดควรใช้ `build-page`
+
 ```bash
-openyida build-page project/pages/src/dashboard.oyd.jsx --write
+openyida build-page project/pages/src/dashboard.canvas.jsx --write
 ```
 
+`build-page` ประมวลผล source ในเครื่องเท่านั้น ไม่ publish เหมาะกับ review, CI หรือ debug compile output
+
+## Prompt ที่แนะนำ
+
 ```text
-Create a Yida custom page from this analysis document.
-Use React 16-compatible export functions, no Hooks, inline styles, mobile responsive layout.
-Run openyida check-page and compile before publishing.
+ช่วยเปลี่ยนเอกสารวิเคราะห์นี้ให้เป็นหน้ากำหนดเองของ Yida
+โปรดเข้าใจเป้าหมายธุรกิจและลำดับข้อมูลก่อน แล้วสร้างหน้า React function component สมัยใหม่ที่มีลำดับภาพชัดเจน สถานะ interaction จริง การตรวจ native component ของ Yida และรองรับ mobile
+เมื่อเสร็จแล้วใช้ openyida publish เพื่อเผยแพร่ไปยังหน้ากำหนดเองเป้าหมาย และบอกฉันว่าสำเร็จหรือไม่
 ```

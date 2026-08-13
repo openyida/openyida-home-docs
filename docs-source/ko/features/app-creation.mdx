@@ -1,0 +1,60 @@
+---
+title: "앱 생성"
+description: "OpenYida로 요구사항부터 사용 가능한 Yida 앱까지 앱, 페이지, 양식, 프로세스, 게시 흐름을 완성합니다."
+icon: "layout-dashboard"
+---
+
+## 위치
+
+OpenYida로 요구사항부터 사용 가능한 Yida 앱까지 앱, 페이지, 양식, 프로세스, 게시 흐름을 완성합니다.
+
+## 일반 작업
+
+- OpenYida agent-capabilities --summary-json
+- openyida create-app
+- openyida create-form
+- openyida create-process
+- openyida publish
+
+## 사용 팁
+
+Start from requirements, confirm the target organization, then create resources and verify the final access link.
+<!-- rich-content-sync:start -->
+
+## 기능 요약표
+
+| 단계 | 확인 사항 | 명령 / 기능 |
+| --- | --- | --- |
+| Preflight | Login state, organization, target environment | `openyida agent-capabilities --summary-json` |
+| App shell | App name, business scope, owner organization | `openyida create-app` |
+| Business objects | Forms, pages, workflows, navigation plan | `openyida create-form`, `openyida create-process` |
+| Publishing | Page publish result and accessible URL | `openyida publish` |
+| Read-back | Created resource IDs and final state | query / inspect commands |
+
+## 복사 가능한 명령
+
+```bash
+openyida agent-capabilities --summary-json
+openyida create-app --help
+openyida create-form --help
+openyida create-process --help
+openyida publish --help
+```
+
+## AI Agent 프롬프트 템플릿
+
+```
+Create a Yida app from the following PRD. First confirm OpenYida capability, login state, organization, and target environment. Then break down business objects, forms, pages, workflows, navigation, and publishing steps. Create the app with OpenYida, publish the required pages, read back resource IDs, and return the accessible link.
+
+[Paste PRD here]
+```
+
+## 검수 체크리스트
+
+- The target organization and environment are confirmed.
+- Forms, pages, workflows, and navigation match the requirement.
+- Published pages return accessible links.
+- Key resource IDs are listed for later maintenance.
+- The AI Agent reports what was created and what still needs manual confirmation.
+
+<!-- rich-content-sync:end -->

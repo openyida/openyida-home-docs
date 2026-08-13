@@ -1,13 +1,13 @@
 ---
 title: "Complete Feature List"
-description: "A scenario-based list of OpenYida capabilities and the matching CLI commands."
+description: "A scenario-based list of OpenYida capabilities and matching CLI commands."
 icon: "list-ul"
 ---
 
-This list summarizes the current OpenYida capabilities for Yida users and AI agents, with the CLI commands usually used for each scenario.
+This list is for Yida users and AI agents. It is aligned with the current OpenYida command set and skill routing model. For exact parameters, run `openyida --help`, `openyida <command> --help`, or `openyida commands --json`.
 
 <Note>
-Use `openyida agent-capabilities --summary-json` as the default lightweight preflight. Use `openyida agent-capabilities --json` only for full diagnostics, command manifests, permission metadata, or raw login failure details.
+Use `openyida agent-capabilities --summary-json` as the default lightweight preflight. It returns version, login status, organization, workspace, and command-manifest digest without dumping the full runtime payload. Use `openyida agent-capabilities --json` only for full diagnostics, command contract checks, permission metadata, or raw login failure details.
 </Note>
 
 ## Basics
@@ -19,68 +19,202 @@ Use `openyida agent-capabilities --summary-json` as the default lightweight pref
 | Environment and login check | `openyida env` / `openyida env --json` |
 | Environment profile management | `openyida env <setup\|list\|show\|switch\|add\|remove>` |
 | OAuth token login | `openyida login` |
-| Login for a target entry URL | `openyida login <target-url>` |
+| Login from a target entry URL | `openyida login <target-url>` |
+| Check login only | `openyida login --check-only --json` |
 | Token status and refresh | `openyida auth <status\|login\|refresh\|logout>` |
 | Organization switch | `openyida org <list\|switch> [--corp-id <corpId>]` |
+| Logout | `openyida logout` |
 | Command manifest | `openyida commands --json` |
 
-## App and Forms
+## App Management
 
 | Capability | Command |
 |---|---|
 | List apps | `openyida app-list [--size N]` |
-| Create or update apps | `openyida create-app ...` / `openyida update-app ...` |
-| Import or export migration packages | `openyida export ...` / `openyida import ...` |
-| Create, update, patch, validate, or bind forms | `openyida create-form <create\|update\|patch\|rule\|validation\|bind-datasource> ...` |
-| Query forms and schemas | `openyida list-forms ...` / `openyida get-schema ...` |
-| Manage app navigation groups | `openyida nav-group <list\|create\|rename\|delete\|move\|order\|hide\|show> ...` |
-| Manage app and form permissions | `openyida app-permission ...` / `openyida get-permission ...` / `openyida save-permission ...` |
+| Create an app shell | `openyida create-app "<app name>"` |
+| Update app name, layout, or theme | `openyida update-app <appType> [--name "..."] [--layout slide\|ver] [--theme deepBlue]` |
+| Enable / bring an app online | `openyida app-online <appType> [--to-ding-app-center] [--show-app-center]` |
+| Disable / take an app offline | `openyida app-offline <appType> [--to-ding-app-center] [--show-app-center]` |
+| Export an app migration package | `openyida export <appType> [output]` |
+| Import an app migration package | `openyida import <file> [name]` |
+| Manage left navigation groups | `openyida nav-group <list\|create\|rename\|delete\|move\|order\|hide\|show> <appType> ...` |
+| Manage app administrators | `openyida app-permission <get\|set\|add\|remove\|search-user> ...` |
+| Manage app language packs | `openyida i18n <overview\|config\|languages\|list\|upsert\|delete\|translate\|translate-all\|upgrade> <appType> ...` |
+| Query organization basics, capacity, quota, and domains | `openyida basic-info <overview\|commodity\|grant\|capacity\|quota\|abs-path\|dataflow\|i18n\|domain>` |
+| Query corporate efficiency data | `openyida corp-efficiency [overview\|details\|detail\|groups\|notify] [options]` |
+| Manage platform administrators and address-book permissions | `openyida corp-manager <search-user\|list\|add\|remove\|address-book> ...` |
 
-## Pages, Data, and Process
-
-| Capability | Command |
-|---|---|
-| Create display pages | `openyida create-page <appType> "<name>"` |
-| Generate, check, compile, and publish page code | `openyida generate-page ...` / `openyida check-page ...` / `openyida compile ...` / `openyida publish ...` |
-| Publish Code Canvas pages | `openyida publish <src.canvas.jsx> <appType> <formUuid>` |
-| Query or mutate form/process/task/subform data | `openyida data <action> <resource> ...` |
-| Create and configure process forms | `openyida create-process ...` / `openyida configure-process ...` |
-| Query global tasks and delegation | `openyida task-center ...` / `openyida agent-center ...` |
-
-## Integration, Reports, and Utilities
+## Forms and Data Model
 
 | Capability | Command |
 |---|---|
-| Reports and dashboards | `openyida create-report ...` / `openyida append-chart ...` |
-| HTTP connectors | `openyida connector <list\|create\|detail\|add-action\|test\|smart-create> ...` |
-| Integration automation | `openyida integration <create\|list\|enable\|disable\|check\|diagnose> ...` |
-| DingTalk documents and DWS CLI | `openyida read-dingtalk-doc ...` / `openyida dws <command>` |
-| AI, assets, formulas, and PRD conversion | `openyida ai ...` / `openyida asset ...` / `openyida formula evaluate ...` / `openyida flash-to-prd ...` |
-| Local setup, diagnostics, and batch operations | `openyida copy` / `openyida doctor` / `openyida batch` |
-| MCP, A2A, and local bridge | `openyida mcp` / `openyida a2a ...` / `openyida bridge start ...` |
-| Quiet output and update checks | `openyida --quiet ...` / `YIDA_QUIET=1` / `OPENYIDA_SKIP_UPDATE_CHECK=1` |
+| Create forms | `openyida create-form create <appType> ...` |
+| Validate form field config | `openyida create-form validate-fields <fieldsJsonOrFile>` |
+| Update form fields | `openyida create-form update <appType> ...` |
+| Patch a form | `openyida create-form patch <appType> <formUuid> <patchJsonOrFile>` |
+| Configure form linkage rules | `openyida create-form rule <appType> <formUuid> <rulesJsonOrFile>` |
+| Configure field validation | `openyida create-form validation <appType> <formUuid> <validationsJsonOrFile>` |
+| Quickly add field validation | `openyida add-validation <appType> <formUuid> --field <labelOrId> --type <phone\|regex\|idCard\|email\|...>` |
+| Bind remote data sources to fields | `openyida create-form bind-datasource <appType> <formUuid> <fieldLabelOrId> <dataSourceJsonOrFile>` |
+| Add options to select fields | `openyida create-form add-option <appType> <formUuid> <fieldLabel> <option1> [option2] ...` |
+| List forms and pages in an app | `openyida list-forms <appType> [--keyword <text>]` |
+| Read one form schema | `openyida get-schema <appType> <formUuid>` |
+| Read all app schemas | `openyida get-schema <appType> --all` |
+| Export ER relationships | `openyida er <appType> [--format mermaid\|json] [--output file]` |
+| Apply, remove, or check form detail styling | `openyida form-detail-style <apply\|remove\|check> <appType> <formUuid> ...` |
+| Manage aggregate-table virtual views | `openyida aggregate-table <list\|create-empty\|inspect\|preview\|save\|publish\|status> <appType> ...` |
 
-## Custom Pages, Release Chain, and i18n
+## Custom Pages and Publishing
 
 | Capability | Command |
 |---|---|
-| Generate a business Code Canvas page from a page spec | `openyida generate-page <template> --spec <page-spec.json> --output project/pages/src/<name>.canvas.jsx --compile` |
-| Apply a page theme profile and theme scope during generation | `openyida generate-page ... --theme-profile <profile> --theme-scope <page\|global>` |
-| Create Code Canvas sample pages | `openyida sample yida-canvas-custom-page <sample> --output project/pages/src/<name>.canvas.jsx` |
-| Create classic custom page samples | `openyida sample yida-custom-page <sample> --output project/pages/src/<name>.oyd.jsx` |
-| Check and normalize page code before publishing | `openyida check-page <src>` / `openyida build-page <src> --write` |
-| Read live page config before overwriting designer changes | `openyida get-form-config <appType> <formUuid> --json` / `openyida get-schema <appType> <formUuid>` |
-| Publish classic custom pages | `openyida publish project/pages/src/<name>.oyd.jsx <appType> <formUuid>` |
-| Publish Code Canvas pages | `openyida publish project/pages/src/<name>.canvas.jsx <appType> <formUuid> --canvas` |
-| Run a health check right after publish | `openyida publish <src> <appType> <formUuid> --health-check` |
-| Update page or form configuration after publish | `openyida update-form-config <appType> <formUuid> ...` |
-| Configure public access, hidden navigation, and share entries | `openyida verify-short-url ...` / `openyida save-share-config ...` / `openyida get-page-config ...` |
-| Upload page assets to CDN | `openyida cdn-upload <asset-path>` |
-| Read CDN config and refresh CDN resources | `openyida cdn-config` / `openyida cdn-refresh ...` |
-| Check and upgrade the OpenYida CLI package | `openyida update` / `npm install -g openyida@latest` |
-| Manage application language packs | `openyida i18n <overview\|config\|languages\|list\|upsert\|batch-upsert\|bind\|delete\|translate\|translate-all\|upgrade> ...` |
-| Run the CLI with a selected language pack | `OPENYIDA_LANG=<locale> openyida ...` / `OPENYIDA_LOCALE_DIR=<dir> openyida ...` |
+| Create display pages | `openyida create-page <appType> "<page name>"` |
+| Create dashboard pages | `openyida create-page <appType> "<page name>" --mode dashboard` |
+| View or output custom page samples | `openyida sample yida-canvas-custom-page <sample> --output project/pages/src/<name>.canvas.jsx` / `openyida sample yida-custom-page <sample> --output project/pages/src/<name>.oyd.jsx` |
+| Build Yida-compatible classic page source | `openyida build-page <sourceFile> [--output file\|--write]` |
+| Check classic custom page JSX | `openyida check-page <src> [--compat]` |
+| Locally compile classic custom page JSX | `openyida compile <src>` |
+| Publish classic custom page JSX | `openyida publish project/pages/src/home.oyd.jsx <appType> <formUuid>` |
+| Publish Code Canvas pages | `openyida publish project/pages/src/home.canvas.jsx <appType> <formUuid>` |
+| Force Code Canvas publishing | `openyida publish <src> <appType> <formUuid> --canvas` |
+| Publish and run a health check | `openyida publish <src> <appType> <formUuid> --health-check` |
+| Update page or form config | `openyida update-form-config <appType> ...` |
+| Read page or form config | `openyida get-form-config <appType> <formUuid> [--json]` |
+| Create Code Canvas pages with native Yida runtime components | `openyida sample yida-canvas-custom-page native-components-smoke --output project/pages/src/native-components-smoke.canvas.jsx` |
+| Create Code Canvas portal pages with member, department, and upload examples | `openyida sample yida-canvas-custom-page portal-native-components --output project/pages/src/portal-native-components.canvas.jsx` |
+
+### Custom Page Chain Selection
+
+| Need | Recommended chain |
+|---|---|
+| Modern React, Hooks, dashboards, workbenches, lists, detail pages, visualizations, or AI-first generation | Code Canvas: `.canvas.jsx` / `.canvas.tsx` / `YidaCodeCanvas` |
+| Native Yida runtime components such as member, department, attachment upload, or image upload while keeping modern React | Code Canvas + native component bridge; run a smoke sample first, then add fallback and value normalization |
+| The user explicitly asks for the classic custom page JSX/Jsx chain | Classic custom page: `.oyd.jsx` / `Jsx` |
+| The page depends on `this.$(fieldId)`, `this.utils.yida.*`, `this.dataSourceMap`, form submit, or field two-way binding | Classic custom page: `.oyd.jsx` / `Jsx` |
+| Migrate an existing `.oyd.jsx` page to Code Canvas | Use the `yida-canvas-upgrade` skill |
+
+<Tip>
+New custom pages default to Code Canvas. `check-page` and `compile` are mainly for classic custom page JSX. `.canvas.jsx` / `.canvas.tsx` pages are validated by the Canvas compilation stage inside `openyida publish`.
+</Tip>
+
+## Process, Approval, and Tasks
+
+| Capability | Command |
+|---|---|
+| Create process forms and configure workflows | `openyida create-process <appType> ...` |
+| Configure and publish process rules | `openyida configure-process <appType> ...` |
+| Preview a process instance | `openyida process preview <appType> <processInstanceId> [--output <path>]` |
+| Query AI approval prompt settings | `openyida ai-form-setting get <appType> <formUuid>` |
+| Query AI approval fields | `openyida ai-form-setting fields <appType> <formUuid>` |
+| Query AI approval models | `openyida ai-form-setting models <appType>` |
+| Enable or disable AI approval prompts | `openyida ai-form-setting <enable\|disable> <appType> <formUuid>` |
+| Save AI approval prompt settings | `openyida ai-form-setting save <appType> <formUuid> <config.json>` |
+| Query task center | `openyida task-center <type> [options]` |
+| Manage workflow delegation | `openyida agent-center <list\|create\|update\|cancel\|range\|search-user> ...` |
+
+## Data, Permissions, and Sharing
+
+| Capability | Command |
+|---|---|
+| Query form data | `openyida data query form <appType> <formUuid> [options]` |
+| Create form data | `openyida data create form <appType> <formUuid> --data-file <file>` |
+| Update form data | `openyida data update form <appType> <formUuid> <formInstId> --data-file <file>` |
+| Query process, task, or subform data | `openyida data <action> <resource> [args]` |
+| Read form permissions | `openyida get-permission <appType> <formUuid>` |
+| Save form permissions | `openyida save-permission <appType> <formUuid> ...` |
+| Verify short links | `openyida verify-short-url <appType> ...` |
+| Save public access or share config | `openyida save-share-config <appType> ...` |
+| Read page share config | `openyida get-page-config <appType> <formUuid>` |
+| Plan public-form mirror fields | `openyida externalize-form <appType> <formUuid> [--schema-file file]` |
+
+## Reports, Dashboards, and Visualization
+
+| Capability | Command |
+|---|---|
+| Create native Yida reports | `openyida create-report <appType> "<report name>" ...` |
+| Append charts to an existing report | `openyida append-chart <appType> <reportId> ...` |
+| Create advanced Recharts dashboards | Use Code Canvas + Recharts samples and publish with `openyida publish ...` |
+| Maintain ECharts-heavy legacy pages | Use the classic custom page / ECharts-compatible chain and publish with `openyida publish ...` |
+| Create business dashboards, cockpits, or big screens | Combine `create-page`, data binding, report commands, and `publish` |
+
+## Connectors and Integration
+
+| Capability | Command |
+|---|---|
+| List HTTP connectors | `openyida connector list` |
+| Create HTTP connectors | `openyida connector create "name" "domain" ...` |
+| Read connector details | `openyida connector detail <id>` |
+| Delete connectors | `openyida connector delete <id>` |
+| Add connector actions | `openyida connector add-action --operations <file> --connector-id <id>` |
+| List connector actions | `openyida connector list-actions <id>` |
+| Delete connector actions | `openyida connector delete-action <id> <operation-id>` |
+| Test connector actions | `openyida connector test --connector-id <id> --action <actionId>` |
+| List connector auth accounts | `openyida connector list-connections <id>` |
+| Create connector auth accounts | `openyida connector create-connection <id> <name>` |
+| Smart-create connectors from cURL | `openyida connector smart-create --curl "..."` |
+| Parse API docs or endpoint info | `openyida connector parse-api [options]` |
+| Generate API doc templates | `openyida connector gen-template [output]` |
+| Create integration automation | `openyida integration create <appType> ... [--spec file.json]` |
+| List integration automation | `openyida integration list <appType> [--form-uuid <uuid>]` |
+| Enable integration automation | `openyida integration enable <appType> <formUuid> <processCode>` |
+| Disable integration automation | `openyida integration disable <appType> <formUuid> <processCode>` |
+| Check integration exception logs | `openyida integration check <appType...>` |
+| Diagnose integration config issues | `openyida integration diagnose (--text <text>\|--file <path>\|--rules)` |
+
+## DingTalk, AI, and Knowledge Work
+
+| Capability | Command |
+|---|---|
+| Call the DingTalk DWS CLI | `openyida dws <command> [args]` |
+| Search DingTalk contacts | `openyida dws contact user search --keyword <text>` |
+| Generate DingTalk AppLinks | `openyida dingtalk-link <url> [--target fullScreen]` |
+| Read DingTalk docs as Markdown | `openyida read-dingtalk-doc <docUrl> [--output <file>] [--json]` |
+| Read DingTalk meeting transcripts by taskUuid | `openyida read-dingtalk-tingji <taskUuid> [--json]` |
+| AI text generation | `openyida ai text [options]` |
+| AI image understanding | `openyida ai image [options]` |
+| Check asset capabilities | `openyida asset status [options]` |
+| Verify image URLs | `openyida asset verify-url <url> [options]` |
+| Resolve and fill page assets | `openyida asset resolve [options]` |
+| Generate AI image assets | `openyida asset generate [options]` |
+| Evaluate Yida formulas | `openyida formula evaluate <formula\|file> [--schema file]` |
+| Convert meeting notes or transcripts to PRD | `openyida flash-to-prd --file <path> --name "<project>"` |
+| Export AI conversation records | `openyida export-conversation [options]` |
+| Configure VOC feedback entry | `openyida feedback <setup\|url\|dismiss\|status> [options]` |
+
+## Local Development, Diagnostics, and Ops
+
+| Capability | Command |
+|---|---|
+| Initialize the project workspace | `openyida copy [--force]` |
+| View or output sample templates | `openyida sample [--list]` |
+| Diagnose and fix environment issues | `openyida doctor [--fix]` |
+| Run batch command files | `openyida batch <file> [--stop-on-error] [--json]` |
+| Run inline batch commands | `openyida batch --commands "cmd1 ; cmd2" [--stop-on-error] [--json]` |
+| Check and update OpenYida | `openyida update` |
+| Configure CDN / OSS upload | `openyida cdn-config [options]` |
+| Upload images to CDN | `openyida cdn-upload <image-path>` |
+| Refresh CDN cache | `openyida cdn-refresh [options]` |
+| Detect or fix PostgreSQL sequence drift | `openyida db-seq-fix [--fix]` |
+| Start MCP server | `openyida mcp` |
+| Start A2A adapter or output an Agent Card | `openyida a2a <serve\|agent-card> [options]` |
+| Start local Web bridge | `openyida bridge start [--token <pair-token>] [--port 6736]` |
+| Run skill evaluation | `openyida eval --mode <mode> [--skill <name>] [--runs N]` |
+| Quiet CLI decoration output | `openyida --quiet ...` / `YIDA_QUIET=1` |
+| Disable update checks | `OPENYIDA_SKIP_UPDATE_CHECK=1` / `NO_UPDATE_NOTIFIER=1` / `CI=1` |
+
+## Agent Capability, Evaluation, and Safety
+
+| Capability | Command |
+|---|---|
+| Quickly determine workspace, login, organization, and command capability | `openyida agent-capabilities --summary-json` |
+| Get full agent diagnostics | `openyida agent-capabilities --json` |
+| Get full command manifest, side-effect, and permission metadata | `openyida commands --json` |
+| Run no-side-effect routing evaluation | `openyida eval --mode routing [--skill <name>]` |
+| Run documentation quality, safety, coverage, or comprehensive evaluation | `openyida eval --mode <doc-quality\|safety\|coverage\|comprehensive>` |
+| Run real end-to-end evaluation | `OPENYIDA_E2E=1 openyida eval --mode <e2e\|generate>` |
+
+`commands --json` exposes `sideEffect` and `permission` metadata for agent execution. For `mixed` commands, inspect the specific subcommand or arguments: for example, `data query` is read-only, while `data delete` is destructive; `nav-group list` is read-only, while `nav-group delete` requires confirmation.
 
 <Warning>
-Removed legacy login flags such as `--qr`, `--browser`, `--codex`, `--qoder` are no longer supported. Use OAuth token login; runtime-injected token mode only checks tokens injected by the host environment.
+Removed legacy login flags such as `--qr`, `--browser`, `--codex`, and `--qoder` are no longer supported. Use OAuth token login. Runtime-injected token mode only checks tokens injected by the host environment.
 </Warning>

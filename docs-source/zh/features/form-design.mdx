@@ -1,0 +1,64 @@
+---
+title: "表单设计"
+description: "使用 OpenYida 设计和维护宜搭表单字段、校验、公式和业务语义，避免猜测字段 ID。"
+icon: "list-checks"
+---
+
+## 适用场景
+
+表单设计覆盖字段创建、字段更新、必填和校验、选项维护、公式配置、字段分组以及表单语义优化。它是宜搭应用生成的核心基础。
+
+## 工作原则
+
+- 修改字段前先读取真实 Schema，不要从字段名猜测字段 ID。
+- 新增字段时明确字段类型、业务含义、必填规则、选项值和默认值。
+- 对已有表单做增量修改时，先列出当前字段，再说明将要变更的范围。
+- 写入或更新数据后，至少回读一条记录验证字段值。
+
+## 常用能力
+
+- `openyida get-schema`：读取表单字段结构。
+- `openyida create-form`：创建表单页面。
+- `openyida create-form validate-fields`：校验字段定义。
+- 数据管理命令：基于真实字段 ID 查询、写入和更新实例数据。
+
+<Tip>
+把“字段怎么用”说清楚，比只给字段名更重要。例如：部门字段是单选，选项为工程部、市场部、销售部、人事部，并且后续会用于审批分支。
+</Tip>
+<!-- rich-content-sync:start -->
+
+## 能力速查
+
+| 关注点 | 命令 / 能力 | 说明 |
+| --- | --- | --- |
+| 读取当前字段 | `openyida get-schema` | 每次更新前都要先执行。 |
+| 校验字段定义 | `openyida create-form validate-fields` | 用于校验生成的字段配置。 |
+| 创建表单页 | `openyida create-form` | 先确认表单名称和页面类型。 |
+| 安全更新数据 | data query / write commands | 使用 Schema 中的真实字段 ID。 |
+| 验证结果 | read-back query | 至少检查一条记录或 Schema 差异。 |
+
+## 可复制命令
+
+```bash
+openyida get-schema --help
+openyida create-form --help
+openyida create-form validate-fields --help
+```
+
+## AI Agent 提示词模板
+
+```
+更新这个宜搭表单。请先用 openyida get-schema 读取真实 Schema 并列出当前字段；再给出字段类型、必填规则、选项、公式和业务含义。执行前先校验字段定义，更新后回读 Schema。
+
+表单：[表单名或 formUuid]
+变更：[描述变更]
+```
+
+## 验收清单
+
+- 没有根据字段标题猜测字段 ID。
+- 字段类型、必填、选项、公式和默认值清晰。
+- 字段定义已校验。
+- 更新后已回读 Schema 或样例数据。
+
+<!-- rich-content-sync:end -->

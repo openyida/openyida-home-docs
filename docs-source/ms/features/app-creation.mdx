@@ -1,0 +1,64 @@
+---
+title: "Penciptaan Aplikasi"
+description: "Gunakan OpenYida untuk menukar keperluan kepada aplikasi Yida yang boleh digunakan, termasuk aplikasi, halaman, borang, proses dan penerbitan."
+icon: "layout-dashboard"
+---
+
+## Overview
+
+Gunakan OpenYida untuk menukar keperluan kepada aplikasi Yida yang boleh digunakan, termasuk aplikasi, halaman, borang, proses dan penerbitan.
+
+## Typical tasks
+
+- Confirm login, organization, and available commands with `openyida agent-capabilities --summary-json`.
+- Let the AI Agent list target resources and planned changes before execution.
+- Execute the matching OpenYida commands and read back key results.
+- For permissions, lifecycle, publishing, or public access changes, confirm the impact scope first.
+
+## Related commands
+
+- `openyida create-app`
+- `openyida create-form`
+- `openyida create-process`
+- `openyida nav-group`
+- `openyida i18n`
+- `openyida app-permission`
+<!-- rich-content-sync:start -->
+
+## Jadual keupayaan
+
+| Peringkat | Perkara disahkan | Perintah / keupayaan |
+| --- | --- | --- |
+| Preflight | Login state, organization, target environment | `openyida agent-capabilities --summary-json` |
+| App shell | App name, business scope, owner organization | `openyida create-app` |
+| Business objects | Forms, pages, workflows, navigation plan | `openyida create-form`, `openyida create-process` |
+| Publishing | Page publish result and accessible URL | `openyida publish` |
+| Read-back | Created resource IDs and final state | query / inspect commands |
+
+## Perintah boleh disalin
+
+```bash
+openyida agent-capabilities --summary-json
+openyida create-app --help
+openyida create-form --help
+openyida create-process --help
+openyida publish --help
+```
+
+## Templat prompt AI Agent
+
+```
+Create a Yida app from the following PRD. First confirm OpenYida capability, login state, organization, and target environment. Then break down business objects, forms, pages, workflows, navigation, and publishing steps. Create the app with OpenYida, publish the required pages, read back resource IDs, and return the accessible link.
+
+[Paste PRD here]
+```
+
+## Senarai semak penerimaan
+
+- The target organization and environment are confirmed.
+- Forms, pages, workflows, and navigation match the requirement.
+- Published pages return accessible links.
+- Key resource IDs are listed for later maintenance.
+- The AI Agent reports what was created and what still needs manual confirmation.
+
+<!-- rich-content-sync:end -->

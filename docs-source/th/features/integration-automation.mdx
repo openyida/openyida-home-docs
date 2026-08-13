@@ -1,0 +1,68 @@
+---
+title: "ระบบอัตโนมัติสำหรับการผสานรวม"
+description: "สร้าง integration automation ของ Yida ด้วย OpenYida สำหรับ event ของฟอร์ม ข้อมูลข้ามฟอร์ม การแจ้งเตือน DingTalk และ connector action"
+icon: "share-nodes"
+---
+
+## ใช้เมื่อใด
+
+Integration automation ใช้เชื่อม event ทางธุรกิจ เช่น การส่งฟอร์ม การอัปเดต หรือการอนุมัติเสร็จสิ้น ไปยัง action ถัดไป เช่น แจ้งเตือน DingTalk ซิงก์ข้อมูลข้ามฟอร์ม เริ่ม workflow ถัดไป หรือเรียก HTTP connector
+
+## ขอบเขตกับการอนุมัติกระบวนการ
+
+Process approval ดูแลฟอร์มอนุมัติและกฎของ approval node ส่วน integration automation ดูแลการแจ้งเตือน การซิงก์ข้อมูล การเรียก connector และการทำงานข้ามระบบหลัง event ถูก trigger
+
+## จุดออกแบบ
+
+- ยืนยัน trigger form, event type และ field ID จริงก่อน อย่าเดาจาก label ของ field
+- ก่อน publish ให้ AI Agent แสดงสรุป flow รวม trigger condition, node, ผู้รับ และเป้าหมายการเขียนข้อมูล
+- สำหรับ production automation ให้บันทึกเป็น draft หรือยืนยัน impact scope ก่อน publish
+- หัวข้อและเนื้อหา notification รวมถึง assignment สามารถอ้าง field variable รูปแบบ `#{fieldId-ComponentType}#` ได้
+
+## Prompt ที่ใช้บ่อย
+
+```
+ช่วยสร้าง integration automation: เมื่อฟอร์ม feedback ลูกค้ามี record ใหม่ ให้ส่ง DingTalk work notification ถึงผู้รับผิดชอบ และซิงก์ชื่อลูกค้า ประเภทปัญหา และระดับความเร่งด่วนไปยังฟอร์มติดตาม โปรดอ่าน Schema ของสองฟอร์มก่อน แสดงสรุป flow แล้วค่อยสร้างและ publish หลังยืนยัน
+```
+
+<Note>
+Integration automation อาจส่ง notification จริง เขียนข้อมูลจริง หรือเรียก API ภายนอก ต้องยืนยัน app, form, field และผู้รับก่อนดำเนินการ
+</Note>
+
+<!-- rich-content-sync:start -->
+
+## ตารางความสามารถ
+
+| สถานการณ์ | สิ่งที่ต้องยืนยัน | คำสั่ง / ความสามารถ |
+| --- | --- | --- |
+| Trigger event ของฟอร์ม | insert, update, delete, processFinish, activityTask | `openyida integration create` |
+| DingTalk work notification | ผู้รับ หัวข้อ เนื้อหา field variable | `--receivers` / `--title` / `--content` |
+| อ่านข้อมูลข้ามฟอร์ม | ค้นหา record เดียวจากฟอร์มที่เกี่ยวข้อง | `--data-form-uuid` / `--data-condition` |
+| เขียนข้อมูลข้ามฟอร์ม | สร้างหรืออัปเดตข้อมูลในฟอร์มเป้าหมาย | `--add-data-form-uuid` / `--add-data-assignment` / spec |
+| Connector action | เรียก HTTP connector หรือ business API | `--connector-id` / `--action-id` / `--connection-id` |
+| Publish และตรวจสอบ | draft, publish, diagnose, read back | `--publish` / `openyida integration check` |
+
+## คำสั่งที่คัดลอกได้
+
+```bash
+openyida integration create --help
+openyida integration check --help
+openyida agent-capabilities --summary-json
+```
+
+## เทมเพลต Prompt สำหรับ AI Agent
+
+```
+สร้าง Yida integration automation โปรดอ่าน Schema ของ trigger form และ target form ก่อน จากนั้นระบุ event, trigger condition, ลำดับ node, field mapping, ผู้รับ และ publish state หลังจากฉันยืนยันแล้ว ใช้ OpenYida สร้าง flow และ read back ผลลัพธ์
+
+Automation requirement: [อธิบาย trigger และ action ถัดไป]
+```
+
+## Checklist ตรวจรับ
+
+- ยืนยัน trigger form, target form และ field ID แล้ว
+- แสดงและยืนยัน flow node, ผู้รับ และ field mapping แล้ว
+- ระบุชัดเจนว่าเป็น draft หรือ published
+- รายงาน flow ID, resource ID สำคัญ และผลการตรวจสอบแล้ว
+
+<!-- rich-content-sync:end -->

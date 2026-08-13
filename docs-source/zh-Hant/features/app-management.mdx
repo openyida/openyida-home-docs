@@ -1,0 +1,62 @@
+---
+title: "應用管理"
+description: "使用 OpenYida 管理應用導航、多語言、權限、啟停狀態和組織基礎資訊。"
+icon: "settings"
+---
+
+## 定位
+
+使用 OpenYida 管理應用導航、多語言、權限、啟停狀態和組織基礎資訊。
+
+## 典型任務
+
+- openyida nav-group
+- openyida i18n
+- openyida app-permission
+- openyida app-online / app-offline
+- openyida basic-info
+
+## 使用建議
+
+For permissions, lifecycle, and public access changes, ask the Agent to show the affected objects before applying changes.
+<!-- rich-content-sync:start -->
+
+## 能力速查
+
+| 關注點 | 命令 / 能力 | 說明 |
+| --- | --- | --- |
+| 導航分組 | `openyida nav-group` | 調整前先列出目前導航。 |
+| 多語言文案 | `openyida i18n` | 覆蓋頁面標題、按鈕、欄位和提示。 |
+| 應用權限 | `openyida app-permission` | 更新前先搜尋使用者並確認角色。 |
+| 應用啟停 | `openyida app-online`, `openyida app-offline` | 先說明影響範圍。 |
+| 組織基礎資訊 | `openyida basic-info`, `openyida corp-manager` | 用於容量、網域和組織上下文。 |
+
+## 可複製命令
+
+```bash
+openyida nav-group --help
+openyida i18n --help
+openyida app-permission --help
+openyida app-online --help
+openyida app-offline --help
+openyida basic-info --help
+openyida corp-manager --help
+```
+
+## AI Agent 提示詞模板
+
+```
+管理這個宜搭應用。請先檢查目前導航、多語言、權限、啟停狀態和組織基礎資訊；再列出精確變更和受影響物件。涉及權限、啟停或公開存取時，必須先說明影響範圍再執行。
+
+目標應用：[app name 或 appType]
+管理任務：[描述任務]
+```
+
+## 驗收清單
+
+- 變更前已列出目前狀態。
+- 權限和啟停變更包含影響範圍。
+- 導航和多語言更新後已回讀。
+- 最終結果包含變更物件和後續風險。
+
+<!-- rich-content-sync:end -->

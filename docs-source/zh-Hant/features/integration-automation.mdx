@@ -1,0 +1,68 @@
+---
+title: "集成自動化"
+description: "使用 OpenYida 建立宜搭集成自動化，覆蓋表單事件觸發、跨表資料、釘釘通知和連接器動作。"
+icon: "share-nodes"
+---
+
+## 適用場景
+
+集成自動化用於把表單提交、更新、審批完成等業務事件連接到後續動作，例如發送釘釘工作通知、同步跨表資料、發起後續流程或調用 HTTP 連接器。它適合處理「提交後自動做什麼」的副作用邏輯。
+
+## 和流程審批的邊界
+
+流程審批負責審批表單和節點規則；集成自動化負責事件觸發後的通知、資料同步、連接器調用和跨系統處理。不要把審批節點配置混到集成自動化裡。
+
+## 設計要點
+
+- 先確認觸發表單、事件類型和真實欄位 ID，不要憑欄位名稱猜測。
+- 發布前讓 AI Agent 輸出邏輯流摘要，包括觸發條件、節點列表、通知對象和寫入目標。
+- 涉及線上自動化時先保存草稿或明確確認影響範圍，再發布啟用。
+- 通知標題、內容和資料賦值可以引用欄位變數，格式為 `#{fieldId-ComponentType}#`。
+
+## 常用提示詞
+
+```
+幫我建立一個集成自動化：當客戶反饋表新增記錄時，給負責人發送釘釘工作通知，並把客戶名稱、問題類型和緊急程度同步到跟進表。請先讀取兩個表單的 Schema，列出邏輯流摘要，確認後再建立並發布。
+```
+
+<Note>
+集成自動化會產生真實通知、寫入資料或調用外部接口。執行前必須確認目標應用、表單、欄位和接收人。
+</Note>
+
+<!-- rich-content-sync:start -->
+
+## 能力速查
+
+| 場景 | 關注點 | 命令 / 能力 |
+| --- | --- | --- |
+| 表單事件觸發 | insert、update、delete、processFinish、activityTask | `openyida integration create` |
+| 釘釘工作通知 | 接收人、標題、內容、欄位變數 | `--receivers` / `--title` / `--content` |
+| 跨表讀取 | 從關聯表單查詢單條記錄 | `--data-form-uuid` / `--data-condition` |
+| 跨表寫入 | 新增或更新目標表單資料 | `--add-data-form-uuid` / `--add-data-assignment` / spec |
+| 連接器動作 | 調用 HTTP 連接器或業務 API | `--connector-id` / `--action-id` / `--connection-id` |
+| 發布與檢查 | 草稿、發布、診斷和回讀 | `--publish` / `openyida integration check` |
+
+## 可複製命令
+
+```bash
+openyida integration create --help
+openyida integration check --help
+openyida agent-capabilities --summary-json
+```
+
+## AI Agent 提示詞模板
+
+```
+建立一個宜搭集成自動化。請先讀取觸發表單和目標表單的 Schema，列出事件、觸發條件、節點順序、欄位映射、通知對象和是否發布；等我確認後，再使用 OpenYida 建立邏輯流並回讀結果。
+
+自動化需求：[描述觸發條件和後續動作]
+```
+
+## 驗收清單
+
+- 觸發表單、目標表單和欄位 ID 已確認。
+- 邏輯流節點、通知對象和欄位映射已展示並確認。
+- 已說明是草稿還是已發布狀態。
+- 已回報邏輯流 ID、關鍵資源 ID 和檢查結果。
+
+<!-- rich-content-sync:end -->

@@ -1,0 +1,56 @@
+---
+title: "Aprobación de procesos"
+description: "Cree y configure procesos de aprobación Yida con nodos, aprobadores, publicación y verificación."
+icon: "git-branch"
+---
+
+## Posicionamiento
+
+Cree y configure procesos de aprobación Yida con nodos, aprobadores, publicación y verificación.
+
+## Tareas típicas
+
+- openyida create-process
+- openyida process-rule
+- approval node setup
+- publish and read-back verification
+
+## Consejos de uso
+
+Describe roles and approval rules clearly before creation, then confirm whether the workflow is published.
+<!-- rich-content-sync:start -->
+
+## Tabla de capacidades
+
+| Etapa | Qué confirmar | Comando / capacidad |
+| --- | --- | --- |
+| Process model | Initiator, approvers, archive node, rollback rules | requirement analysis |
+| Workflow form | Fields used for routing and approval decisions | `openyida create-process` |
+| Approval rules | Approver roles, branches, conditions | `openyida process-rule` |
+| Publishing | Whether workflow is published | publish / inspect commands |
+| Verification | Node list and process state | read-back result |
+
+## Comandos copiables
+
+```bash
+openyida create-process --help
+openyida process-rule --help
+openyida agent-capabilities --summary-json
+```
+
+## Plantilla de prompt AI Agent
+
+```
+Create a Yida approval process. First list the initiator, form fields, approval nodes, approver rules, branch conditions, archive node, and rollback behavior. Then create the workflow with OpenYida, configure approval rules, verify whether it is published, and report the node list and resource IDs.
+
+Process requirement: [describe process]
+```
+
+## Checklist de aceptación
+
+- Initiator, approvers, and archive node are explicit.
+- Routing fields such as amount, department, type, and status exist on the form.
+- Approval rules are verified after configuration.
+- Published state and key resource IDs are reported.
+
+<!-- rich-content-sync:end -->

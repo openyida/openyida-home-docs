@@ -1,0 +1,66 @@
+---
+title: "应用管理"
+description: "使用 OpenYida 管理应用导航、多语言、权限、启停状态和组织基础信息。"
+icon: "settings"
+---
+
+## 适用场景
+
+应用管理覆盖应用建成后的组织、权限、导航、多语言和生命周期管理，让生成出来的应用真正可用、可维护、可交付。
+
+## 管理能力
+
+- 导航分组：使用 `openyida nav-group` 整理左侧导航结构。
+- 多语言：使用 `openyida i18n` 管理页面标题、按钮、字段和提示文案。
+- 应用权限：使用 `openyida app-permission` 查询和调整管理员、开发成员或数据管理员。
+- 应用启停：使用 `openyida app-online`、`openyida app-offline` 控制应用生命周期。
+- 基础信息：使用 `openyida basic-info`、`openyida corp-manager` 查询组织和平台配置。
+
+## 操作建议
+
+涉及权限、启停、公开访问等有影响的操作时，先让 Agent 列出当前状态和将要修改的对象，再继续执行。
+
+```
+帮我整理这个应用的左侧导航：把入口页放在最前，业务处理、数据管理、报表分析和系统配置分组清楚。调整前先列出当前导航结构。
+```
+<!-- rich-content-sync:start -->
+
+## 能力速查
+
+| 关注点 | 命令 / 能力 | 说明 |
+| --- | --- | --- |
+| 导航分组 | `openyida nav-group` | 调整前先列出当前导航。 |
+| 多语言文案 | `openyida i18n` | 覆盖页面标题、按钮、字段和提示。 |
+| 应用权限 | `openyida app-permission` | 更新前先搜索用户并确认角色。 |
+| 应用启停 | `openyida app-online`, `openyida app-offline` | 先说明影响范围。 |
+| 组织基础信息 | `openyida basic-info`, `openyida corp-manager` | 用于容量、域名和组织上下文。 |
+
+## 可复制命令
+
+```bash
+openyida nav-group --help
+openyida i18n --help
+openyida app-permission --help
+openyida app-online --help
+openyida app-offline --help
+openyida basic-info --help
+openyida corp-manager --help
+```
+
+## AI Agent 提示词模板
+
+```
+管理这个宜搭应用。请先检查当前导航、多语言、权限、启停状态和组织基础信息；再列出精确变更和受影响对象。涉及权限、启停或公开访问时，必须先说明影响范围再执行。
+
+目标应用：[app name 或 appType]
+管理任务：[描述任务]
+```
+
+## 验收清单
+
+- 变更前已列出当前状态。
+- 权限和启停变更包含影响范围。
+- 导航和多语言更新后已回读。
+- 最终结果包含变更对象和后续风险。
+
+<!-- rich-content-sync:end -->

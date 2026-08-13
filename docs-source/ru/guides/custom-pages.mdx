@@ -1,57 +1,101 @@
 ---
 title: "Пользовательские страницы"
-description: "Этот документ описывает Пользовательские страницы в OpenYida: сценарии использования, команды и важные замечания."
-icon: window-maximize
+description: "Создавайте, редактируйте и публикуйте пользовательские страницы Yida с помощью OpenYida."
+icon: "window-maximize"
 ---
 
-# Пользовательские страницы
+Пользовательские страницы подходят для дашбордов, порталов, визуальных отчетов, калькуляторов и интерактивных страниц. OpenYida компилирует современные React functional components в страницы, которые запускаются в Yida, и публикует их в целевой контейнер.
 
-Эта страница описывает Пользовательские страницы в OpenYida: назначение, рабочий процесс и важные замечания при создании приложений Yida с помощью AI.
-
-## Обзор
-
-Этот документ описывает Пользовательские страницы в OpenYida: сценарии использования, команды и важные замечания.
-
-## Ключевые моменты
-
-- Используйте эту страницу, чтобы понять основной контекст перед применением в реальном проекте.
-- Имена команд, параметры, код и часть названий продуктов оставлены на английском, чтобы их можно было точно найти и скопировать.
-- При работе с宜搭 перед публикацией проверьте права, организацию и выбранное окружение.
-
-## Использование
-
-Следуйте шагам из документа вместе с OpenYida CLI и настройками организации. Если ниже есть примеры кода, их можно скопировать и адаптировать под задачу.
-
-## Команды и примеры
-
-Следующие примеры сохраняют исходные команды и код для технической точности.
+## Сквозной процесс
 
 ```bash
-openyida create-page <appType> "Dashboard"
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
-openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+openyida agent-capabilities --summary-json
+openyida create-page <appType> "Операционный дашборд"
+# Сгенерировать или написать исходный код страницы: project/pages/src/dashboard.canvas.jsx
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
 ```
 
-```bash
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
-```
+Используйте `agent-capabilities`, чтобы проверить окружение, статус входа и доступные возможности. `create-page` возвращает `formUuid` страницы; не угадывайте его, а читайте из вывода команды или кеша проекта. Когда исходный код готов, используйте `publish` для публикации в целевую страницу.
+
+## Правила страницы
+
+Новые страницы должны использовать современный процесс страницы, а исходный код должен соблюдать эти правила:
+
+- Используйте React function component как вход страницы.
+- Hooks вроде `useState`, `useEffect` и `useMemo` поддерживаются; очищайте side effects.
+- Импортируйте UI library, chart library и icons из поддерживаемых ресурсов.
+- Button, filter, search, Tabs, pagination и card должны запускать реальное взаимодействие.
+- Предпочитайте реальные данные через Yida data bridge, connector или Open API; предусмотрите empty, error и refresh state.
+- Mobile layout должен быть читаемым, а область действий не должна выходить за границы.
+
+## Поддерживаемые нативные компоненты Yida
+
+Пользовательские страницы могут подключать нативные runtime components Yida. Сначала выполните detection через `window.Deep`, `window.DeepYida` или `window.YidaNativeComponents`; если компонент не найден, рендерите fallback страницы, чтобы избежать белого экрана.
+
+| Компонент / сценарий | Назначение | Требование интеграции |
+| --- | --- | --- |
+| `PortalTopBanner` / `PortalQuickEntry` | Баннер портала и быстрые входы | Используйте в portal shell; при отсутствии компонента показывайте собственный fallback. |
+| `QuickAccessCard` / `RecentlyUsedCard` | Частые и недавно использованные приложения | Передавайте `theme`, например `row-white` или `column`, и сохраняйте локальный fallback. |
+| `DataManageViews` | Встроенный вид управления данными Yida | Передавайте `form.appType` и `form.value` / `formUuid` целевой формы. |
+| `EmployeeField` | Выбор сотрудника | Сначала зафиксируйте реальный `onChange`, затем нормализуйте значение. |
+| `DepartmentSelectField` | Выбор отдела | Проверьте поиск, popover, права, одиночный и множественный выбор. |
+| `AttachmentField` / `ImageField` | Загрузка файлов и изображений | Проверьте права загрузки, OSS signature, preview, удаление и ошибки. |
+| `DataCard` / `PortalContainer` | Карточка данных и контейнер портала | Используйте только после проверки контекста портала, настроек данных и style variables. |
+
+Нативные компоненты улучшают опыт, но не являются условием стабильности страницы. Сохраняйте fallback и нормализуйте сотрудников, отделы и файлы перед отправкой.
+
+## Примеры и showcase
+
+Сначала используйте smoke sample для проверки компонентов и прав. Прямой путь к showcase в openyida-home: `/#/ru/showcase`.
+
+| Вход | Ссылка |
+| --- | --- |
+| Демо нативных компонентов | [canvas-native-components](https://demo.aliwork.com/o/openyida/sample/canvas-native-components) |
+| Showcase пользовательских страниц | [Примеры](/#/ru/showcase) |
+| Маршрут showcase в контейнере Yida | [openyidaRoute=showcase](https://demo.aliwork.com/o/openyida/helpCenter?openyidaLang=ru&openyidaRoute=showcase) |
+
+## Копируемые примеры
 
 ```bash
-openyida update-form-config <appType> <formUuid> false "Dashboard"
+openyida sample yida-canvas-custom-page native-components-smoke --output project/pages/src/native-components-smoke.canvas.jsx
+openyida sample yida-canvas-custom-page portal-native-components --output project/pages/src/portal-native-components.canvas.jsx
+openyida build-page project/pages/src/native-components-smoke.canvas.jsx --write
 ```
 
-```bash
-openyida update-form-config <appType> <formUuid> true "Dashboard"
-```
+## Публикация и проверка
 
 ```bash
-openyida build-page project/pages/src/dashboard.oyd.jsx --write
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
 ```
+
+Перед публикацией убедитесь, что код содержит реальные взаимодействия, мобильную адаптацию, empty/error states и нужную логику данных. `publish` обновит текущий код в целевую страницу, возвращенную `create-page`.
+
+## Скрыть навигацию Yida
+
+Полноэкранный дашборд или demo page может скрывать навигацию платформы:
+
+```bash
+openyida update-form-config <appType> <formUuid> false "Операционный дашборд"
+```
+
+Показать навигацию снова:
+
+```bash
+openyida update-form-config <appType> <formUuid> true "Операционный дашборд"
+```
+
+## Когда использовать `build-page`
+
+```bash
+openyida build-page project/pages/src/dashboard.canvas.jsx --write
+```
+
+`build-page` обрабатывает только локальный исходный код и не публикует страницу. Это подходит для review, CI или отладки результата компиляции.
+
+## Рекомендуемый prompt
 
 ```text
-Create a Yida custom page from this analysis document.
-Use React 16-compatible export functions, no Hooks, inline styles, mobile responsive layout.
-Run openyida check-page and compile before publishing.
+Сделай из этого аналитического документа пользовательскую страницу Yida.
+Сначала пойми бизнес-цель и информационную иерархию, затем создай современную страницу React function component с понятной визуальной иерархией, реальными состояниями взаимодействия, проверкой доступности нативных компонентов Yida и мобильной адаптацией.
+Когда будет готово, используй openyida publish для публикации в целевую пользовательскую страницу и сообщи, успешно ли опубликовано.
 ```

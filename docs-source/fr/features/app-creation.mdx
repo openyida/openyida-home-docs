@@ -1,0 +1,60 @@
+---
+title: "Création d’application"
+description: "Utilisez OpenYida pour passer des besoins à une application Yida utilisable, avec applications, pages, formulaires, workflows et publication."
+icon: "layout-dashboard"
+---
+
+## Positionnement
+
+Utilisez OpenYida pour passer des besoins à une application Yida utilisable, avec applications, pages, formulaires, workflows et publication.
+
+## Tâches typiques
+
+- OpenYida agent-capabilities --summary-json
+- openyida create-app
+- openyida create-form
+- openyida create-process
+- openyida publish
+
+## Conseils d’utilisation
+
+Start from requirements, confirm the target organization, then create resources and verify the final access link.
+<!-- rich-content-sync:start -->
+
+## Tableau des capacités
+
+| Étape | À confirmer | Commande / capacité |
+| --- | --- | --- |
+| Preflight | Login state, organization, target environment | `openyida agent-capabilities --summary-json` |
+| App shell | App name, business scope, owner organization | `openyida create-app` |
+| Business objects | Forms, pages, workflows, navigation plan | `openyida create-form`, `openyida create-process` |
+| Publishing | Page publish result and accessible URL | `openyida publish` |
+| Read-back | Created resource IDs and final state | query / inspect commands |
+
+## Commandes copiables
+
+```bash
+openyida agent-capabilities --summary-json
+openyida create-app --help
+openyida create-form --help
+openyida create-process --help
+openyida publish --help
+```
+
+## Modèle de prompt AI Agent
+
+```
+Create a Yida app from the following PRD. First confirm OpenYida capability, login state, organization, and target environment. Then break down business objects, forms, pages, workflows, navigation, and publishing steps. Create the app with OpenYida, publish the required pages, read back resource IDs, and return the accessible link.
+
+[Paste PRD here]
+```
+
+## Checklist de validation
+
+- The target organization and environment are confirmed.
+- Forms, pages, workflows, and navigation match the requirement.
+- Published pages return accessible links.
+- Key resource IDs are listed for later maintenance.
+- The AI Agent reports what was created and what still needs manual confirmation.
+
+<!-- rich-content-sync:end -->

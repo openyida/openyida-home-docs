@@ -1,57 +1,101 @@
 ---
 title: "Özel sayfalar"
-description: "Bu belge OpenYida içinde Özel sayfalar konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar."
-icon: window-maximize
+description: "OpenYida ile Yida özel görüntüleme sayfaları oluşturun, yazın ve yayınlayın."
+icon: "window-maximize"
 ---
 
-# Özel sayfalar
+Özel görüntüleme sayfaları panolar, portallar, görsel raporlar, hesaplayıcılar ve zengin etkileşimli sayfalar için uygundur. OpenYida modern React fonksiyon bileşenlerini Yida’da çalışabilir sayfalara derler ve hedef sayfa konteynerine yayınlar.
 
-Bu sayfa OpenYida içinde Özel sayfalar konusunu açıklar; amaç, kullanım akışı ve AI ile Yida uygulaması geliştirirken dikkat edilmesi gereken noktaları kapsar.
-
-## Genel bakış
-
-Bu belge OpenYida içinde Özel sayfalar konusunu; kullanım akışı, komutlar ve dikkat edilmesi gereken noktalarla açıklar.
-
-## Önemli noktalar
-
-- Gerçek bir projeye uygulamadan önce ana bağlamı anlamak için bu sayfayı kullanın.
-- Komut adları, parametreler, kod ve bazı ürün adları doğru arama ve kopyalama için İngilizce bırakılmıştır.
-- 宜搭 ile çalışırken yayımlamadan önce izinleri, organizasyonu ve ortamı kontrol edin.
-
-## Kullanım
-
-Bu dokümandaki adımları OpenYida CLI ve organizasyon ayarlarıyla birlikte izleyin. Aşağıdaki kod örnekleri doğrudan kopyalanıp ihtiyaca göre uyarlanabilir.
-
-## Komutlar ve örnekler
-
-Aşağıdaki örnekler teknik doğruluğu korumak için özgün komut ve kodu saklar.
+## Uçtan uca akış
 
 ```bash
-openyida create-page <appType> "Dashboard"
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
-openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+openyida agent-capabilities --summary-json
+openyida create-page <appType> "Operasyon panosu"
+# Sayfa kaynağı oluştur veya yaz: project/pages/src/dashboard.canvas.jsx
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
 ```
 
-```bash
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
-```
+`agent-capabilities` ile ortamı, oturum durumunu ve kullanılabilir yetenekleri doğrulayın. `create-page` sayfa `formUuid` değerini döndürür; tahmin etmeyin, komut çıktısından veya proje önbelleğinden okuyun. Kaynak hazır olduğunda `publish` ile hedef sayfaya yayınlayın.
+
+## Sayfa kuralları
+
+Yeni sayfalar modern sayfa akışını kullanmalı ve kaynak kod şu kurallara uymalıdır:
+
+- Sayfa girişi olarak React function component kullanın.
+- `useState`, `useEffect`, `useMemo` gibi Hooks desteklenir; side effect temizliği yapın.
+- Desteklenen kaynaklardan UI library, chart library ve icon `import` edin.
+- Button, filter, search, Tabs, pagination ve card gerçek etkileşim çalıştırmalıdır.
+- Yida data bridge, connector veya Open API üzerinden gerçek veriyi tercih edin; empty, error ve refresh state sağlayın.
+- Mobile layout okunabilir olmalı ve işlem alanı taşmamalıdır.
+
+## Desteklenen yerel Yida bileşenleri
+
+Özel sayfalar Yida native runtime componentlerini bridge edebilir. Önce `window.Deep`, `window.DeepYida` veya `window.YidaNativeComponents` ile detect edin; başarısız olursa beyaz ekranı önlemek için sayfa fallback render edin.
+
+| Component / senaryo | Kullanım | Entegrasyon gereği |
+| --- | --- | --- |
+| `PortalTopBanner` / `PortalQuickEntry` | Portal bannerı ve hızlı girişler | Portal kabuğunda öncelik verin; yoksa sayfa içi fallback kullanın. |
+| `QuickAccessCard` / `RecentlyUsedCard` | Sık kullanılan ve son kullanılan uygulama kartları | `row-white` veya `column` gibi `theme` gönderin ve yerel fallback bırakın. |
+| `DataManageViews` | Yida veri yönetimi görünümünü gömme | Hedef form için `form.appType` ve `form.value` / `formUuid` gönderin. |
+| `EmployeeField` | Üye seçici | Önce gerçek `onChange` çıktısını kaydedin, sonra üye değerini normalize edin. |
+| `DepartmentSelectField` | Departman seçici | Arama, popover, izin uyarısı, tekli ve çoklu seçimi doğrulayın. |
+| `AttachmentField` / `ImageField` | Ek ve resim yükleme | Yükleme izni, OSS imzası, önizleme, silme ve hata durumlarını doğrulayın. |
+| `DataCard` / `PortalContainer` | Portal veri kartı ve container geliştirmesi | Yalnızca portal bağlamı, veri ayarı ve stil değişkenleri doğrulandıktan sonra kullanın. |
+
+Native componentler deneyimi geliştirir, sayfa kararlılığı için ön koşul değildir. Fallback kullanılabilir kalsın; üyeler, departmanlar ve dosyalar submit öncesi normalize edilsin.
+
+## Örnekler ve showcase
+
+Önce smoke sample ile bileşenleri ve izinleri doğrulayın. openyida-home doğrudan showcase yolu `/#/tr/showcase`.
+
+| Giriş | Bağlantı |
+| --- | --- |
+| Native component demosu | [canvas-native-components](https://demo.aliwork.com/o/openyida/sample/canvas-native-components) |
+| Özel sayfa showcase | [Örnekler](/#/tr/showcase) |
+| Yida container showcase route | [openyidaRoute=showcase](https://demo.aliwork.com/o/openyida/helpCenter?openyidaLang=tr&openyidaRoute=showcase) |
+
+## Kopyalanabilir örnekler
 
 ```bash
-openyida update-form-config <appType> <formUuid> false "Dashboard"
+openyida sample yida-canvas-custom-page native-components-smoke --output project/pages/src/native-components-smoke.canvas.jsx
+openyida sample yida-canvas-custom-page portal-native-components --output project/pages/src/portal-native-components.canvas.jsx
+openyida build-page project/pages/src/native-components-smoke.canvas.jsx --write
 ```
 
-```bash
-openyida update-form-config <appType> <formUuid> true "Dashboard"
-```
+## Yayınla ve doğrula
 
 ```bash
-openyida build-page project/pages/src/dashboard.oyd.jsx --write
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
 ```
+
+Yayınlamadan önce kaynakta gerçek etkileşim, mobil uyum, empty/error state ve gerekli veri erişim mantığı olduğunu doğrulayın. `publish`, mevcut kaynağı `create-page` tarafından dönen hedef sayfaya günceller.
+
+## Yida navigasyonunu gizle
+
+Tam ekran pano veya demo sayfası platform navigasyonunu gizleyebilir:
+
+```bash
+openyida update-form-config <appType> <formUuid> false "Operasyon panosu"
+```
+
+Navigasyonu tekrar göster:
+
+```bash
+openyida update-form-config <appType> <formUuid> true "Operasyon panosu"
+```
+
+## `build-page` ne zaman kullanılır
+
+```bash
+openyida build-page project/pages/src/dashboard.canvas.jsx --write
+```
+
+`build-page` yalnızca yerel sayfa kaynağını işler ve yayınlamaz. Review, CI veya compile çıktısını debug etmek için uygundur.
+
+## Önerilen prompt
 
 ```text
-Create a Yida custom page from this analysis document.
-Use React 16-compatible export functions, no Hooks, inline styles, mobile responsive layout.
-Run openyida check-page and compile before publishing.
+Bu analiz dokümanını bir Yida özel sayfasına dönüştür.
+Önce iş hedefini ve bilgi hiyerarşisini anla; ardından net görsel hiyerarşi, gerçek etkileşim durumları, Yida native component kullanılabilirlik tespiti ve mobil uyum içeren modern bir React function component sayfası oluştur.
+Hazır olduğunda openyida publish ile hedef özel sayfaya yayınla ve yayının başarılı olup olmadığını söyle.
 ```

@@ -1,0 +1,59 @@
+---
+title: "Process Approval"
+description: "Create and configure Yida approval processes with nodes, approvers, publishing, and read-back checks."
+icon: "git-branch"
+---
+
+## When to use
+
+Process approval is used for leave, purchasing, reimbursement, contracts, onboarding, and other workflows that involve multiple roles. OpenYida helps Agents create process forms, approval nodes, routing rules, and publishing checks.
+
+## Design points
+
+- Describe initiators, approval roles, archive nodes, and rollback rules first.
+- Form fields should support routing decisions, such as amount, department, request type, and status.
+- After configuration, confirm whether the process is published and read back key settings.
+- For impactful changes, ask the Agent to list affected nodes and scope before applying them.
+
+## Prompt example
+
+```
+Create a purchasing approval process with applicant submission, direct manager approval, finance review, and archive. Tell me whether the process has been published when finished.
+```
+
+<!-- rich-content-sync:start -->
+
+## Capability Table
+
+| Stage | What to confirm | Command / capability |
+| --- | --- | --- |
+| Process model | Initiator, approvers, archive node, rollback rules | requirement analysis |
+| Workflow form | Fields used for routing and approval decisions | `openyida create-process` |
+| Approval rules | Approver roles, branches, conditions | `openyida process-rule` |
+| Publishing | Whether workflow is published | publish / inspect commands |
+| Verification | Node list and process state | read-back result |
+
+## Copyable Commands
+
+```bash
+openyida create-process --help
+openyida process-rule --help
+openyida agent-capabilities --summary-json
+```
+
+## AI Agent Prompt Template
+
+```
+Create a Yida approval process. First list the initiator, form fields, approval nodes, approver rules, branch conditions, archive node, and rollback behavior. Then create the workflow with OpenYida, configure approval rules, verify whether it is published, and report the node list and resource IDs.
+
+Process requirement: [describe process]
+```
+
+## Acceptance Checklist
+
+- Initiator, approvers, and archive node are explicit.
+- Routing fields such as amount, department, type, and status exist on the form.
+- Approval rules are verified after configuration.
+- Published state and key resource IDs are reported.
+
+<!-- rich-content-sync:end -->

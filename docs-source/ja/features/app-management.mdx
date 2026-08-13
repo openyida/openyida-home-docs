@@ -1,0 +1,62 @@
+---
+title: "アプリ管理"
+description: "OpenYida でアプリのナビゲーション、多言語、権限、ライフサイクル、組織情報を管理します。"
+icon: "settings"
+---
+
+## 位置づけ
+
+OpenYida でアプリのナビゲーション、多言語、権限、ライフサイクル、組織情報を管理します。
+
+## 主なタスク
+
+- openyida nav-group
+- openyida i18n
+- openyida app-permission
+- openyida app-online / app-offline
+- openyida basic-info
+
+## 利用のヒント
+
+For permissions, lifecycle, and public access changes, ask the Agent to show the affected objects before applying changes.
+<!-- rich-content-sync:start -->
+
+## 機能早見表
+
+| 確認事項 | コマンド / 機能 | 説明 |
+| --- | --- | --- |
+| Navigation groups | `openyida nav-group` | List current navigation before changing it. |
+| Multilingual text | `openyida i18n` | Cover page titles, buttons, fields, and messages. |
+| App permissions | `openyida app-permission` | Search users and confirm roles before update. |
+| Lifecycle state | `openyida app-online`, `openyida app-offline` | Explain impact scope first. |
+| Organization basics | `openyida basic-info`, `openyida corp-manager` | Use for capacity, domain, and organization context. |
+
+## コピー可能なコマンド
+
+```bash
+openyida nav-group --help
+openyida i18n --help
+openyida app-permission --help
+openyida app-online --help
+openyida app-offline --help
+openyida basic-info --help
+openyida corp-manager --help
+```
+
+## AI Agent プロンプトテンプレート
+
+```
+Manage this Yida app. First inspect the current navigation, i18n, permissions, lifecycle state, and organization basics. Then propose the exact changes and affected objects. Only apply permission, lifecycle, or public-access changes after confirming the impact scope.
+
+Target app: [app name or appType]
+Management task: [describe task]
+```
+
+## 受け入れチェックリスト
+
+- Current state is listed before changes.
+- Permission and lifecycle changes include impact scope.
+- Navigation and i18n updates are read back after execution.
+- The final result includes changed objects and follow-up risks.
+
+<!-- rich-content-sync:end -->

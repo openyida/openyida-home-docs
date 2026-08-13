@@ -1,57 +1,101 @@
 ---
 title: "Halaman kustom"
-description: "Dokumen ini menjelaskan Halaman kustom di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan."
-icon: window-maximize
+description: "Buat, tulis, dan publikasikan halaman tampilan kustom Yida dengan OpenYida."
+icon: "window-maximize"
 ---
 
-# Halaman kustom
+Halaman tampilan kustom cocok untuk dashboard, portal, laporan visual, kalkulator, dan halaman interaktif. OpenYida mengompilasi React function component modern menjadi halaman yang dapat berjalan di Yida dan memublikasikannya ke container halaman target.
 
-Halaman ini menjelaskan Halaman kustom di OpenYida, termasuk tujuan, alur penggunaan, dan hal penting saat membangun aplikasi Yida dengan AI.
-
-## Ikhtisar
-
-Dokumen ini menjelaskan Halaman kustom di OpenYida, termasuk alur penggunaan, perintah, dan hal yang perlu diperhatikan.
-
-## Poin penting
-
-- Gunakan halaman ini untuk memahami konteks utama sebelum menerapkannya di proyek nyata.
-- Nama perintah, parameter, kode, dan beberapa nama produk tetap menggunakan bahasa Inggris agar mudah dicari dan disalin dengan benar.
-- Saat bekerja dengan宜搭, periksa izin, organisasi, dan lingkungan sebelum publikasi.
-
-## Penggunaan
-
-Ikuti langkah dalam dokumen ini bersama OpenYida CLI dan konfigurasi organisasi. Jika ada contoh kode di bawah, contoh tersebut dapat disalin lalu disesuaikan dengan kebutuhan.
-
-## Perintah dan contoh
-
-Contoh berikut mempertahankan perintah dan kode asli untuk menjaga akurasi teknis.
+## Alur end-to-end
 
 ```bash
-openyida create-page <appType> "Dashboard"
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
-openyida publish project/pages/src/dashboard.oyd.jsx <appType> <formUuid>
+openyida agent-capabilities --summary-json
+openyida create-page <appType> "Dashboard operasional"
+# Buat atau tulis sumber halaman: project/pages/src/dashboard.canvas.jsx
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
 ```
 
-```bash
-openyida check-page project/pages/src/dashboard.oyd.jsx
-openyida compile project/pages/src/dashboard.oyd.jsx
-```
+Gunakan `agent-capabilities` untuk memeriksa lingkungan, status login, dan kemampuan yang tersedia. `create-page` mengembalikan `formUuid` halaman; jangan menebak, baca dari output perintah atau cache proyek. Setelah source siap, gunakan `publish` untuk memublikasikan ke halaman target.
+
+## Aturan halaman
+
+Halaman baru sebaiknya memakai alur halaman modern, dan source harus mengikuti aturan ini:
+
+- Gunakan React function component sebagai entry halaman.
+- Hooks seperti `useState`, `useEffect`, dan `useMemo` didukung; bersihkan side effect.
+- `import` UI library, chart library, dan icon dari resource yang didukung.
+- Button, filter, search, Tabs, pagination, dan card harus menjalankan interaksi nyata.
+- Utamakan data nyata melalui Yida data bridge, connector, atau Open API; sediakan empty, error, dan refresh state.
+- Layout mobile harus mudah dibaca dan area operasi tidak boleh meluap.
+
+## Komponen native Yida yang didukung
+
+Halaman kustom dapat menjembatani komponen runtime native Yida. Deteksi dulu dari `window.Deep`, `window.DeepYida`, atau `window.YidaNativeComponents`; jika gagal, render fallback milik halaman agar tidak blank.
+
+| Komponen / skenario | Kegunaan | Syarat integrasi |
+| --- | --- | --- |
+| `PortalTopBanner` / `PortalQuickEntry` | Banner portal dan pintasan | Utamakan untuk portal shell; jika tidak ada, gunakan banner dan kartu pintasan fallback. |
+| `QuickAccessCard` / `RecentlyUsedCard` | Kartu aplikasi sering dipakai dan terakhir dipakai | Wajib mengirim `theme`, seperti `row-white` atau `column`, serta mempertahankan fallback lokal. |
+| `DataManageViews` | Menyematkan tampilan manajemen data Yida | Kirim `form.appType` dan `form.value` / `formUuid` dari form target. |
+| `EmployeeField` | Pemilih anggota | Catat output `onChange` asli, lalu normalisasi nilai anggota. |
+| `DepartmentSelectField` | Pemilih departemen | Verifikasi pencarian, popover, izin, pilihan tunggal, dan pilihan ganda. |
+| `AttachmentField` / `ImageField` | Unggah lampiran dan gambar | Verifikasi izin unggah, tanda tangan OSS, pratinjau, hapus, dan status gagal. |
+| `DataCard` / `PortalContainer` | Kartu data portal dan container | Gunakan hanya setelah konteks portal, konfigurasi data, dan variabel gaya terverifikasi. |
+
+Komponen native adalah peningkatan pengalaman, bukan prasyarat stabilitas halaman. Pertahankan fallback dan normalisasi anggota, departemen, serta file sebelum submit.
+
+## Contoh dan showcase
+
+Gunakan smoke sample untuk memverifikasi komponen dan izin terlebih dahulu. Path langsung showcase openyida-home adalah `/#/id/showcase`.
+
+| Entri | Tautan |
+| --- | --- |
+| Demo komponen native | [canvas-native-components](https://demo.aliwork.com/o/openyida/sample/canvas-native-components) |
+| Showcase halaman kustom | [Showcase](/#/id/showcase) |
+| Route showcase di container Yida | [openyidaRoute=showcase](https://demo.aliwork.com/o/openyida/helpCenter?openyidaLang=id&openyidaRoute=showcase) |
+
+## Contoh yang dapat disalin
 
 ```bash
-openyida update-form-config <appType> <formUuid> false "Dashboard"
+openyida sample yida-canvas-custom-page native-components-smoke --output project/pages/src/native-components-smoke.canvas.jsx
+openyida sample yida-canvas-custom-page portal-native-components --output project/pages/src/portal-native-components.canvas.jsx
+openyida build-page project/pages/src/native-components-smoke.canvas.jsx --write
 ```
 
-```bash
-openyida update-form-config <appType> <formUuid> true "Dashboard"
-```
+## Publikasikan dan konfirmasi
 
 ```bash
-openyida build-page project/pages/src/dashboard.oyd.jsx --write
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
 ```
+
+Sebelum publikasi, pastikan source memiliki interaksi nyata, responsif mobile, empty/error state, dan logika data yang diperlukan. `publish` memperbarui source saat ini ke halaman target dari `create-page`.
+
+## Sembunyikan navigasi Yida
+
+Dashboard layar penuh atau halaman demo dapat menyembunyikan navigasi platform:
+
+```bash
+openyida update-form-config <appType> <formUuid> false "Dashboard operasional"
+```
+
+Tampilkan navigasi lagi:
+
+```bash
+openyida update-form-config <appType> <formUuid> true "Dashboard operasional"
+```
+
+## Kapan memakai `build-page`
+
+```bash
+openyida build-page project/pages/src/dashboard.canvas.jsx --write
+```
+
+`build-page` hanya memproses source lokal dan tidak memublikasikan. Cocok untuk review, CI, atau debugging output compile.
+
+## Prompt yang disarankan
 
 ```text
-Create a Yida custom page from this analysis document.
-Use React 16-compatible export functions, no Hooks, inline styles, mobile responsive layout.
-Run openyida check-page and compile before publishing.
+Jadikan dokumen analisis ini sebagai halaman kustom Yida.
+Pertama pahami tujuan bisnis dan hierarki informasi, lalu buat halaman React function component modern dengan hierarki visual jelas, status interaksi nyata, deteksi komponen native Yida, dan adaptasi mobile.
+Setelah selesai, gunakan openyida publish untuk memublikasikan ke halaman kustom target dan beri tahu apakah berhasil.
 ```

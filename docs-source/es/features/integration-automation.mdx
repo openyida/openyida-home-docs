@@ -1,0 +1,68 @@
+---
+title: "Automatización de integración"
+description: "Crea automatizaciones de integración Yida con OpenYida: eventos de formularios, datos entre formularios, notificaciones DingTalk y acciones de conector."
+icon: "share-nodes"
+---
+
+## Cuándo usarla
+
+La automatización de integración conecta eventos de negocio, como envíos de formularios, actualizaciones o finalización de aprobaciones, con acciones posteriores: notificaciones DingTalk, sincronización entre formularios, workflows posteriores o llamadas a conectores HTTP.
+
+## Límite con aprobación de procesos
+
+La aprobación de procesos gestiona formularios de workflow y reglas de nodos de aprobación. La automatización de integración gestiona notificaciones, sincronización de datos, llamadas a conectores y acciones entre sistemas después del evento.
+
+## Puntos de diseño
+
+- Confirma primero el formulario disparador, el tipo de evento y los field IDs reales; no los adivines por las etiquetas.
+- Antes de publicar, pide al AI Agent un resumen del flujo con condiciones, nodos, destinatarios y destinos de escritura.
+- En automatizaciones de producción, guarda como borrador o confirma el alcance del impacto antes de publicar.
+- Títulos, contenidos de notificación y assignments pueden referenciar variables de campo con el formato `#{fieldId-ComponentType}#`.
+
+## Ejemplo de prompt
+
+```
+Crea una automatización de integración: cuando se añada un registro al formulario de feedback de cliente, envía una notificación DingTalk al responsable y sincroniza nombre del cliente, tipo de problema y urgencia al formulario de seguimiento. Lee primero los Schemas de ambos formularios, muestra el resumen del flujo y luego crea y publica tras la confirmación.
+```
+
+<Note>
+La automatización de integración puede enviar notificaciones reales, escribir datos reales o llamar APIs externas. Confirma app, formularios, campos y destinatarios antes de ejecutar.
+</Note>
+
+<!-- rich-content-sync:start -->
+
+## Tabla de capacidades
+
+| Escenario | Qué confirmar | Comando / capacidad |
+| --- | --- | --- |
+| Disparador de evento de formulario | insert, update, delete, processFinish, activityTask | `openyida integration create` |
+| Notificación DingTalk | Destinatarios, título, contenido, variables de campo | `--receivers` / `--title` / `--content` |
+| Lectura entre formularios | Consultar un registro relacionado | `--data-form-uuid` / `--data-condition` |
+| Escritura entre formularios | Crear o actualizar datos del formulario destino | `--add-data-form-uuid` / `--add-data-assignment` / spec |
+| Acción de conector | Llamar un conector HTTP o API de negocio | `--connector-id` / `--action-id` / `--connection-id` |
+| Publicar y comprobar | Borrador, publicación, diagnóstico, lectura posterior | `--publish` / `openyida integration check` |
+
+## Comandos copiables
+
+```bash
+openyida integration create --help
+openyida integration check --help
+openyida agent-capabilities --summary-json
+```
+
+## Plantilla de prompt para AI Agent
+
+```
+Crea una automatización de integración Yida. Primero lee los Schemas del formulario disparador y del formulario destino; luego lista el evento, condiciones, orden de nodos, mapeo de campos, destinatarios y estado de publicación. Tras mi confirmación, usa OpenYida para crear el flujo y leer el resultado.
+
+Requisito de automatización: [describe disparador y acciones posteriores]
+```
+
+## Checklist de aceptación
+
+- Formulario disparador, formulario destino y field IDs confirmados.
+- Nodos del flujo, destinatarios y mapeos mostrados y confirmados.
+- Estado de borrador o publicado claro.
+- Flow ID, resource IDs clave y resultados de comprobación reportados.
+
+<!-- rich-content-sync:end -->

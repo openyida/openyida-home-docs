@@ -1,0 +1,68 @@
+---
+title: "Automasi Integrasi"
+description: "Cipta automasi integrasi Yida dengan OpenYida, meliputi event borang, data rentas borang, notifikasi DingTalk dan tindakan connector."
+icon: "share-nodes"
+---
+
+## Bila digunakan
+
+Automasi integrasi menghubungkan event perniagaan seperti penghantaran borang, kemas kini atau kelulusan selesai kepada tindakan susulan: notifikasi kerja DingTalk, penyelarasan data rentas borang, workflow seterusnya atau panggilan HTTP connector.
+
+## Sempadan dengan kelulusan proses
+
+Kelulusan proses mengurus borang workflow dan peraturan nod kelulusan. Automasi integrasi mengurus notifikasi, penyelarasan data, panggilan connector dan tindakan rentas sistem selepas event dicetuskan.
+
+## Perkara reka bentuk
+
+- Sahkan borang pencetus, jenis event dan field ID sebenar dahulu; jangan meneka berdasarkan label field.
+- Sebelum publish, minta AI Agent memaparkan ringkasan flow termasuk syarat pencetus, senarai node, penerima dan sasaran penulisan.
+- Untuk automasi production, simpan sebagai draft atau sahkan skop impak sebelum publish.
+- Tajuk, kandungan notifikasi dan assignment boleh merujuk pemboleh ubah field dalam format `#{fieldId-ComponentType}#`.
+
+## Contoh prompt
+
+```
+Cipta automasi integrasi: apabila borang maklum balas pelanggan menerima rekod baharu, hantar notifikasi kerja DingTalk kepada pemilik dan selaraskan nama pelanggan, jenis isu serta tahap kecemasan ke borang susulan. Baca Schema kedua-dua borang dahulu, tunjukkan ringkasan flow, kemudian cipta dan publish selepas disahkan.
+```
+
+<Note>
+Automasi integrasi boleh menghantar notifikasi sebenar, menulis data sebenar atau memanggil API luaran. Sahkan app, borang, field dan penerima sebelum pelaksanaan.
+</Note>
+
+<!-- rich-content-sync:start -->
+
+## Jadual kemampuan
+
+| Senario | Perlu disahkan | Arahan / kemampuan |
+| --- | --- | --- |
+| Trigger event borang | insert, update, delete, processFinish, activityTask | `openyida integration create` |
+| Notifikasi kerja DingTalk | Penerima, tajuk, kandungan, pemboleh ubah field | `--receivers` / `--title` / `--content` |
+| Baca rentas borang | Query satu rekod daripada borang berkaitan | `--data-form-uuid` / `--data-condition` |
+| Tulis rentas borang | Cipta atau kemas kini data borang sasaran | `--add-data-form-uuid` / `--add-data-assignment` / spec |
+| Tindakan connector | Panggil HTTP connector atau API bisnes | `--connector-id` / `--action-id` / `--connection-id` |
+| Publish dan semak | Draft, publish, diagnosis, baca balik | `--publish` / `openyida integration check` |
+
+## Arahan boleh disalin
+
+```bash
+openyida integration create --help
+openyida integration check --help
+openyida agent-capabilities --summary-json
+```
+
+## Templat prompt AI Agent
+
+```
+Cipta automasi integrasi Yida. Mula-mula baca Schema borang pencetus dan borang sasaran, kemudian senaraikan event, syarat pencetus, urutan node, pemetaan field, penerima dan status publish. Selepas saya sahkan, gunakan OpenYida untuk mencipta flow dan baca balik hasilnya.
+
+Keperluan automasi: [terangkan pencetus dan tindakan susulan]
+```
+
+## Senarai semak penerimaan
+
+- Borang pencetus, borang sasaran dan field ID telah disahkan.
+- Node flow, penerima dan pemetaan field telah dipaparkan dan disahkan.
+- Status draft atau published jelas.
+- Flow ID, resource ID penting dan hasil semakan telah dilaporkan.
+
+<!-- rich-content-sync:end -->

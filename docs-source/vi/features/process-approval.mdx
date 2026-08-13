@@ -1,0 +1,56 @@
+---
+title: "Phê duyệt quy trình"
+description: "Tạo và cấu hình quy trình phê duyệt Yida với nút, người duyệt, phát hành và kiểm tra lại."
+icon: "git-branch"
+---
+
+## Định vị
+
+Tạo và cấu hình quy trình phê duyệt Yida với nút, người duyệt, phát hành và kiểm tra lại.
+
+## Tác vụ thường gặp
+
+- openyida create-process
+- openyida process-rule
+- approval node setup
+- publish and read-back verification
+
+## Gợi ý sử dụng
+
+Describe roles and approval rules clearly before creation, then confirm whether the workflow is published.
+<!-- rich-content-sync:start -->
+
+## Bảng năng lực
+
+| Giai đoạn | Điểm cần xác nhận | Lệnh / năng lực |
+| --- | --- | --- |
+| Process model | Initiator, approvers, archive node, rollback rules | requirement analysis |
+| Workflow form | Fields used for routing and approval decisions | `openyida create-process` |
+| Approval rules | Approver roles, branches, conditions | `openyida process-rule` |
+| Publishing | Whether workflow is published | publish / inspect commands |
+| Verification | Node list and process state | read-back result |
+
+## Lệnh có thể sao chép
+
+```bash
+openyida create-process --help
+openyida process-rule --help
+openyida agent-capabilities --summary-json
+```
+
+## Mẫu prompt AI Agent
+
+```
+Create a Yida approval process. First list the initiator, form fields, approval nodes, approver rules, branch conditions, archive node, and rollback behavior. Then create the workflow with OpenYida, configure approval rules, verify whether it is published, and report the node list and resource IDs.
+
+Process requirement: [describe process]
+```
+
+## Checklist nghiệm thu
+
+- Initiator, approvers, and archive node are explicit.
+- Routing fields such as amount, department, type, and status exist on the form.
+- Approval rules are verified after configuration.
+- Published state and key resource IDs are reported.
+
+<!-- rich-content-sync:end -->

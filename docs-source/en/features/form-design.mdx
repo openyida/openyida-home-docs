@@ -1,0 +1,64 @@
+---
+title: "Form Design"
+description: "Design and maintain Yida form fields, validation, formulas, and business semantics without guessing field IDs."
+icon: "list-checks"
+---
+
+## When to use
+
+Form design covers field creation, field updates, required and validation rules, option maintenance, formulas, field grouping, and semantic cleanup. It is the foundation of generated Yida apps.
+
+## Principles
+
+- Read the real Schema before changing fields. Do not guess field IDs from labels.
+- For new fields, specify type, business meaning, required rules, options, and defaults.
+- For incremental updates, list existing fields first and then describe the planned change.
+- After writing or updating data, read back at least one record to verify values.
+
+## Common capabilities
+
+- `openyida get-schema`: read form field structure.
+- `openyida create-form`: create a form page.
+- `openyida create-form validate-fields`: validate field definitions.
+- Data commands: query, write, and update records by real field IDs.
+
+<Tip>
+Explain how each field is used, not just its name. For example: Department is a single-select field with Engineering, Marketing, Sales, and HR options, and it will be used for approval branching.
+</Tip>
+<!-- rich-content-sync:start -->
+
+## Capability Table
+
+| What to confirm | Command / capability | Notes |
+| --- | --- | --- |
+| Read current fields | `openyida get-schema` | Do this before every update. |
+| Validate field definitions | `openyida create-form validate-fields` | Use for generated field configs. |
+| Create form page | `openyida create-form` | Confirm form name and page type first. |
+| Update data safely | data query / write commands | Use real field IDs from Schema. |
+| Verify result | read-back query | Check at least one record or Schema diff. |
+
+## Copyable Commands
+
+```bash
+openyida get-schema --help
+openyida create-form --help
+openyida create-form validate-fields --help
+```
+
+## AI Agent Prompt Template
+
+```
+Update this Yida form. First read the real Schema with openyida get-schema and list current fields. Then propose field changes with field type, required rule, options, formula, and business meaning. Validate the field definitions before applying them, and read back the Schema after the update.
+
+Form: [form name or formUuid]
+Changes: [describe changes]
+```
+
+## Acceptance Checklist
+
+- No field ID is guessed from a label.
+- Field type, required state, options, formula, and default value are clear.
+- The generated field definition passes validation.
+- Schema or sample data is read back after the change.
+
+<!-- rich-content-sync:end -->

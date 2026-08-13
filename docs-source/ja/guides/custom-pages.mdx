@@ -1,0 +1,101 @@
+---
+title: "カスタムページ"
+description: "OpenYida で Yida のカスタム表示ページを作成、実装、公開します。"
+icon: "window-maximize"
+---
+
+カスタム表示ページは、ダッシュボード、ポータル、ビジュアルレポート、計算ツール、リッチなインタラクションページに適しています。OpenYida は現代的な React 関数コンポーネントを Yida で実行できるページにコンパイルし、対象ページコンテナへ公開します。
+
+## エンドツーエンドの流れ
+
+```bash
+openyida agent-capabilities --summary-json
+openyida create-page <appType> "経営ダッシュボード"
+# ページソースを生成または作成: project/pages/src/dashboard.canvas.jsx
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
+```
+
+`agent-capabilities` で環境、ログイン状態、利用可能な機能を確認します。`create-page` はページの `formUuid` を返すため、推測せずコマンド出力またはプロジェクトキャッシュから取得してください。ソースが準備できたら `publish` で対象ページへ公開します。
+
+## ページ規約
+
+新しいページは現代的なページフローを使い、ページソースは次の規約に従います:
+
+- React 関数コンポーネントをページ入口として使います。
+- `useState`、`useEffect`、`useMemo` などの Hooks を使用でき、副作用は cleanup します。
+- 対応するフロントエンドリソースから UI ライブラリ、チャート、アイコンを `import` します。
+- ボタン、フィルター、検索、Tabs、ページング、カードは実際の操作に接続します。
+- 実データは Yida データブリッジ、コネクタ、Open API を優先し、空・エラー・更新状態を用意します。
+- モバイルでも読みやすく、操作領域がはみ出さないようにします。
+
+## サポートされる Yida ネイティブコンポーネント
+
+カスタムページは Yida のネイティブランタイムコンポーネントを橋渡しできます。まず `window.Deep`、`window.DeepYida`、`window.YidaNativeComponents` から検出し、失敗した場合はページ側 fallback を表示して白画面を避けます。
+
+| コンポーネント / シーン | 用途 | 接続要件 |
+| --- | --- | --- |
+| `PortalTopBanner` / `PortalQuickEntry` | ポータル Banner とクイック入口 | ポータルシェルに優先利用し、欠ける場合は自前の Banner と入口カードに降級します。 |
+| `QuickAccessCard` / `RecentlyUsedCard` | よく使うアプリ、最近使ったアプリのカード | `row-white` または `column` などの `theme` を必ず渡し、局所 fallback を残します。 |
+| `DataManageViews` | Yida データ管理ビューの埋め込み | 対象フォームの `form.appType` と `form.value` / `formUuid` を必ず渡します。 |
+| `EmployeeField` | メンバー選択 | 実際の `onChange` 出力を記録してからメンバー値に正規化します。 |
+| `DepartmentSelectField` | 部門選択 | 検索、ポップアップ、権限表示、単一選択、複数選択を先に確認します。 |
+| `AttachmentField` / `ImageField` | 添付ファイル、画像アップロード | アップロード権限、OSS 署名、プレビュー、削除、失敗状態を先に確認します。 |
+| `DataCard` / `PortalContainer` | ポータルデータカードとコンテナ拡張 | 対象ポータルのコンテキスト、データ設定、スタイル変数を確認した後だけ接続します。 |
+
+ネイティブコンポーネントは体験強化であり、ページ安定性の前提条件ではありません。fallback を利用可能に保ち、送信前にメンバー、部門、ファイル値を正規化してください。
+
+## 例と優秀事例
+
+ネイティブコンポーネントは smoke 例でコンポーネントと権限を確認してから使います。カスタムページの優秀事例を見る場合、openyida-home の直接パスは `/#/ja/showcase` です。
+
+| 入口 | リンク |
+| --- | --- |
+| ネイティブコンポーネントデモ | [canvas-native-components](https://demo.aliwork.com/o/openyida/sample/canvas-native-components) |
+| カスタムページ優秀事例 | [事例](/#/ja/showcase) |
+| Yida コンテナ直通事例ページ | [openyidaRoute=showcase](https://demo.aliwork.com/o/openyida/helpCenter?openyidaLang=ja&openyidaRoute=showcase) |
+
+## コピー可能な例
+
+```bash
+openyida sample yida-canvas-custom-page native-components-smoke --output project/pages/src/native-components-smoke.canvas.jsx
+openyida sample yida-canvas-custom-page portal-native-components --output project/pages/src/portal-native-components.canvas.jsx
+openyida build-page project/pages/src/native-components-smoke.canvas.jsx --write
+```
+
+## 公開と確認
+
+```bash
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
+```
+
+公開前に、実際の操作、モバイル対応、空/エラー状態、必要なデータ接続が含まれていることを確認します。`publish` は現在のソースを `create-page` が返した対象ページに更新します。
+
+## Yida ナビゲーションを非表示
+
+全画面ダッシュボードやデモページではプラットフォームナビゲーションを非表示にできます:
+
+```bash
+openyida update-form-config <appType> <formUuid> false "経営ダッシュボード"
+```
+
+ナビゲーションを戻す:
+
+```bash
+openyida update-form-config <appType> <formUuid> true "経営ダッシュボード"
+```
+
+## `build-page` を使うタイミング
+
+```bash
+openyida build-page project/pages/src/dashboard.canvas.jsx --write
+```
+
+`build-page` はローカルのページソースだけを処理し、公開はしません。レビュー、CI、コンパイル出力の確認に使えます。
+
+## 推奨プロンプト
+
+```text
+この分析ドキュメントを Yida カスタムページにしてください。
+まず業務目標と情報階層を理解し、明確な視覚階層、実際の操作状態、Yida ネイティブコンポーネントの可用性検出、モバイル対応を含む現代的な React 関数コンポーネントページを生成してください。
+完了後、openyida publish で対象カスタムページへ公開し、公開に成功したか教えてください。
+```

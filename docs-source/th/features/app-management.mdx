@@ -1,0 +1,67 @@
+---
+title: "การจัดการแอป"
+description: "จัดการการนำทาง i18n สิทธิ์ สถานะวงจรชีวิต และข้อมูลองค์กรด้วย OpenYida"
+icon: "settings"
+---
+
+## Overview
+
+จัดการการนำทาง i18n สิทธิ์ สถานะวงจรชีวิต และข้อมูลองค์กรด้วย OpenYida
+
+## Typical tasks
+
+- Confirm login, organization, and available commands with `openyida agent-capabilities --summary-json`.
+- Let the AI Agent list target resources and planned changes before execution.
+- Execute the matching OpenYida commands and read back key results.
+- For permissions, lifecycle, publishing, or public access changes, confirm the impact scope first.
+
+## Related commands
+
+- `openyida create-app`
+- `openyida create-form`
+- `openyida create-process`
+- `openyida nav-group`
+- `openyida i18n`
+- `openyida app-permission`
+
+<!-- rich-content-sync:start -->
+
+## ตารางความสามารถ
+
+| สิ่งที่ต้องยืนยัน | คำสั่ง / ความสามารถ | หมายเหตุ |
+| --- | --- | --- |
+| Navigation groups | `openyida nav-group` | List current navigation before changing it. |
+| Multilingual text | `openyida i18n` | Cover page titles, buttons, fields, and messages. |
+| App permissions | `openyida app-permission` | Search users and confirm roles before update. |
+| Lifecycle state | `openyida app-online`, `openyida app-offline` | Explain impact scope first. |
+| Organization basics | `openyida basic-info`, `openyida corp-manager` | Use for capacity, domain, and organization context. |
+
+## คำสั่งที่คัดลอกได้
+
+```bash
+openyida nav-group --help
+openyida i18n --help
+openyida app-permission --help
+openyida app-online --help
+openyida app-offline --help
+openyida basic-info --help
+openyida corp-manager --help
+```
+
+## เทมเพลตพรอมป์ต์ AI Agent
+
+```
+Manage this Yida app. First inspect the current navigation, i18n, permissions, lifecycle state, and organization basics. Then propose the exact changes and affected objects. Only apply permission, lifecycle, or public-access changes after confirming the impact scope.
+
+Target app: [app name or appType]
+Management task: [describe task]
+```
+
+## รายการตรวจรับ
+
+- Current state is listed before changes.
+- Permission and lifecycle changes include impact scope.
+- Navigation and i18n updates are read back after execution.
+- The final result includes changed objects and follow-up risks.
+
+<!-- rich-content-sync:end -->

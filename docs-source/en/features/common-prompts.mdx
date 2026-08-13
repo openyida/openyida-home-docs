@@ -1,265 +1,193 @@
 ---
 title: "Common Prompts"
-description: "Collection of natural language prompts supported by OpenYida."
+description: "Reusable OpenYida prompts for AI agents, covering app creation, modern custom pages, app management, data, connectors, reports, and diagnostics."
 icon: "comments"
 ---
 
-OpenYida is designed for natural language interaction. The following prompts have been verified and work across all supported AI tools.
+OpenYida is designed to be used directly by AI agents. Copy the prompts below into Qwen Office, Codex, Claude Code, Cursor, or another supported tool. The agent can check the environment, choose commands, run the workflow, and report the final result.
+
+<Note>
+For destructive actions, permission changes, app enable/disable operations, or public access changes, ask the agent to describe the target and scope before it proceeds.
+</Note>
+
+---
+
+## Environment And Login
+
+```
+First check whether OpenYida is available: run openyida agent-capabilities --summary-json and confirm the current environment, login state, organization, and available commands. If I am not logged in, guide me through login.
+```
+
+```
+Check which Yida environment and organization I am currently connected to, and tell me where new apps will be created.
+```
+
+```
+Run OpenYida diagnostics and tell me whether Node.js, login state, project directory, and command capabilities are healthy.
+```
 
 ---
 
 ## App Creation
 
 ```
-Help me build a xxx application
+Help me create a CRM Yida app. First understand the requirement and list the app structure, then create the app, forms, and required pages. When finished, tell me the app URL and created resources.
 ```
+
 ```
-Help me build a CRM
+Generate a Yida app from the PRD below. First break down business objects, pages, form fields, workflows, and navigation. Then use OpenYida to create and publish the app, and return a usable link.
+
+[paste PRD]
 ```
+
 ```
-Help me build a personal salary calculator app
-```
-```
-Help me create an IPD system on Yida to manage the full chip production workflow
-```
-```
-Generate an app based on this requirements document: [paste PRD]
-```
-```
-Create a birthday greeting mini-game on Yida
-```
-```
-Build a Lantern Festival riddle game
+Build a project management app with projects, tasks, milestones, members, risks, and a progress dashboard. After creation, organize the app navigation so Home, Business Handling, Data Management, and Reports are easy to find.
 ```
 
 ---
 
-## Form & Page Operations
-
-### Create Form Page
+## Forms And Workflows
 
 ```
-Help me create a xxx form page
-```
-```
-Create a leave application form with: employee name, department, start date, end date, reason
+Create a leave request form with employee name, department, leave type, start date, end date, and reason. Make employee name, leave type, and dates required.
 ```
 
-### Add Form Fields
+```
+Add a department field to the employee information form, with options Engineering, Marketing, Sales, and HR. Read the real form schema before updating fields.
+```
 
 ```
-Add a [field name] field to [page name], type: [TextField/NumberField/DateField/SelectField/...]
-```
-```
-Add a "Department" dropdown field to the employee info form, options: Engineering, Marketing, Sales, HR
+Create a purchase approval workflow with applicant submission, manager approval, finance review, and archive. Tell me whether the workflow was published successfully.
 ```
 
 <Note>
-Only [supported field types](/en/features/skills#supported-field-types) are accepted. Unsupported types (e.g. `MobileField`, `EmailField`) will be rejected.
+Field IDs cannot be guessed from field names. Before adding, updating, or writing form data, ask the agent to read the real schema.
 </Note>
 
-### Modify Field Properties
+---
+
+## Modern Custom Pages
 
 ```
-Make [field name] field in [page name] required
-```
-```
-Make [field name] field in [page name] read-only
-```
-```
-Change [field name] field label in [page name] to [new label]
+Create a Yida custom page from this analysis document. First understand the business goal and information hierarchy, then build a modern React function-component page with clear visual hierarchy, real interaction states, and mobile responsiveness. When it is ready, use openyida publish to update the target custom page and tell me whether the page was published successfully.
 ```
 
-### Custom Display Pages
+```
+Create an operations dashboard page with key metrics, trend charts, a task list, and anomaly alerts. It should support filters, refresh, empty states, error states, and mobile layout.
+```
 
 ```
-Create a custom display page for [page name]
-```
-```
-Generate a landing page for an enterprise collaboration product
+Improve the existing custom page into a B2B workbench: higher information density, clear navigation, and real interactions for buttons and filters. Publish it and verify the result.
 ```
 
 ---
 
-## Publish & Share
+## App Management
 
 ```
-Publish [page name] page
-```
-```
-Make [page name] page publicly accessible
-```
-```
-Configure public access for [page name] — anyone with link can access
-```
-
----
-
-## Flash Note to PRD
-
-```
-Convert DingTalk flash notes to PRD documents
+Organize this app's left navigation: put the entry page first and group Business Handling, Data Management, Reports, and System Settings clearly. List the current navigation before changing it.
 ```
 
 ```
-Generate a PRD from this meeting transcript: [paste notes]
+Configure app localization: enable Chinese and English, then organize page titles, buttons, form fields, and message text. Tell me which texts were updated.
 ```
 
 ```
-Create a project requirements document from the attached flash note
+Query and adjust this app's administrator settings. Search for the user first, then add the selected member as a developer or data administrator. List current permissions before making changes.
 ```
 
 ```
-Convert meeting notes into a structured product requirements document
+Query this organization's Yida basic information, capacity, quota, and domain settings, then summarize what may affect app publishing.
 ```
 
-<Note>
-Requires login. The command reads meeting transcripts and uses AI to generate structured PRD documents. Output is saved to the `prd/` directory.
-</Note>
+```
+Check whether this app is enabled. If it needs to be disabled or enabled, describe the impact and wait for my confirmation first.
+```
 
 ---
 
 ## Data Management
 
 ```
-Query all records from [form name]
+Query the latest 20 records from [form name] and show key fields sorted by creation time descending.
 ```
+
 ```
-Export [form name] data to Excel
+Read the schema for [form name], then create 3 realistic demo records. After writing, query one record back to verify field values.
 ```
+
 ```
-Delete all test data from [form name]
+Update the status field of the specified record. Confirm the instance ID and field ID before updating, then query the record back for verification.
 ```
 
 ---
 
-## Integration & Automation
-
-### Create Integration Flow
+## Connectors And API Integration
 
 ```
-Create an integration flow that sends notifications when new records are submitted
-```
+Smart-create a Yida HTTP connector from this curl command. Identify the host, path, method, auth type, and parameters. After creation, list the connector ID and actions.
 
-```
-Set up an automation on [form name] to notify [team/user] on new submissions
+[paste curl]
 ```
 
 ```
-Create a [form name] workflow that triggers email notifications to [recipients]
-```
-
-### Add Automated Actions
-
-```
-Add a data lookup action to the [flow name] integration
+Add a query action to the existing connector and test it with sample parameters. If the test succeeds, summarize the response structure.
 ```
 
 ```
-Add a record creation action to automatically create entries in [target form]
-```
-
-<Note>
-Integration flows trigger on form events (insert, update, delete) and can execute notifications, data lookups, and record creation. Use the CLI to create and configure flows.
-</Note>
-
----
-
-## Connectors (HTTP Integration)
-
-```
-Create an HTTP connector for [API name], base URL: [url]
-```
-```
-Add a POST action to [connector name] for creating records
-```
-```
-Smart create connector from this curl command: [paste curl]
+Parse this API document and generate an OpenYida connector operation template. Do not write to the live connector until I confirm.
 ```
 
 ---
 
-## Reports & Charts
+## Reports And Charts
 
 ```
-Create a Yida report for [app name] with a bar chart showing monthly submissions
-```
-```
-Add a pie chart to [report name] showing status distribution
+Create a native Yida report from [form name] with a monthly submission bar chart and a status distribution pie chart. Return the report URL when finished.
 ```
 
----
+```
+Append a trend chart to the existing report showing record changes over the last 30 days. Confirm the report ID and data source fields before appending.
+```
 
-## Account & Environment
-
 ```
-Relogin / Logout
-```
-```
-Switch to [org name] organization
-```
-```
-Check current login status
-```
-```
-Run environment diagnostics
+Create an advanced visualization dashboard page with metric cards, trend charts, and a detail table from form data, then publish it as a custom page.
 ```
 
 ---
 
-## DingTalk Integration
-
-### Search & Query
+## Meeting Notes And Documents
 
 ```
-Search for a contact named [name]
-```
+Read the DingTalk meeting transcript by this taskUuid and turn it into a PRD. Include background, goals, user stories, scope, page structure, and acceptance criteria.
 
-```
-List all calendar events
+[paste taskUuid]
 ```
 
 ```
-Query my approval requests
-```
+Convert the meeting notes below into a structured PRD, then evaluate whether it can be used to create a Yida app directly.
 
-### Create & Manage
-
+[paste notes]
 ```
-Create a todo task: [task description]
-```
-
-```
-Send a message: [message content]
-```
-
-### Query Attendance
-
-```
-List attendance records
-```
-
-```
-Check my attendance status
-```
-
-<Info>
-The `dws` command requires DingTalk CLI to be installed separately. Run `openyida dws install` if not already installed. Output defaults to table format; add `-f json` for JSON output.
-</Info>
 
 ---
 
-## CDN & Assets
+## Sharing And Publishing
 
 ```
-Configure CDN image upload for [app name]
+Publish [page name]. Before publishing, confirm the target appType, formUuid, and source path. After publishing, tell me whether the page is accessible.
 ```
+
 ```
-Upload [image file] to CDN
+Configure public access for [page name]. Before changing it, explain the public scope and risks, then wait for my confirmation.
+```
+
+```
+Check whether this short link is valid and tell me which app or page it points to.
 ```
 
 ---
 
 <Tip>
-**Tip:** The more context you provide, the better the results. Instead of "create a form", say "Create a leave approval form with employee name, department, leave type (dropdown: annual/sick/personal), start/end dates, reason — make employee name and dates required".
+**Give the agent enough context.** Instead of "create a form", write: "Create a leave approval form with employee name, department, leave type (annual/sick/personal), start and end dates, and reason; make employee name, leave type, and dates required; then configure the approval workflow and return the page URL."
 </Tip>

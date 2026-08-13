@@ -1,0 +1,68 @@
+---
+title: "Automatisation d’intégration"
+description: "Créez des automatisations d’intégration Yida avec OpenYida : événements de formulaire, données inter-formulaires, notifications DingTalk et actions de connecteur."
+icon: "share-nodes"
+---
+
+## Quand l’utiliser
+
+L’automatisation d’intégration relie les événements métier, comme une soumission de formulaire, une mise à jour ou une fin d’approbation, à des actions de suivi : notification DingTalk, synchronisation entre formulaires, workflow aval ou appel de connecteur HTTP.
+
+## Limite avec l’approbation de processus
+
+L’approbation de processus gère les formulaires de workflow et les règles des nœuds d’approbation. L’automatisation d’intégration gère les notifications, la synchronisation de données, les appels de connecteur et les actions inter-systèmes après déclenchement.
+
+## Points de conception
+
+- Confirmez d’abord le formulaire déclencheur, le type d’événement et les vrais field IDs ; ne déduisez pas depuis les libellés.
+- Avant publication, demandez à l’AI Agent d’afficher un résumé du flow : conditions de déclenchement, nœuds, destinataires et cibles d’écriture.
+- Pour une automatisation en production, enregistrez en brouillon ou confirmez le périmètre d’impact avant publication.
+- Les titres, contenus de notification et assignments peuvent référencer les variables de champ au format `#{fieldId-ComponentType}#`.
+
+## Exemple de prompt
+
+```
+Crée une automatisation d’intégration : lorsqu’un nouveau record est ajouté au formulaire de feedback client, envoie une notification DingTalk au responsable et synchronise le nom du client, le type de problème et l’urgence vers le formulaire de suivi. Lis d’abord les Schemas des deux formulaires, affiche le résumé du flow, puis crée et publie après confirmation.
+```
+
+<Note>
+L’automatisation d’intégration peut envoyer de vraies notifications, écrire de vraies données ou appeler des API externes. Confirmez l’application, les formulaires, les champs et les destinataires avant exécution.
+</Note>
+
+<!-- rich-content-sync:start -->
+
+## Tableau des capacités
+
+| Scénario | À confirmer | Commande / capacité |
+| --- | --- | --- |
+| Déclencheur de formulaire | insert, update, delete, processFinish, activityTask | `openyida integration create` |
+| Notification DingTalk | Destinataires, titre, contenu, variables de champ | `--receivers` / `--title` / `--content` |
+| Lecture inter-formulaires | Rechercher un record lié | `--data-form-uuid` / `--data-condition` |
+| Écriture inter-formulaires | Créer ou mettre à jour les données du formulaire cible | `--add-data-form-uuid` / `--add-data-assignment` / spec |
+| Action de connecteur | Appeler un connecteur HTTP ou une API métier | `--connector-id` / `--action-id` / `--connection-id` |
+| Publication et contrôle | Brouillon, publication, diagnostic, relecture | `--publish` / `openyida integration check` |
+
+## Commandes copiables
+
+```bash
+openyida integration create --help
+openyida integration check --help
+openyida agent-capabilities --summary-json
+```
+
+## Modèle de prompt AI Agent
+
+```
+Crée une automatisation d’intégration Yida. Lis d’abord les Schemas du formulaire déclencheur et du formulaire cible, puis liste l’événement, les conditions, l’ordre des nœuds, le mapping des champs, les destinataires et l’état de publication. Après ma confirmation, utilise OpenYida pour créer le flow et relire le résultat.
+
+Besoin d’automatisation : [décrire le déclencheur et les actions suivantes]
+```
+
+## Checklist de validation
+
+- Le formulaire déclencheur, le formulaire cible et les field IDs sont confirmés.
+- Les nœuds du flow, les destinataires et les mappings de champs sont affichés et confirmés.
+- L’état brouillon ou publié est clair.
+- Le flow ID, les resource IDs clés et les résultats de contrôle sont reportés.
+
+<!-- rich-content-sync:end -->

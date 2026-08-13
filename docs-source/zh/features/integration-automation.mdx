@@ -1,0 +1,68 @@
+---
+title: "集成自动化"
+description: "使用 OpenYida 创建宜搭集成自动化，覆盖表单事件触发、跨表数据、钉钉通知和连接器动作。"
+icon: "share-nodes"
+---
+
+## 适用场景
+
+集成自动化用于把表单提交、更新、审批完成等业务事件连接到后续动作，例如发送钉钉工作通知、同步跨表数据、发起后续流程或调用 HTTP 连接器。它适合处理“提交后自动做什么”的副作用逻辑。
+
+## 和流程审批的边界
+
+流程审批负责审批表单和节点规则；集成自动化负责事件触发后的通知、数据同步、连接器调用和跨系统处理。不要把审批节点配置混到集成自动化里。
+
+## 设计要点
+
+- 先确认触发表单、事件类型和真实字段 ID，不要凭字段名称猜测。
+- 发布前让 AI Agent 输出逻辑流摘要，包括触发条件、节点列表、通知对象和写入目标。
+- 涉及线上自动化时先保存草稿或明确确认影响范围，再发布启用。
+- 通知标题、内容和数据赋值可以引用字段变量，格式为 `#{fieldId-ComponentType}#`。
+
+## 常用提示词
+
+```
+帮我创建一个集成自动化：当客户反馈表新增记录时，给负责人发送钉钉工作通知，并把客户名称、问题类型和紧急程度同步到跟进表。请先读取两个表单的 Schema，列出逻辑流摘要，确认后再创建并发布。
+```
+
+<Note>
+集成自动化会产生真实通知、写入数据或调用外部接口。执行前必须确认目标应用、表单、字段和接收人。
+</Note>
+
+<!-- rich-content-sync:start -->
+
+## 能力速查
+
+| 场景 | 关注点 | 命令 / 能力 |
+| --- | --- | --- |
+| 表单事件触发 | insert、update、delete、processFinish、activityTask | `openyida integration create` |
+| 钉钉工作通知 | 接收人、标题、内容、字段变量 | `--receivers` / `--title` / `--content` |
+| 跨表读取 | 从关联表单查询单条记录 | `--data-form-uuid` / `--data-condition` |
+| 跨表写入 | 新增或更新目标表单数据 | `--add-data-form-uuid` / `--add-data-assignment` / spec |
+| 连接器动作 | 调用 HTTP 连接器或业务 API | `--connector-id` / `--action-id` / `--connection-id` |
+| 发布与检查 | 草稿、发布、诊断和回读 | `--publish` / `openyida integration check` |
+
+## 可复制命令
+
+```bash
+openyida integration create --help
+openyida integration check --help
+openyida agent-capabilities --summary-json
+```
+
+## AI Agent 提示词模板
+
+```
+创建一个宜搭集成自动化。请先读取触发表单和目标表单的 Schema，列出事件、触发条件、节点顺序、字段映射、通知对象和是否发布；等我确认后，再使用 OpenYida 创建逻辑流并回读结果。
+
+自动化需求：[描述触发条件和后续动作]
+```
+
+## 验收清单
+
+- 触发表单、目标表单和字段 ID 已确认。
+- 逻辑流节点、通知对象和字段映射已展示并确认。
+- 已说明是草稿还是已发布状态。
+- 已回报逻辑流 ID、关键资源 ID 和检查结果。
+
+<!-- rich-content-sync:end -->

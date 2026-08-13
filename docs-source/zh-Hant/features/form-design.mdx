@@ -1,0 +1,57 @@
+---
+title: "表單設計"
+description: "使用 OpenYida 設計和維護宜搭表單欄位、校驗、公式和業務語義，避免猜測欄位 ID。"
+icon: "list-checks"
+---
+
+## 定位
+
+使用 OpenYida 設計和維護宜搭表單欄位、校驗、公式和業務語義，避免猜測欄位 ID。
+
+## 典型任務
+
+- openyida get-schema
+- openyida create-form
+- openyida create-form validate-fields
+- field update and formula configuration
+
+## 使用建議
+
+Read the real Schema before editing fields or writing data. Do not infer field IDs from labels.
+<!-- rich-content-sync:start -->
+
+## 能力速查
+
+| 關注點 | 命令 / 能力 | 說明 |
+| --- | --- | --- |
+| 讀取目前欄位 | `openyida get-schema` | 每次更新前都要先執行。 |
+| 校驗欄位定義 | `openyida create-form validate-fields` | 用於校驗生成的欄位配置。 |
+| 建立表單頁 | `openyida create-form` | 先確認表單名稱和頁面類型。 |
+| 安全更新資料 | data query / write commands | 使用 Schema 中的真實欄位 ID。 |
+| 驗證結果 | read-back query | 至少檢查一筆記錄或 Schema 差異。 |
+
+## 可複製命令
+
+```bash
+openyida get-schema --help
+openyida create-form --help
+openyida create-form validate-fields --help
+```
+
+## AI Agent 提示詞模板
+
+```
+更新這個宜搭表單。請先用 openyida get-schema 讀取真實 Schema 並列出目前欄位；再給出欄位類型、必填規則、選項、公式和業務含義。執行前先校驗欄位定義，更新後回讀 Schema。
+
+表單：[表單名或 formUuid]
+變更：[描述變更]
+```
+
+## 驗收清單
+
+- 沒有根據欄位標題猜測欄位 ID。
+- 欄位類型、必填、選項、公式和預設值清晰。
+- 欄位定義已校驗。
+- 更新後已回讀 Schema 或樣例資料。
+
+<!-- rich-content-sync:end -->

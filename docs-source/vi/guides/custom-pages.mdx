@@ -1,0 +1,101 @@
+---
+title: "Trang tùy chỉnh"
+description: "Tạo, biên soạn và phát hành trang hiển thị tùy chỉnh Yida bằng OpenYida."
+icon: "window-maximize"
+---
+
+Trang hiển thị tùy chỉnh phù hợp với dashboard, portal, báo cáo trực quan, máy tính và trang tương tác phong phú. OpenYida biên dịch React function component hiện đại thành trang chạy được trong Yida và phát hành vào container trang mục tiêu.
+
+## Quy trình đầu cuối
+
+```bash
+openyida agent-capabilities --summary-json
+openyida create-page <appType> "Dashboard vận hành"
+# Tạo hoặc viết source trang: project/pages/src/dashboard.canvas.jsx
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
+```
+
+Dùng `agent-capabilities` để xác nhận môi trường, trạng thái đăng nhập và năng lực khả dụng. `create-page` trả về `formUuid` của trang; không suy đoán, hãy đọc từ output lệnh hoặc cache dự án. Khi source sẵn sàng, dùng `publish` để phát hành vào trang mục tiêu.
+
+## Quy chuẩn trang
+
+Trang mới nên dùng luồng trang hiện đại và source cần tuân thủ các quy tắc sau:
+
+- Dùng React function component làm entry của trang.
+- Có thể dùng Hooks như `useState`, `useEffect`, `useMemo` và cần cleanup side effect.
+- `import` UI library, chart library và icon từ danh sách tài nguyên được hỗ trợ.
+- Button, filter, search, Tabs, phân trang và card phải gắn với tương tác thật.
+- Ưu tiên dữ liệu thật qua Yida data bridge, connector hoặc Open API; cung cấp empty, error và refresh state.
+- Bố cục mobile phải dễ đọc, vùng thao tác không được tràn.
+
+## Thành phần Yida native được hỗ trợ
+
+Trang tùy chỉnh có thể bridge component runtime native của Yida. Hãy dò từ `window.Deep`, `window.DeepYida` hoặc `window.YidaNativeComponents` trước; nếu không có, render fallback của trang để tránh màn hình trắng.
+
+| Component / tình huống | Mục đích | Yêu cầu tích hợp |
+| --- | --- | --- |
+| `PortalTopBanner` / `PortalQuickEntry` | Banner portal và lối vào nhanh | Ưu tiên cho portal shell; thiếu thì dùng fallback tự vẽ. |
+| `QuickAccessCard` / `RecentlyUsedCard` | Ứng dụng thường dùng và gần đây | Bắt buộc truyền `theme`, ví dụ `row-white` hoặc `column`, và giữ fallback cục bộ. |
+| `DataManageViews` | Nhúng view quản lý dữ liệu Yida | Truyền `form.appType` và `form.value` / `formUuid` của form mục tiêu. |
+| `EmployeeField` | Chọn thành viên | Ghi nhận `onChange` thật rồi chuẩn hóa giá trị thành viên. |
+| `DepartmentSelectField` | Chọn phòng ban | Xác minh tìm kiếm, popover, quyền, đơn chọn và đa chọn. |
+| `AttachmentField` / `ImageField` | Tải tệp và ảnh | Xác minh quyền upload, OSS signature, preview, xóa và trạng thái lỗi. |
+| `DataCard` / `PortalContainer` | Card dữ liệu portal và container | Chỉ dùng sau khi xác minh context portal, cấu hình dữ liệu và biến style. |
+
+Component native là phần tăng cường trải nghiệm, không phải điều kiện bắt buộc để trang ổn định. Hãy giữ fallback dùng được và chuẩn hóa member, department, file trước khi submit.
+
+## Ví dụ và showcase
+
+Hãy dùng smoke sample để xác minh component và quyền trước. Đường dẫn trực tiếp tới showcase trong openyida-home là `/#/vi/showcase`.
+
+| Lối vào | Liên kết |
+| --- | --- |
+| Demo component native | [canvas-native-components](https://demo.aliwork.com/o/openyida/sample/canvas-native-components) |
+| Showcase trang tùy chỉnh | [Showcase](/#/vi/showcase) |
+| Route showcase trong container Yida | [openyidaRoute=showcase](https://demo.aliwork.com/o/openyida/helpCenter?openyidaLang=vi&openyidaRoute=showcase) |
+
+## Ví dụ có thể sao chép
+
+```bash
+openyida sample yida-canvas-custom-page native-components-smoke --output project/pages/src/native-components-smoke.canvas.jsx
+openyida sample yida-canvas-custom-page portal-native-components --output project/pages/src/portal-native-components.canvas.jsx
+openyida build-page project/pages/src/native-components-smoke.canvas.jsx --write
+```
+
+## Phát hành và xác nhận
+
+```bash
+openyida publish project/pages/src/dashboard.canvas.jsx <appType> <formUuid>
+```
+
+Trước khi phát hành, xác nhận source có tương tác thật, responsive mobile, empty/error state và logic dữ liệu cần thiết. `publish` cập nhật source hiện tại vào trang mục tiêu do `create-page` trả về.
+
+## Ẩn điều hướng Yida
+
+Dashboard toàn màn hình hoặc trang demo có thể ẩn điều hướng nền tảng:
+
+```bash
+openyida update-form-config <appType> <formUuid> false "Dashboard vận hành"
+```
+
+Hiện lại điều hướng:
+
+```bash
+openyida update-form-config <appType> <formUuid> true "Dashboard vận hành"
+```
+
+## Khi dùng `build-page`
+
+```bash
+openyida build-page project/pages/src/dashboard.canvas.jsx --write
+```
+
+`build-page` chỉ xử lý source cục bộ và không phát hành. Lệnh này phù hợp cho review, CI hoặc debug output compile.
+
+## Prompt gợi ý
+
+```text
+Hãy biến tài liệu phân tích này thành một trang tùy chỉnh Yida.
+Trước tiên hiểu mục tiêu nghiệp vụ và phân cấp thông tin, sau đó tạo trang React function component hiện đại với phân cấp thị giác rõ ràng, trạng thái tương tác thật, dò khả dụng component native Yida và thích ứng mobile.
+Khi hoàn tất, dùng openyida publish để phát hành lên trang tùy chỉnh mục tiêu và cho tôi biết có thành công không.
+```

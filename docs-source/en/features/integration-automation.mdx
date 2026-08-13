@@ -1,0 +1,68 @@
+---
+title: "Integration Automation"
+description: "Create Yida integration automations with form event triggers, cross-form data, DingTalk notifications, and connector actions."
+icon: "share-nodes"
+---
+
+## When to use
+
+Integration automation connects business events such as form submissions, updates, or approval completion to follow-up actions: DingTalk work notifications, cross-form data sync, downstream workflows, or HTTP connector calls. It is the right place for “what should happen after submission” side effects.
+
+## Boundary With Process Approval
+
+Process approval owns workflow forms and approval-node rules. Integration automation owns notifications, data sync, connector calls, and cross-system actions after an event is triggered. Do not configure approval nodes inside integration automation.
+
+## Design Points
+
+- Confirm the trigger form, event type, and real field IDs first; do not guess from field labels.
+- Before publishing, ask the AI Agent to show a flow summary with trigger conditions, nodes, recipients, and write targets.
+- For production automations, save as draft or confirm the impact scope before publishing.
+- Notification titles, content, and assignments can reference field variables in `#{fieldId-ComponentType}#` format.
+
+## Prompt Example
+
+```
+Create an integration automation: when a new record is submitted in the customer feedback form, send a DingTalk work notification to the owner and sync customer name, issue type, and urgency to the follow-up form. Read both form Schemas first, show the flow summary, then create and publish after confirmation.
+```
+
+<Note>
+Integration automation can send real notifications, write real data, or call external APIs. Confirm the target app, forms, fields, and recipients before execution.
+</Note>
+
+<!-- rich-content-sync:start -->
+
+## Capability Table
+
+| Scenario | What to confirm | Command / capability |
+| --- | --- | --- |
+| Form event trigger | insert, update, delete, processFinish, activityTask | `openyida integration create` |
+| DingTalk work notification | Recipients, title, content, field variables | `--receivers` / `--title` / `--content` |
+| Cross-form read | Query one related form record | `--data-form-uuid` / `--data-condition` |
+| Cross-form write | Create or update target form data | `--add-data-form-uuid` / `--add-data-assignment` / spec |
+| Connector action | Call an HTTP connector or business API | `--connector-id` / `--action-id` / `--connection-id` |
+| Publish and check | Draft, publish, diagnose, read back | `--publish` / `openyida integration check` |
+
+## Copyable Commands
+
+```bash
+openyida integration create --help
+openyida integration check --help
+openyida agent-capabilities --summary-json
+```
+
+## AI Agent Prompt Template
+
+```
+Create a Yida integration automation. First read the trigger form and target form Schemas, then list the event, trigger conditions, node order, field mapping, recipients, and publish state. After I confirm, use OpenYida to create the flow and read back the result.
+
+Automation requirement: [describe trigger and follow-up actions]
+```
+
+## Acceptance Checklist
+
+- Trigger form, target form, and field IDs are confirmed.
+- Flow nodes, recipients, and field mappings are shown and confirmed.
+- Draft or published state is clear.
+- Flow ID, key resource IDs, and check results are reported.
+
+<!-- rich-content-sync:end -->

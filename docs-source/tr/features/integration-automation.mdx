@@ -1,0 +1,68 @@
+---
+title: "Entegrasyon otomasyonu"
+description: "OpenYida ile Yida entegrasyon otomasyonları oluşturun: form olayları, formlar arası veri, DingTalk bildirimleri ve connector aksiyonları."
+icon: "share-nodes"
+---
+
+## Ne zaman kullanılır
+
+Entegrasyon otomasyonu, form gönderimi, güncelleme veya onay tamamlanması gibi iş olaylarını DingTalk iş bildirimi, formlar arası veri senkronizasyonu, sonraki workflow veya HTTP connector çağrısı gibi takip aksiyonlarına bağlar.
+
+## Süreç onayı ile sınır
+
+Süreç onayı workflow formlarını ve onay düğümü kurallarını yönetir. Entegrasyon otomasyonu olay tetiklendikten sonra bildirim, veri senkronizasyonu, connector çağrısı ve sistemler arası aksiyonları yönetir.
+
+## Tasarım noktaları
+
+- Önce tetikleyici formu, event türünü ve gerçek field ID değerlerini doğrulayın; field label üzerinden tahmin etmeyin.
+- Yayınlamadan önce AI Agent’tan tetik koşulları, node listesi, alıcılar ve yazma hedeflerini içeren flow özetini göstermesini isteyin.
+- Production otomasyonlarında yayınlamadan önce draft olarak kaydedin veya etki kapsamını doğrulayın.
+- Bildirim başlığı, içeriği ve assignment değerleri `#{fieldId-ComponentType}#` biçimindeki field variable değerlerini referans alabilir.
+
+## Prompt örneği
+
+```
+Bir entegrasyon otomasyonu oluştur: müşteri geri bildirim formuna yeni kayıt geldiğinde sorumlu kişiye DingTalk iş bildirimi gönder ve müşteri adı, sorun türü, aciliyet bilgisini takip formuna senkronize et. Önce iki formun Schema bilgisini oku, akış özetini göster, onaydan sonra oluştur ve yayınla.
+```
+
+<Note>
+Entegrasyon otomasyonu gerçek bildirim gönderebilir, gerçek veri yazabilir veya harici API çağırabilir. Çalıştırmadan önce hedef app, form, field ve alıcıları onaylayın.
+</Note>
+
+<!-- rich-content-sync:start -->
+
+## Yetenek tablosu
+
+| Senaryo | Doğrulanacak şey | Komut / yetenek |
+| --- | --- | --- |
+| Form event tetikleyici | insert, update, delete, processFinish, activityTask | `openyida integration create` |
+| DingTalk iş bildirimi | Alıcılar, başlık, içerik, field variable | `--receivers` / `--title` / `--content` |
+| Formlar arası okuma | İlgili formdan tek kayıt sorgulama | `--data-form-uuid` / `--data-condition` |
+| Formlar arası yazma | Hedef form verisi oluşturma veya güncelleme | `--add-data-form-uuid` / `--add-data-assignment` / spec |
+| Connector aksiyonu | HTTP connector veya iş API çağırma | `--connector-id` / `--action-id` / `--connection-id` |
+| Yayınla ve kontrol et | Draft, publish, diagnose, read back | `--publish` / `openyida integration check` |
+
+## Kopyalanabilir komutlar
+
+```bash
+openyida integration create --help
+openyida integration check --help
+openyida agent-capabilities --summary-json
+```
+
+## AI Agent prompt şablonu
+
+```
+Bir Yida entegrasyon otomasyonu oluştur. Önce tetikleyici form ve hedef form Schema bilgilerini oku; event, tetik koşulları, node sırası, field mapping, alıcılar ve publish state bilgisini listele. Onayladıktan sonra OpenYida ile flow oluştur ve sonucu geri oku.
+
+Otomasyon gereksinimi: [tetikleyici ve takip aksiyonlarını açıkla]
+```
+
+## Kabul kontrol listesi
+
+- Tetikleyici form, hedef form ve field ID değerleri doğrulandı.
+- Flow node, alıcılar ve field mapping gösterildi ve onaylandı.
+- Draft veya published durumu net.
+- Flow ID, önemli resource ID ve kontrol sonuçları raporlandı.
+
+<!-- rich-content-sync:end -->

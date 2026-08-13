@@ -1,0 +1,63 @@
+---
+title: "Form tasarımı"
+description: "Alan ID tahmin etmeden Yida form alanlarını, doğrulamaları, formülleri ve iş anlamlarını tasarlayın ve yönetin."
+icon: "list-checks"
+---
+
+## Overview
+
+Alan ID tahmin etmeden Yida form alanlarını, doğrulamaları, formülleri ve iş anlamlarını tasarlayın ve yönetin.
+
+## Typical tasks
+
+- Confirm login, organization, and available commands with `openyida agent-capabilities --summary-json`.
+- Let the AI Agent list target resources and planned changes before execution.
+- Execute the matching OpenYida commands and read back key results.
+- For permissions, lifecycle, publishing, or public access changes, confirm the impact scope first.
+
+## Related commands
+
+- `openyida create-app`
+- `openyida create-form`
+- `openyida create-process`
+- `openyida nav-group`
+- `openyida i18n`
+- `openyida app-permission`
+
+<!-- rich-content-sync:start -->
+
+## Yetenek tablosu
+
+| Kontrol noktası | Komut / yetenek | Not |
+| --- | --- | --- |
+| Read current fields | `openyida get-schema` | Do this before every update. |
+| Validate field definitions | `openyida create-form validate-fields` | Use for generated field configs. |
+| Create form page | `openyida create-form` | Confirm form name and page type first. |
+| Update data safely | data query / write commands | Use real field IDs from Schema. |
+| Verify result | read-back query | Check at least one record or Schema diff. |
+
+## Kopyalanabilir komutlar
+
+```bash
+openyida get-schema --help
+openyida create-form --help
+openyida create-form validate-fields --help
+```
+
+## AI Agent prompt şablonu
+
+```
+Update this Yida form. First read the real Schema with openyida get-schema and list current fields. Then propose field changes with field type, required rule, options, formula, and business meaning. Validate the field definitions before applying them, and read back the Schema after the update.
+
+Form: [form name or formUuid]
+Changes: [describe changes]
+```
+
+## Kabul kontrol listesi
+
+- No field ID is guessed from a label.
+- Field type, required state, options, formula, and default value are clear.
+- The generated field definition passes validation.
+- Schema or sample data is read back after the change.
+
+<!-- rich-content-sync:end -->

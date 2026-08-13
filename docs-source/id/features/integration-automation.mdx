@@ -1,0 +1,68 @@
+---
+title: "Otomatisasi Integrasi"
+description: "Buat otomatisasi integrasi Yida dengan OpenYida, mencakup event formulir, data antar-formulir, notifikasi DingTalk, dan aksi connector."
+icon: "share-nodes"
+---
+
+## Kapan digunakan
+
+Otomatisasi integrasi menghubungkan event bisnis seperti pengiriman formulir, pembaruan, atau selesainya persetujuan ke aksi lanjutan: notifikasi kerja DingTalk, sinkronisasi data antar-formulir, workflow berikutnya, atau panggilan HTTP connector.
+
+## Batas dengan persetujuan proses
+
+Persetujuan proses mengelola formulir workflow dan aturan node persetujuan. Otomatisasi integrasi mengelola notifikasi, sinkronisasi data, panggilan connector, dan aksi lintas sistem setelah event terpicu.
+
+## Poin desain
+
+- Konfirmasi formulir pemicu, jenis event, dan field ID asli terlebih dahulu; jangan menebak dari label field.
+- Sebelum publish, minta AI Agent menampilkan ringkasan flow: kondisi pemicu, daftar node, penerima, dan target penulisan.
+- Untuk otomatisasi produksi, simpan sebagai draft atau konfirmasi cakupan dampak sebelum publish.
+- Judul notifikasi, konten, dan assignment dapat merujuk variabel field dengan format `#{fieldId-ComponentType}#`.
+
+## Contoh prompt
+
+```
+Buat otomatisasi integrasi: saat formulir umpan balik pelanggan menerima record baru, kirim notifikasi kerja DingTalk ke penanggung jawab dan sinkronkan nama pelanggan, jenis masalah, serta urgensi ke formulir tindak lanjut. Baca Schema kedua formulir terlebih dahulu, tampilkan ringkasan flow, lalu buat dan publish setelah dikonfirmasi.
+```
+
+<Note>
+Otomatisasi integrasi dapat mengirim notifikasi nyata, menulis data nyata, atau memanggil API eksternal. Konfirmasi app, formulir, field, dan penerima sebelum eksekusi.
+</Note>
+
+<!-- rich-content-sync:start -->
+
+## Tabel kemampuan
+
+| Skenario | Yang dikonfirmasi | Perintah / kemampuan |
+| --- | --- | --- |
+| Trigger event formulir | insert, update, delete, processFinish, activityTask | `openyida integration create` |
+| Notifikasi kerja DingTalk | Penerima, judul, konten, variabel field | `--receivers` / `--title` / `--content` |
+| Baca antar-formulir | Query satu record dari formulir terkait | `--data-form-uuid` / `--data-condition` |
+| Tulis antar-formulir | Buat atau update data formulir target | `--add-data-form-uuid` / `--add-data-assignment` / spec |
+| Aksi connector | Panggil HTTP connector atau API bisnis | `--connector-id` / `--action-id` / `--connection-id` |
+| Publish dan cek | Draft, publish, diagnosa, baca balik | `--publish` / `openyida integration check` |
+
+## Perintah yang bisa disalin
+
+```bash
+openyida integration create --help
+openyida integration check --help
+openyida agent-capabilities --summary-json
+```
+
+## Template prompt AI Agent
+
+```
+Buat otomatisasi integrasi Yida. Pertama baca Schema formulir pemicu dan formulir target, lalu daftar event, kondisi pemicu, urutan node, mapping field, penerima, dan status publish. Setelah saya konfirmasi, gunakan OpenYida untuk membuat flow dan baca balik hasilnya.
+
+Kebutuhan otomatisasi: [jelaskan pemicu dan aksi lanjutan]
+```
+
+## Checklist penerimaan
+
+- Formulir pemicu, formulir target, dan field ID sudah dikonfirmasi.
+- Node flow, penerima, dan mapping field sudah ditampilkan dan dikonfirmasi.
+- Status draft atau published jelas.
+- Flow ID, resource ID penting, dan hasil cek sudah dilaporkan.
+
+<!-- rich-content-sync:end -->

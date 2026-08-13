@@ -1,0 +1,56 @@
+---
+title: "流程審批"
+description: "使用 OpenYida 建立和配置宜搭審批流程，覆蓋節點、審批人、發布和回讀驗證。"
+icon: "git-branch"
+---
+
+## 定位
+
+使用 OpenYida 建立和配置宜搭審批流程，覆蓋節點、審批人、發布和回讀驗證。
+
+## 典型任務
+
+- openyida create-process
+- openyida process-rule
+- approval node setup
+- publish and read-back verification
+
+## 使用建議
+
+Describe roles and approval rules clearly before creation, then confirm whether the workflow is published.
+<!-- rich-content-sync:start -->
+
+## 能力速查
+
+| 階段 | 關注點 | 命令 / 能力 |
+| --- | --- | --- |
+| 流程模型 | 發起人、審批人、歸檔節點、退回規則 | requirement analysis |
+| 流程表單 | 用於流轉和審批判斷的欄位 | `openyida create-process` |
+| 審批規則 | 審批角色、分支和條件 | `openyida process-rule` |
+| 發布狀態 | 流程是否已發布 | publish / inspect commands |
+| 節點和流程狀態 | 回讀結果 | read-back result |
+
+## 可複製命令
+
+```bash
+openyida create-process --help
+openyida process-rule --help
+openyida agent-capabilities --summary-json
+```
+
+## AI Agent 提示詞模板
+
+```
+建立一個宜搭審批流程。請先列出發起人、表單欄位、審批節點、審批人規則、分支條件、歸檔節點和退回規則；再使用 OpenYida 建立流程、配置審批規則，確認是否已發布，最後回報節點列表和資源 ID。
+
+流程需求：[描述流程]
+```
+
+## 驗收清單
+
+- 發起人、審批人和歸檔節點清晰。
+- 流程判斷所需欄位已存在。
+- 審批規則已配置並驗證。
+- 已回報發布狀態和關鍵資源 ID。
+
+<!-- rich-content-sync:end -->
